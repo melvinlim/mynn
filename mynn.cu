@@ -6,12 +6,12 @@
 #include "matrixmul.cu"
 
 #define LAYERS 3
-#define L1N 2
-#define L1M 6
-#define L2N 6
-#define L2M 40
-#define L3N 40
-#define L3M 2
+#define L1M 2
+#define L1N 6
+#define L2M 6
+#define L2N 40
+#define L3M 40
+#define L3N 2
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
@@ -80,7 +80,20 @@ Array *CREATEARRAY(const float *x,int n){
 	}
 	return(p);
 }
-void nnInsert(Array *A){
+void nnInsert(Net *N,Array *x){
+	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
+	N->L[0]->in->len=x->len;	
+}
+void nnForward(Net *N,Array *y){
+	int i;
+	for(i=0;i<LAYERS;i++){
+//printf("***********%d\n",i);
+		//PRINTARRAY(N->L[i]->in);
+		//PRINTARRAY(N->L[i]->out);
+		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out);
+		//PRINTARRAY(N->L[i]->in);
+		//PRINTARRAY(N->L[i]->out);
+	}
 }
 const float ex1[L1N]={-1,-1};
 const float ex2[L1N]={-1,+1};
@@ -116,14 +129,13 @@ int main(){
 		memcpy(&net->L[i]->M->stride,&mDim[i],sizeof(int));
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
-	Matrix *pM=net->L[0]->M;
-	PRINTMATRIX(net->L[0]->M);
+	//Matrix *pM=net->L[0]->M;
+	//PRINTMATRIX(net->L[0]->M);
 	nnRand(net);
-	PRINTMATRIX(net->L[0]->M);
-	Array *pA=net->L[0]->in;
-	PRINTARRAY(pA);
-	randArray(pA);
-	PRINTARRAY(pA);
+	for(i=0;i<LAYERS;i++){
+		PRINTMATRIX(net->L[i]->M);
+	}
+	//PRINTMATRIX(net->L[0]->M);
 
 	Array *p1,*p2,*p3,*p4,*ret;
 	p1=CREATEARRAY(ex1,L1N);
@@ -132,12 +144,9 @@ int main(){
 	p4=CREATEARRAY(ex4,L1N);
 
 	ret=CREATEARRAY(0,L3M);
-	PRINTARRAY(ret);
 
-	nnInsert(p1);
+	nnInsert(net,p1);
+	nnForward(net,ret);
+	//PRINTARRAY(ret);
 
-	Array *py=net->L[0]->out;
-	PRINTARRAY(py);
-	MatMul(*pM,*pA,*py);
-	PRINTARRAY(py);
 }
