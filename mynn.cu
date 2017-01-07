@@ -5,8 +5,8 @@
 #include "matrixmul.cu"
 
 #define LAYERS 3
-#define L1N 5
-#define L1M 7
+#define L1N 6
+#define L1M 6
 #define L2N 40
 #define L2M 40
 #define L3N 40
@@ -63,5 +63,9 @@ int main(){
 			net->L[0]->M->elements[i*net->L[0]->M->stride+j]=k++;
 		}
 	}
+	PRINTMATRIX(net->L[0]->M);
+	Matrix *Mptr=net->L[0]->M;
+	//MatMul requires matrices to be multiples of BLOCK_SIZE (declared in matmul.cu) and possibly to be square.
+	MatMul(*Mptr,*Mptr,*Mptr);
 	PRINTMATRIX(net->L[0]->M);
 }
