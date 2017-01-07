@@ -19,8 +19,9 @@ typedef struct{
 __global__ void MatMulKernel(const Matrix A, const Array x, Array y){
 	int i;
 	float Cval=0;
-	int row = blockIdx.y * blockDim.y + threadIdx.y;
-  int col = blockIdx.x * blockDim.x + threadIdx.x;
+	//int row = blockIdx.y * blockDim.y + threadIdx.y;
+  //int col = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = blockIdx.x * blockDim.x + threadIdx.x;
 	for(i=0;i<A.width;i++){
 		Cval+=A.elements[row*A.width+i]*x.el[i];
 	}
@@ -52,9 +53,11 @@ void MatMul(const Matrix A, const Array x, Array y)
     cudaMalloc(&d_y.el,ySz);
 
     // Invoke kernel
-    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+    //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
     //dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
-    dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
+    //dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
+    dim3 dimBlock(BLOCK_SIZE);
+    dim3 dimGrid(A.height / dimBlock.y);
     MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
 
     // Read C from device memory
