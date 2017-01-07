@@ -5,30 +5,29 @@
 
 #include "matrixmul.cu"
 
-#define LAYERS 3
 #define L1M 2
-#define L1N 6
-#define L2M 6
-#define L2N 40
-#define L3M 40
-#define L3N 2
+#define L1N 40
+#define L2M 40
+#define L2N 2
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
-const int nDim[LAYERS]={L1N,L2N,L3N};
-const int mDim[LAYERS]={L1M,L2M,L3M};
+const int nDim[LAYERS]={L1N,L2N};//,L3N};
+const int mDim[LAYERS]={L1M,L2M};//,L3M};
 
+/*
 struct Layer{
 	Array *in;
 	Matrix *M;
 	Matrix *dW;
 	Array *out;
-	Array *error;
+	Array *deriv;
 };
 struct Net{
 	Layer **L;
 	int size;
 };
+*/
 void PRINTMATRIX(Matrix *M){
 	int i,j;
 	for(i=0;i<M->height;i++){
@@ -93,7 +92,7 @@ printf("***********%d\n",i);
 		PRINTARRAY(N->L[i]->in);
 		PRINTARRAY(N->L[i]->out);
 		//MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out);
-		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->error);
+		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
 		PRINTARRAY(N->L[i]->in);
 		PRINTARRAY(N->L[i]->out);
 	}
@@ -122,10 +121,10 @@ const float ex1[L1M]={-1,-1};
 const float ex2[L1M]={-1,+1};
 const float ex3[L1M]={+1,-1};
 const float ex4[L1M]={+1,+1};
-const float ans1[L3N]={-1,+1};
-const float ans2[L3N]={+1,-1};
-const float ans3[L3N]={+1,-1};
-const float ans4[L3N]={-1,+1};
+const float ans1[L2N]={-1,+1};
+const float ans2[L2N]={+1,-1};
+const float ans3[L2N]={+1,-1};
+const float ans4[L2N]={-1,+1};
 int main(){
 	int i,j,k;
 	Net *net;
@@ -135,25 +134,25 @@ int main(){
 	net->L[0]=(Layer *)malloc(sizeof(Layer));
 	net->L[0]->in=(Array *)malloc(sizeof(Array));
 	net->L[0]->out=(Array *)malloc(sizeof(Array));
-	net->L[0]->error=(Array *)malloc(sizeof(Array));
+	net->L[0]->deriv=(Array *)malloc(sizeof(Array));
 	net->L[0]->in->len=L1M;
 	net->L[0]->in->el=(float *)malloc(L1N*sizeof(float));
 	net->L[0]->out->len=L1N;
 	net->L[0]->out->el=(float *)malloc(L1M*sizeof(float));
-	net->L[0]->error->len=L1N;
-	net->L[0]->error->el=(float *)malloc(L1M*sizeof(float));
+	net->L[0]->deriv->len=L1N;
+	net->L[0]->deriv->el=(float *)malloc(L1M*sizeof(float));
 	for(i=0;i<LAYERS;i++){
 		if(i>0){
 			net->L[i]=(Layer *)malloc(sizeof(Layer));
 			net->L[i]->in=net->L[i-1]->out;
 			net->L[i]->out=(Array *)malloc(sizeof(Array));
-			net->L[i]->error=(Array *)malloc(sizeof(Array));
+			net->L[i]->deriv=(Array *)malloc(sizeof(Array));
 			net->L[i]->in->len=mDim[i];
 			net->L[i]->in->el=(float *)malloc(nDim[i]*sizeof(float));
 			net->L[i]->out->len=nDim[i];
 			net->L[i]->out->el=(float *)malloc(mDim[i]*sizeof(float));
-			net->L[i]->error->len=nDim[i];
-			net->L[i]->error->el=(float *)malloc(mDim[i]*sizeof(float));
+			net->L[i]->deriv->len=nDim[i];
+			net->L[i]->deriv->el=(float *)malloc(mDim[i]*sizeof(float));
 		}
 //		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
@@ -181,15 +180,15 @@ int main(){
 	p3=CREATEARRAY(ex3,L1M);
 	p4=CREATEARRAY(ex4,L1M);
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
-	pAns1=CREATEARRAY(ans1,L3N);
-	pAns2=CREATEARRAY(ans2,L3N);
-	pAns3=CREATEARRAY(ans3,L3N);
-	pAns4=CREATEARRAY(ans4,L3N);
+	pAns1=CREATEARRAY(ans1,L2N);
+	pAns2=CREATEARRAY(ans2,L2N);
+	pAns3=CREATEARRAY(ans3,L2N);
+	pAns4=CREATEARRAY(ans4,L2N);
 
 	Array *pError;
-	pError=CREATEARRAY(ans4,L3N);
+	pError=CREATEARRAY(ans4,L2N);
 
-	ret=CREATEARRAY(0,L3N);
+	ret=CREATEARRAY(0,L2N);
 
 	nnInsert(net,p1);
 	ret=nnForward(net);
@@ -198,9 +197,10 @@ int main(){
 	nnError(pError,ret,pAns1);
 	float err=nnTotalError(ret,pAns1);
 	printf("err:%f\n",err);
-	PRINTMATRIX(net->L[2]->M);
-	NNBackProp0(*net->L[LAYERS-1]->dW,*net->L[LAYERS-1]->M,*net->L[LAYERS-1]->in,*net->L[LAYERS-1]->out,*net->L[LAYERS-1]->error);
-	PRINTARRAY(net->L[LAYERS-1]->out);
-	PRINTARRAY(net->L[LAYERS-1]->error);
-	PRINTMATRIX(net->L[2]->dW);
+	PRINTARRAY(pError);
+//	PRINTMATRIX(net->L[LAYERS-1]->M);
+	nnBackProp(net,pError);
+//	PRINTARRAY(net->L[LAYERS-1]->out);
+//	PRINTARRAY(net->L[LAYERS-1]->deriv);
+//	PRINTMATRIX(net->L[LAYERS-1]->dW);
 }

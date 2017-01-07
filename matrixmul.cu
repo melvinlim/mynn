@@ -1,3 +1,5 @@
+#define LAYERS 2
+
 // Thread block size
 //#define BLOCK_SIZE 16
 #define BLOCK_SIZE 2
@@ -9,26 +11,67 @@ typedef struct {
     int height;
     int stride; 
     float* elements;
-} Matrix;
+}Matrix;
 
 typedef struct{
 	int len;
 	float *el;
 }Array;
 
-//output backprop.
+struct Layer{
+	Array *in;
+	Matrix *M;
+	Matrix *dW;
+	Array *out;
+	Array *deriv;
+};
+
+struct Net{
+	Layer **L;
+	int size;
+};
+
+//backprop.
 //this is not parallel at the moment.
-void NNBackProp0(Matrix dW, const Matrix A, const Array x, const Array y, const Array error){
-	int i,j;
+void NNBackProp(Matrix dW, const Matrix A, const Array x, const Array delta, const Array deriv){
+	int i,j,k;
 	for(i=0;i<A.width;i++){
 		for(j=0;j<A.height;j++){
-			dW.elements[j*A.width+i]=error.el[j]*y.el[j]*x.el[i];
+			for(k=0;k<delta.len;k++){
+				deriv.el[j]=deriv.el[j]*delta.el[j];
+			}
 		}
 	}
 }
 
+//output backprop.
+//this is not parallel at the moment.
+void NNBackProp0(Matrix dW, const Matrix A, const Array x, const Array y, const Array deriv){
+	int i,j;
+/*
+	for(i=0;i<A.width;i++){
+		for(j=0;j<A.height;j++){
+			dW.elements[j*A.width+i]=deriv.el[j]*y.el[j]*x.el[i];
+		}
+	}
+*/
+}
+
+void bpDeltas(Layer *L,Array *error){
+	int j;
+	Array *deriv=L->deriv;
+	for(j=0;j<deriv->len;j++){
+		//calculating delta first.  this is just delta not dW.
+		deriv->el[j]=deriv->el[j]*error->el[j];
+	}
+}
+
+void nnBackProp(Net *N,Array *error){
+//	bpDeltas(N->L[LAYERS-1],error);
+}
+
 //this actually does more than simply multiply.
-__global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array error){
+__global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array deriv){
 	int i;
 	float Cval=0;
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -39,10 +82,10 @@ __global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array error
 	}
 	float tmp=tanhf(Cval);
 	y.el[row]=tmp;
-	error.el[row]=1.0-(tmp*tmp);
+	deriv.el[row]=1.0-(tmp*tmp);
 }
 
-void MatMul(const Matrix A, const Array x, Array y, Array error)
+void MatMul(const Matrix A, const Array x, Array y, Array deriv)
 {
     Matrix d_A;
     d_A.width = d_A.stride = A.width; d_A.height = A.height;
@@ -65,10 +108,10 @@ void MatMul(const Matrix A, const Array x, Array y, Array error)
 		size_t ySz=y.len*sizeof(float);
     cudaMalloc(&d_y.el,ySz);
 		
-		Array d_error;
-		d_error.len=error.len;
-		d_error.el=error.el;
-    cudaMalloc(&d_error.el,ySz);
+		Array d_deriv;
+		d_deriv.len=deriv.len;
+		d_deriv.el=deriv.el;
+    cudaMalloc(&d_deriv.el,ySz);
 
     // Invoke kernel
     //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
@@ -76,21 +119,21 @@ void MatMul(const Matrix A, const Array x, Array y, Array error)
     //dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
     dim3 dimBlock(BLOCK_SIZE);
     dim3 dimGrid(A.height / dimBlock.y);
-    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y, d_error);
+    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y, d_deriv);
     //MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
 
     // Read from device memory
     cudaMemcpy(y.el, d_y.el, ySz,
     	cudaMemcpyDeviceToHost);
     
-		cudaMemcpy(error.el, d_error.el, ySz,
+		cudaMemcpy(deriv.el, d_deriv.el, ySz,
     	cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(d_A.elements);
     cudaFree(d_x.el);
     cudaFree(d_y.el);
-    cudaFree(d_error.el);
+    cudaFree(d_deriv.el);
 }
 
 // Get a matrix element
