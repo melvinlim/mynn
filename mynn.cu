@@ -6,12 +6,12 @@
 #include "matrixmul.cu"
 
 #define LAYERS 3
-#define L1N 6
+#define L1N 2
 #define L1M 6
 #define L2N 6
 #define L2M 40
 #define L3N 40
-#define L3M 40
+#define L3M 2
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
@@ -75,6 +75,9 @@ Array *CREATEARRAY(const float *x,int n){
 	Array *p=(Array *)malloc(sizeof(Array));
 	p->len=n;
 	p->el=(float *)malloc(n*sizeof(float));
+	if(x){
+		memcpy(p->el,x,n*sizeof(float));
+	}
 	return(p);
 }
 void nnInsert(Array *A){
@@ -122,11 +125,14 @@ int main(){
 	randArray(pA);
 	PRINTARRAY(pA);
 
-	Array *p1,*p2,*p3,*p4;
+	Array *p1,*p2,*p3,*p4,*ret;
 	p1=CREATEARRAY(ex1,L1N);
 	p2=CREATEARRAY(ex2,L1N);
 	p3=CREATEARRAY(ex3,L1N);
 	p4=CREATEARRAY(ex4,L1N);
+
+	ret=CREATEARRAY(0,L3M);
+	PRINTARRAY(ret);
 
 	nnInsert(p1);
 
