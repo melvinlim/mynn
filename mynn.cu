@@ -71,6 +71,12 @@ void nnRand(Net *N){
 		randMatrix(pM);
 	}
 }
+Array *CREATEARRAY(const float *x,int n){
+	Array *p=(Array *)malloc(sizeof(Array));
+	p->len=n;
+	p->el=(float *)malloc(n*sizeof(float));
+	return(p);
+}
 void nnInsert(Array *A){
 }
 const float ex1[L1N]={-1,-1};
@@ -116,8 +122,13 @@ int main(){
 	randArray(pA);
 	PRINTARRAY(pA);
 
-	//pA=&ex1;
-	//nnInsert(pA);
+	Array *p1,*p2,*p3,*p4;
+	p1=CREATEARRAY(ex1,L1N);
+	p2=CREATEARRAY(ex2,L1N);
+	p3=CREATEARRAY(ex3,L1N);
+	p4=CREATEARRAY(ex4,L1N);
+
+	nnInsert(p1);
 
 	Array *py=net->L[0]->out;
 	PRINTARRAY(py);
