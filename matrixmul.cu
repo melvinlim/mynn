@@ -1,5 +1,7 @@
 #define LAYERS 2
 
+#define GAMMA (0.1)
+
 // Thread block size
 //#define BLOCK_SIZE 16
 #define BLOCK_SIZE 2
@@ -31,30 +33,18 @@ struct Net{
 	int size;
 };
 
-//backprop.
-//this is not parallel at the moment.
-void NNBackProp(Matrix dW, const Matrix A, const Array x, const Array delta, const Array deriv){
-	int i,j,k;
-	for(i=0;i<A.width;i++){
-		for(j=0;j<A.height;j++){
-			for(k=0;k<delta.len;k++){
-				deriv.el[j]=deriv.el[j]*delta.el[j];
-			}
-		}
-	}
-}
-
-//output backprop.
-//this is not parallel at the moment.
-void NNBackProp0(Matrix dW, const Matrix A, const Array x, const Array y, const Array deriv){
+void updateWeights(Layer *L){
 	int i,j;
-/*
-	for(i=0;i<A.width;i++){
-		for(j=0;j<A.height;j++){
-			dW.elements[j*A.width+i]=deriv.el[j]*y.el[j]*x.el[i];
+	Matrix *A=L->M;
+printf("%d %d\n",A->width,A->height);
+	Array *delta=L->deriv;
+	Array *input=L->in;
+	for(i=0;i<A->width;i++){
+		for(j=0;j<A->height;j++){
+			//A->elements[j*A->width+i]-=GAMMA*input->el[i]*delta->el[j];
+			A->elements[0]-=GAMMA*delta->el[0];
 		}
 	}
-*/
 }
 
 void bpDeltas(Layer *L1,Layer *L2){
@@ -83,9 +73,14 @@ void bpDeltas0(Layer *L,Array *error){
 
 void nnBackProp(Net *N,Array *error){
 	int i;
+/*
 	bpDeltas0(N->L[LAYERS-1],error);
 	for(i=LAYERS-2;i>=0;i--){
 		bpDeltas(N->L[i],N->L[i+1]);
+	}
+*/
+	for(i=LAYERS-1;i>=0;i--){
+		updateWeights(N->L[i]);
 	}
 }
 

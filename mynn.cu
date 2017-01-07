@@ -5,10 +5,10 @@
 
 #include "matrixmul.cu"
 
-#define L1M 2
 #define L1N 40
-#define L2M 40
+#define L1M 2
 #define L2N 2
+#define L2M 40
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
@@ -32,8 +32,9 @@ void PRINTMATRIX(Matrix *M){
 	int i,j;
 	for(i=0;i<M->height;i++){
 		for(j=0;j<M->width;j++){
-			printf("[%i,%i]%.09f\t",i,j,M->elements[i*M->stride+j]);
+			printf("[%i,%i]%.09f ",i,j,M->elements[i*M->stride+j]);
 		}
+		printf("\n");
 	}
 	printf("\n");
 }
@@ -136,11 +137,11 @@ int main(){
 	net->L[0]->out=(Array *)malloc(sizeof(Array));
 	net->L[0]->deriv=(Array *)malloc(sizeof(Array));
 	net->L[0]->in->len=L1M;
-	net->L[0]->in->el=(float *)malloc(L1N*sizeof(float));
+	net->L[0]->in->el=(float *)malloc(L1M*sizeof(float));
 	net->L[0]->out->len=L1N;
-	net->L[0]->out->el=(float *)malloc(L1M*sizeof(float));
+	net->L[0]->out->el=(float *)malloc(L1N*sizeof(float));
 	net->L[0]->deriv->len=L1N;
-	net->L[0]->deriv->el=(float *)malloc(L1M*sizeof(float));
+	net->L[0]->deriv->el=(float *)malloc(L1N*sizeof(float));
 	for(i=0;i<LAYERS;i++){
 		if(i>0){
 			net->L[i]=(Layer *)malloc(sizeof(Layer));
@@ -148,22 +149,23 @@ int main(){
 			net->L[i]->out=(Array *)malloc(sizeof(Array));
 			net->L[i]->deriv=(Array *)malloc(sizeof(Array));
 			net->L[i]->in->len=mDim[i];
-			net->L[i]->in->el=(float *)malloc(nDim[i]*sizeof(float));
+			net->L[i]->in->el=(float *)malloc(mDim[i]*sizeof(float));
 			net->L[i]->out->len=nDim[i];
-			net->L[i]->out->el=(float *)malloc(mDim[i]*sizeof(float));
+			net->L[i]->out->el=(float *)malloc(nDim[i]*sizeof(float));
 			net->L[i]->deriv->len=nDim[i];
-			net->L[i]->deriv->el=(float *)malloc(mDim[i]*sizeof(float));
+			net->L[i]->deriv->el=(float *)malloc(nDim[i]*sizeof(float));
 		}
 //		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
-		memcpy(&net->L[i]->M->height,&nDim[i],sizeof(int));
-		memcpy(&net->L[i]->M->width,&mDim[i],sizeof(int));
-		memcpy(&net->L[i]->M->stride,&mDim[i],sizeof(int));
+		net->L[i]->M->height=nDim[i];
+		net->L[i]->M->width=mDim[i];
+		net->L[i]->M->stride=mDim[i];
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 		net->L[i]->dW=(Matrix *)malloc(sizeof(Matrix));
-		memcpy(&net->L[i]->dW->height,&nDim[i],sizeof(int));
-		memcpy(&net->L[i]->dW->width,&mDim[i],sizeof(int));
-		memcpy(&net->L[i]->dW->stride,&mDim[i],sizeof(int));
+		net->L[i]->dW->height=nDim[i];
+		net->L[i]->dW->width=mDim[i];
+		net->L[i]->dW->stride=mDim[i];
+printf("i=%d,ndim=%d %d\n",i,nDim[i],net->L[i]->M->height);
 		net->L[i]->dW->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
 	//Matrix *pM=net->L[0]->M;
