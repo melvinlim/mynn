@@ -95,10 +95,24 @@ printf("***********%d\n",i);
 		PRINTARRAY(N->L[i]->out);
 	}
 }
-const float ex1[L1N]={-1,-1};
-const float ex2[L1N]={-1,+1};
-const float ex3[L1N]={+1,-1};
-const float ex4[L1N]={+1,+1};
+float nnError(const Array *y0,const Array *y){
+	int i;
+	int n=y0->len;
+	float ret=0;
+	for(i=0;i<n;i++){
+		ret+=fabs(y0->el[i]-y->el[i]);
+		ret*=ret;
+	}
+	return(ret/2.0);
+}
+const float ex1[L1M]={-1,-1};
+const float ex2[L1M]={-1,+1};
+const float ex3[L1M]={+1,-1};
+const float ex4[L1M]={+1,+1};
+const float ans1[L3N]={-1,+1};
+const float ans2[L3N]={+1,-1};
+const float ans3[L3N]={+1,-1};
+const float ans4[L3N]={-1,+1};
 int main(){
 	int i,j,k;
 	Net *net;
@@ -142,6 +156,11 @@ int main(){
 	p2=CREATEARRAY(ex2,L1M);
 	p3=CREATEARRAY(ex3,L1M);
 	p4=CREATEARRAY(ex4,L1M);
+	Array *pAns1,*pAns2,*pAns3,*pAns4;
+	pAns1=CREATEARRAY(ans1,L3N);
+	pAns2=CREATEARRAY(ans2,L3N);
+	pAns3=CREATEARRAY(ans3,L3N);
+	pAns4=CREATEARRAY(ans4,L3N);
 
 	ret=CREATEARRAY(0,L3N);
 
@@ -149,4 +168,6 @@ int main(){
 	nnForward(net,ret);
 	PRINTARRAY(ret);
 
+	float err=nnError(ret,pAns1);
+	printf("err:%f\n",err);
 }
