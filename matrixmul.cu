@@ -16,8 +16,20 @@ typedef struct{
 	float *el;
 }Array;
 
+//output backprop.
+//this is not parallel at the moment.
+void NNBackProp0(Matrix A, const Array x, const Array y, const Array error){
+	int i,j;
+  Matrix d_A;
+	for(i=0;i<A.width;i++){
+		for(j=0;j<A.height;j++){
+			A.elements[j*A.width+i]=error.el[j]*y.el[j]*x.el[i];
+		}
+	}
+}
+
 //this actually does more than simply multiply.
-__global__ void MatMulKernel(const Matrix A, const Array x, Array y){
+__global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array error){
 	int i;
 	float Cval=0;
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -26,12 +38,13 @@ __global__ void MatMulKernel(const Matrix A, const Array x, Array y){
 	for(i=0;i<A.width;i++){
 		Cval+=A.elements[row*A.width+i]*x.el[i];
 	}
-	y.el[row]=tanhf(Cval);
+	float tmp=tanhf(Cval);
+	y.el[row]=tmp;
+	error.el[row]=1.0-(tmp*tmp);
 }
 
-void MatMul(const Matrix A, const Array x, Array y)
+void MatMul(const Matrix A, const Array x, Array y, Array error)
 {
-    // Load A and B to device memory
     Matrix d_A;
     d_A.width = d_A.stride = A.width; d_A.height = A.height;
     size_t size = A.width * A.height * sizeof(float);
@@ -52,6 +65,11 @@ void MatMul(const Matrix A, const Array x, Array y)
 		d_y.el=y.el;
 		size_t ySz=y.len*sizeof(float);
     cudaMalloc(&d_y.el,ySz);
+		
+		Array d_error;
+		d_error.len=error.len;
+		d_error.el=error.el;
+    cudaMalloc(&d_error.el,ySz);
 
     // Invoke kernel
     //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
@@ -59,16 +77,21 @@ void MatMul(const Matrix A, const Array x, Array y)
     //dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
     dim3 dimBlock(BLOCK_SIZE);
     dim3 dimGrid(A.height / dimBlock.y);
-    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
+    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y, d_error);
+    //MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
 
-    // Read C from device memory
+    // Read from device memory
     cudaMemcpy(y.el, d_y.el, ySz,
+    	cudaMemcpyDeviceToHost);
+    
+		cudaMemcpy(error.el, d_error.el, ySz,
     	cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(d_A.elements);
     cudaFree(d_x.el);
     cudaFree(d_y.el);
+    cudaFree(d_error.el);
 }
 
 // Get a matrix element

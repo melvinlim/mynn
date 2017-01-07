@@ -22,6 +22,7 @@ struct Layer{
 	Array *in;
 	Matrix *M;
 	Array *out;
+	Array *error;
 };
 struct Net{
 	Layer **L;
@@ -84,16 +85,18 @@ void nnInsert(Net *N,Array *x){
 	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
 	N->L[0]->in->len=x->len;	
 }
-void nnForward(Net *N,Array *y){
+Array *nnForward(Net *N){
 	int i;
 	for(i=0;i<LAYERS;i++){
 printf("***********%d\n",i);
 		PRINTARRAY(N->L[i]->in);
 		PRINTARRAY(N->L[i]->out);
-		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out);
+		//MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out);
+		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->error);
 		PRINTARRAY(N->L[i]->in);
 		PRINTARRAY(N->L[i]->out);
 	}
+	return N->L[LAYERS-1]->out;
 }
 float nnError(const Array *y0,const Array *y){
 	int i;
@@ -122,19 +125,25 @@ int main(){
 	net->L[0]=(Layer *)malloc(sizeof(Layer));
 	net->L[0]->in=(Array *)malloc(sizeof(Array));
 	net->L[0]->out=(Array *)malloc(sizeof(Array));
+	net->L[0]->error=(Array *)malloc(sizeof(Array));
 	net->L[0]->in->len=L1M;
 	net->L[0]->in->el=(float *)malloc(L1N*sizeof(float));
 	net->L[0]->out->len=L1N;
 	net->L[0]->out->el=(float *)malloc(L1M*sizeof(float));
+	net->L[0]->error->len=L1N;
+	net->L[0]->error->el=(float *)malloc(L1M*sizeof(float));
 	for(i=0;i<LAYERS;i++){
 		if(i>0){
 			net->L[i]=(Layer *)malloc(sizeof(Layer));
 			net->L[i]->in=net->L[i-1]->out;
 			net->L[i]->out=(Array *)malloc(sizeof(Array));
+			net->L[i]->error=(Array *)malloc(sizeof(Array));
 			net->L[i]->in->len=mDim[i];
 			net->L[i]->in->el=(float *)malloc(nDim[i]*sizeof(float));
 			net->L[i]->out->len=nDim[i];
 			net->L[i]->out->el=(float *)malloc(mDim[i]*sizeof(float));
+			net->L[i]->error->len=nDim[i];
+			net->L[i]->error->el=(float *)malloc(mDim[i]*sizeof(float));
 		}
 //		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
@@ -165,9 +174,12 @@ int main(){
 	ret=CREATEARRAY(0,L3N);
 
 	nnInsert(net,p1);
-	nnForward(net,ret);
+	ret=nnForward(net);
 	PRINTARRAY(ret);
 
 	float err=nnError(ret,pAns1);
 	printf("err:%f\n",err);
+	PRINTMATRIX(net->L[2]->M);
+	NNBackProp0(*net->L[LAYERS-1]->M,*net->L[LAYERS-1]->in,*net->L[LAYERS-1]->out,*net->L[LAYERS-1]->error);
+	PRINTMATRIX(net->L[2]->M);
 }
