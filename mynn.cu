@@ -138,15 +138,15 @@ int main(){
 	//PRINTMATRIX(net->L[0]->M);
 
 	Array *p1,*p2,*p3,*p4,*ret;
-	p1=CREATEARRAY(ex1,L1N);
-	p2=CREATEARRAY(ex2,L1N);
-	p3=CREATEARRAY(ex3,L1N);
-	p4=CREATEARRAY(ex4,L1N);
+	p1=CREATEARRAY(ex1,L1M);
+	p2=CREATEARRAY(ex2,L1M);
+	p3=CREATEARRAY(ex3,L1M);
+	p4=CREATEARRAY(ex4,L1M);
 
-	ret=CREATEARRAY(0,L3M);
+	ret=CREATEARRAY(0,L3N);
 
 	nnInsert(net,p1);
 	nnForward(net,ret);
-	//PRINTARRAY(ret);
+	PRINTARRAY(ret);
 
 }
