@@ -199,8 +199,9 @@ int main(){
 	printf("err:%f\n",err);
 	PRINTARRAY(pError);
 //	PRINTMATRIX(net->L[LAYERS-1]->M);
+	PRINTARRAY(net->L[LAYERS-1]->deriv);
 	nnBackProp(net,pError);
 //	PRINTARRAY(net->L[LAYERS-1]->out);
-//	PRINTARRAY(net->L[LAYERS-1]->deriv);
+	PRINTARRAY(net->L[LAYERS-1]->deriv);
 //	PRINTMATRIX(net->L[LAYERS-1]->dW);
 }

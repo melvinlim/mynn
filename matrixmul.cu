@@ -57,17 +57,36 @@ void NNBackProp0(Matrix dW, const Matrix A, const Array x, const Array y, const 
 */
 }
 
-void bpDeltas(Layer *L,Array *error){
+void bpDeltas(Layer *L1,Layer *L2){
+	int j,k;
+	float sum;
+	Array *deriv=L1->deriv;
+	Array *delta=L2->deriv;
+	Matrix *W=L2->M;
+	for(j=0;j<deriv->len;j++){
+		sum=0;
+		for(k=0;k<delta->len;k++){
+			sum+=W->elements[j*W->width+k]*delta->el[k];
+		}
+		deriv->el[j]=deriv->el[j]*sum;
+	}
+}
+
+void bpDeltas0(Layer *L,Array *error){
 	int j;
 	Array *deriv=L->deriv;
 	for(j=0;j<deriv->len;j++){
-		//calculating delta first.  this is just delta not dW.
+		//storing delta in deriv...  should possibly have dedicated array...
 		deriv->el[j]=deriv->el[j]*error->el[j];
 	}
 }
 
 void nnBackProp(Net *N,Array *error){
-//	bpDeltas(N->L[LAYERS-1],error);
+	int i;
+	bpDeltas0(N->L[LAYERS-1],error);
+	for(i=LAYERS-2;i>=0;i--){
+		bpDeltas(N->L[i],N->L[i+1]);
+	}
 }
 
 //this actually does more than simply multiply.
