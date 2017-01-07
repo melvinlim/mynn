@@ -11,6 +11,62 @@ typedef struct {
     float* elements;
 } Matrix;
 
+typedef struct{
+	int len;
+	float *el;
+}Array;
+
+__global__ void MatMulKernel(const Matrix A, const Array x, Array y){
+	int i;
+	float Cval=0;
+	int row = blockIdx.y * blockDim.y + threadIdx.y;
+  int col = blockIdx.x * blockDim.x + threadIdx.x;
+	for(i=0;i<A.width;i++){
+		Cval+=A.elements[row*A.width+i]*x.el[i];
+	}
+	y.el[row]=Cval;
+}
+
+void MatMul(const Matrix A, const Array x, Array y)
+{
+    // Load A and B to device memory
+    Matrix d_A;
+    d_A.width = d_A.stride = A.width; d_A.height = A.height;
+    size_t size = A.width * A.height * sizeof(float);
+    cudaMalloc(&d_A.elements, size);
+    cudaMemcpy(d_A.elements, A.elements, size,
+               cudaMemcpyHostToDevice);
+
+		Array d_x;
+		d_x.len=x.len;
+		d_x.el=x.el;
+		size_t xSz=x.len*sizeof(float);
+    cudaMalloc(&d_x.el,xSz);
+    cudaMemcpy(d_x.el,x.el,xSz,
+	    cudaMemcpyHostToDevice);
+		
+		Array d_y;
+		d_y.len=y.len;
+		d_y.el=y.el;
+		size_t ySz=y.len*sizeof(float);
+    cudaMalloc(&d_y.el,ySz);
+
+    // Invoke kernel
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+    //dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
+    dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
+    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
+
+    // Read C from device memory
+    cudaMemcpy(y.el, d_y.el, ySz,
+    	cudaMemcpyDeviceToHost);
+
+    // Free device memory
+    cudaFree(d_A.elements);
+    cudaFree(d_x.el);
+    cudaFree(d_y.el);
+}
+
 // Get a matrix element
 __device__ float GetElement(const Matrix A, int row, int col)
 {

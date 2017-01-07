@@ -7,18 +7,13 @@
 #define LAYERS 3
 #define L1N 6
 #define L1M 6
-#define L2N 40
+#define L2N 6
 #define L2M 40
 #define L3N 40
 #define L3M 40
 
 const int nDim[LAYERS]={L1N,L2N,L3N};
 const int mDim[LAYERS]={L1M,L2M,L3M};
-
-typedef struct{
-	int len;
-	float *el;
-} Array;
 
 struct Layer{
 	Array *in;
@@ -37,8 +32,11 @@ void PRINTMATRIX(Matrix *M){
 	}
 	printf("\n");
 }
-void PRINTARRAY(float *x,int sz){
+void PRINTARRAY(Array *A){
 	int i;
+	float *x;
+	int sz=A->len;
+	x=A->el;
 	for(i=0;i<sz;i++){
 		printf("[%i]%.02f\t",i,*x++);
 	}
@@ -81,8 +79,18 @@ int main(){
 		}
 	}
 	PRINTMATRIX(net->L[0]->M);
+	Array *pA=net->L[0]->in;
+	PRINTARRAY(pA);
+	for(i=0;i<pA->len;i++){
+		pA->el[i]=i;
+	}
+	PRINTARRAY(pA);
 	Matrix *Mptr=net->L[0]->M;
 	//MatMul requires matrices to be multiples of BLOCK_SIZE (declared in matmul.cu) and possibly to be square.
 	MatMul(*Mptr,*Mptr,*Mptr);
 	PRINTMATRIX(net->L[0]->M);
+	Array *py=net->L[0]->out;
+	PRINTARRAY(py);
+	MatMul(*Mptr,*pA,*py);
+	PRINTARRAY(py);
 }
