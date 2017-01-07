@@ -15,8 +15,15 @@
 const int nDim[LAYERS]={L1N,L2N,L3N};
 const int mDim[LAYERS]={L1M,L2M,L3M};
 
+typedef struct{
+	int len;
+	float *el;
+} Array;
+
 struct Layer{
+	Array *in;
 	Matrix *M;
+	Array *out;
 };
 struct Net{
 	Layer **L;
@@ -39,24 +46,34 @@ void PRINTARRAY(float *x,int sz){
 }
 int main(){
 	int i,j,k;
-	float test[L1N*L1M];
 	Net *net;
 	net=(Net *)malloc(sizeof(Net));
 	net->L=(Layer **)malloc(LAYERS*sizeof(Layer *));
+	net->L[0]=(Layer *)malloc(sizeof(Layer));
+	net->L[0]->in=(Array *)malloc(sizeof(Array));
+	net->L[0]->out=(Array *)malloc(sizeof(Array));
+	net->L[0]->in->len=L1N;
+	net->L[0]->in->el=(float *)malloc(L1N*sizeof(float));
+	net->L[0]->out->len=L1M;
+	net->L[0]->out->el=(float *)malloc(L1M*sizeof(float));
 	for(i=0;i<LAYERS;i++){
-		net->L[i]=(Layer *)malloc(sizeof(Layer));
+		if(i>0){
+			net->L[i]=(Layer *)malloc(sizeof(Layer));
+			net->L[i]->in=net->L[i-1]->out;
+			net->L[i]->out=(Array *)malloc(sizeof(Array));
+			net->L[i]->in->len=nDim[i];
+			net->L[i]->in->el=(float *)malloc(nDim[i]*sizeof(float));
+			net->L[i]->out->len=mDim[i];
+			net->L[i]->out->el=(float *)malloc(mDim[i]*sizeof(float));
+		}
+//		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
 		memcpy(&net->L[i]->M->height,&nDim[i],sizeof(int));
 		memcpy(&net->L[i]->M->width,&mDim[i],sizeof(int));
 		memcpy(&net->L[i]->M->stride,&mDim[i],sizeof(int));
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
-	for(i=0;i<L1N*L1M;i++){
-		test[i]=i;
-	}
-	PRINTARRAY(test,L1N*L1M);
 	PRINTMATRIX(net->L[0]->M);
-	//memcpy(net->L[0]->L,test,L1N*L1M*sizeof(float));
 	k=0;
 	for(i=0;i<net->L[0]->M->height;i++){
 		for(j=0;j<net->L[0]->M->width;j++){
