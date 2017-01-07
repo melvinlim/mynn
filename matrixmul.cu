@@ -18,12 +18,11 @@ typedef struct{
 
 //output backprop.
 //this is not parallel at the moment.
-void NNBackProp0(Matrix A, const Array x, const Array y, const Array error){
+void NNBackProp0(Matrix dW, const Matrix A, const Array x, const Array y, const Array error){
 	int i,j;
-  Matrix d_A;
 	for(i=0;i<A.width;i++){
 		for(j=0;j<A.height;j++){
-			A.elements[j*A.width+i]=error.el[j]*y.el[j]*x.el[i];
+			dW.elements[j*A.width+i]=error.el[j]*y.el[j]*x.el[i];
 		}
 	}
 }

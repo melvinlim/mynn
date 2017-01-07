@@ -21,6 +21,7 @@ const int mDim[LAYERS]={L1M,L2M,L3M};
 struct Layer{
 	Array *in;
 	Matrix *M;
+	Matrix *dW;
 	Array *out;
 	Array *error;
 };
@@ -32,7 +33,7 @@ void PRINTMATRIX(Matrix *M){
 	int i,j;
 	for(i=0;i<M->height;i++){
 		for(j=0;j<M->width;j++){
-			printf("[%i,%i]%.04f\t",i,j,M->elements[i*M->stride+j]);
+			printf("[%i,%i]%.09f\t",i,j,M->elements[i*M->stride+j]);
 		}
 	}
 	printf("\n");
@@ -98,7 +99,16 @@ printf("***********%d\n",i);
 	}
 	return N->L[LAYERS-1]->out;
 }
-float nnError(const Array *y0,const Array *y){
+void nnError(Array *err,const Array *y0,const Array *y){
+	int i;
+	int n=y0->len;
+	float ret=0;
+	for(i=0;i<n;i++){
+		//err[i]=fabs(y0->el[i]-y->el[i]);
+		err->el[i]=(y0->el[i]-y->el[i]);
+	}
+}
+float nnTotalError(const Array *y0,const Array *y){
 	int i;
 	int n=y0->len;
 	float ret=0;
@@ -151,6 +161,11 @@ int main(){
 		memcpy(&net->L[i]->M->width,&mDim[i],sizeof(int));
 		memcpy(&net->L[i]->M->stride,&mDim[i],sizeof(int));
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
+		net->L[i]->dW=(Matrix *)malloc(sizeof(Matrix));
+		memcpy(&net->L[i]->dW->height,&nDim[i],sizeof(int));
+		memcpy(&net->L[i]->dW->width,&mDim[i],sizeof(int));
+		memcpy(&net->L[i]->dW->stride,&mDim[i],sizeof(int));
+		net->L[i]->dW->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
 	//Matrix *pM=net->L[0]->M;
 	//PRINTMATRIX(net->L[0]->M);
@@ -171,15 +186,21 @@ int main(){
 	pAns3=CREATEARRAY(ans3,L3N);
 	pAns4=CREATEARRAY(ans4,L3N);
 
+	Array *pError;
+	pError=CREATEARRAY(ans4,L3N);
+
 	ret=CREATEARRAY(0,L3N);
 
 	nnInsert(net,p1);
 	ret=nnForward(net);
 	PRINTARRAY(ret);
 
-	float err=nnError(ret,pAns1);
+	nnError(pError,ret,pAns1);
+	float err=nnTotalError(ret,pAns1);
 	printf("err:%f\n",err);
 	PRINTMATRIX(net->L[2]->M);
-	NNBackProp0(*net->L[LAYERS-1]->M,*net->L[LAYERS-1]->in,*net->L[LAYERS-1]->out,*net->L[LAYERS-1]->error);
-	PRINTMATRIX(net->L[2]->M);
+	NNBackProp0(*net->L[LAYERS-1]->dW,*net->L[LAYERS-1]->M,*net->L[LAYERS-1]->in,*net->L[LAYERS-1]->out,*net->L[LAYERS-1]->error);
+	PRINTARRAY(net->L[LAYERS-1]->out);
+	PRINTARRAY(net->L[LAYERS-1]->error);
+	PRINTMATRIX(net->L[2]->dW);
 }
