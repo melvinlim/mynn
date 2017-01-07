@@ -1,5 +1,6 @@
 #include <cuda.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "matrixmul.cu"
@@ -11,6 +12,8 @@
 #define L2M 40
 #define L3N 40
 #define L3M 40
+
+#define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
 const int nDim[LAYERS]={L1N,L2N,L3N};
 const int mDim[LAYERS]={L1M,L2M,L3M};
@@ -27,7 +30,7 @@ void PRINTMATRIX(Matrix *M){
 	int i,j;
 	for(i=0;i<M->height;i++){
 		for(j=0;j<M->width;j++){
-			printf("[%i,%i]%.02f\t",i,j,M->elements[i*M->stride+j]);
+			printf("[%i,%i]%.04f\t",i,j,M->elements[i*M->stride+j]);
 		}
 	}
 	printf("\n");
@@ -41,6 +44,22 @@ void PRINTARRAY(Array *A){
 		printf("[%i]%.02f\t",i,*x++);
 	}
 	printf("\n");
+}
+void randMatrix(Matrix *M){
+	int i,j;
+	for(i=0;i<M->height;i++){
+		for(j=0;j<M->width;j++){
+			M->elements[i*M->stride+j]=
+			(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+		}
+	}
+}
+void randArray(Array *A){
+	int i;
+	for(i=0;i<A->len;i++){
+		A->el[i]=
+		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+	}
 }
 int main(){
 	int i,j,k;
@@ -71,26 +90,19 @@ int main(){
 		memcpy(&net->L[i]->M->stride,&mDim[i],sizeof(int));
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
-	PRINTMATRIX(net->L[0]->M);
-	k=0;
-	for(i=0;i<net->L[0]->M->height;i++){
-		for(j=0;j<net->L[0]->M->width;j++){
-			net->L[0]->M->elements[i*net->L[0]->M->stride+j]=k++;
-		}
-	}
-	PRINTMATRIX(net->L[0]->M);
+	Matrix *pM=net->L[0]->M;
 	Array *pA=net->L[0]->in;
+	PRINTMATRIX(net->L[0]->M);
+	randMatrix(pM);
+	PRINTMATRIX(net->L[0]->M);
 	PRINTARRAY(pA);
-	for(i=0;i<pA->len;i++){
-		pA->el[i]=i;
-	}
+	randArray(pA);
 	PRINTARRAY(pA);
-	Matrix *Mptr=net->L[0]->M;
 	//MatMul requires matrices to be multiples of BLOCK_SIZE (declared in matmul.cu) and possibly to be square.
-	MatMul(*Mptr,*Mptr,*Mptr);
+	MatMul(*pM,*pM,*pM);
 	PRINTMATRIX(net->L[0]->M);
 	Array *py=net->L[0]->out;
 	PRINTARRAY(py);
-	MatMul(*Mptr,*pA,*py);
+	MatMul(*pM,*pA,*py);
 	PRINTARRAY(py);
 }

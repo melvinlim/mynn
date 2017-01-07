@@ -16,6 +16,7 @@ typedef struct{
 	float *el;
 }Array;
 
+//this actually does more than simply multiply.
 __global__ void MatMulKernel(const Matrix A, const Array x, Array y){
 	int i;
 	float Cval=0;
@@ -25,7 +26,7 @@ __global__ void MatMulKernel(const Matrix A, const Array x, Array y){
 	for(i=0;i<A.width;i++){
 		Cval+=A.elements[row*A.width+i]*x.el[i];
 	}
-	y.el[row]=Cval;
+	y.el[row]=tanhf(Cval);
 }
 
 void MatMul(const Matrix A, const Array x, Array y)
