@@ -87,12 +87,12 @@ void nnInsert(Net *N,Array *x){
 void nnForward(Net *N,Array *y){
 	int i;
 	for(i=0;i<LAYERS;i++){
-//printf("***********%d\n",i);
-		//PRINTARRAY(N->L[i]->in);
-		//PRINTARRAY(N->L[i]->out);
+printf("***********%d\n",i);
+		PRINTARRAY(N->L[i]->in);
+		PRINTARRAY(N->L[i]->out);
 		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out);
-		//PRINTARRAY(N->L[i]->in);
-		//PRINTARRAY(N->L[i]->out);
+		PRINTARRAY(N->L[i]->in);
+		PRINTARRAY(N->L[i]->out);
 	}
 }
 const float ex1[L1N]={-1,-1};
@@ -108,18 +108,18 @@ int main(){
 	net->L[0]=(Layer *)malloc(sizeof(Layer));
 	net->L[0]->in=(Array *)malloc(sizeof(Array));
 	net->L[0]->out=(Array *)malloc(sizeof(Array));
-	net->L[0]->in->len=L1N;
+	net->L[0]->in->len=L1M;
 	net->L[0]->in->el=(float *)malloc(L1N*sizeof(float));
-	net->L[0]->out->len=L1M;
+	net->L[0]->out->len=L1N;
 	net->L[0]->out->el=(float *)malloc(L1M*sizeof(float));
 	for(i=0;i<LAYERS;i++){
 		if(i>0){
 			net->L[i]=(Layer *)malloc(sizeof(Layer));
 			net->L[i]->in=net->L[i-1]->out;
 			net->L[i]->out=(Array *)malloc(sizeof(Array));
-			net->L[i]->in->len=nDim[i];
+			net->L[i]->in->len=mDim[i];
 			net->L[i]->in->el=(float *)malloc(nDim[i]*sizeof(float));
-			net->L[i]->out->len=mDim[i];
+			net->L[i]->out->len=nDim[i];
 			net->L[i]->out->el=(float *)malloc(mDim[i]*sizeof(float));
 		}
 //		net->L[i]=(Layer *)malloc(sizeof(Layer));
