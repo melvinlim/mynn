@@ -25,6 +25,7 @@ struct Layer{
 };
 struct Net{
 	Layer **L;
+	int size;
 };
 void PRINTMATRIX(Matrix *M){
 	int i,j;
@@ -61,11 +62,27 @@ void randArray(Array *A){
 		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 	}
 }
+void nnRand(Net *N){
+	Matrix *pM;
+	int i;
+	int n=N->size;
+	for(i=0;i<n;i++){
+		pM=N->L[i]->M;
+		randMatrix(pM);
+	}
+}
+void nnInsert(Array *A){
+}
+const float ex1[L1N]={-1,-1};
+const float ex2[L1N]={-1,+1};
+const float ex3[L1N]={+1,-1};
+const float ex4[L1N]={+1,+1};
 int main(){
 	int i,j,k;
 	Net *net;
 	net=(Net *)malloc(sizeof(Net));
 	net->L=(Layer **)malloc(LAYERS*sizeof(Layer *));
+	net->size=LAYERS;
 	net->L[0]=(Layer *)malloc(sizeof(Layer));
 	net->L[0]->in=(Array *)malloc(sizeof(Array));
 	net->L[0]->out=(Array *)malloc(sizeof(Array));
@@ -91,16 +108,17 @@ int main(){
 		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
 	Matrix *pM=net->L[0]->M;
+	PRINTMATRIX(net->L[0]->M);
+	nnRand(net);
+	PRINTMATRIX(net->L[0]->M);
 	Array *pA=net->L[0]->in;
-	PRINTMATRIX(net->L[0]->M);
-	randMatrix(pM);
-	PRINTMATRIX(net->L[0]->M);
 	PRINTARRAY(pA);
 	randArray(pA);
 	PRINTARRAY(pA);
-	//MatMul requires matrices to be multiples of BLOCK_SIZE (declared in matmul.cu) and possibly to be square.
-	MatMul(*pM,*pM,*pM);
-	PRINTMATRIX(net->L[0]->M);
+
+	//pA=&ex1;
+	//nnInsert(pA);
+
 	Array *py=net->L[0]->out;
 	PRINTARRAY(py);
 	MatMul(*pM,*pA,*py);
