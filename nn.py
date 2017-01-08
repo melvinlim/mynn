@@ -47,7 +47,12 @@ for i in range(EPOCHS):
 	tmp=NN[0].insert(inp[r])
 	tmp=NN[1].insert(tmp)
 	error=out[r]-tmp
+	print('error:'),
 	print(error)
+	#print('output:'),
+	#print(tmp)
+	#print('target:'),
+	#print(out[r])
 	tmp=NN[1].updateDelta0(error)
 	tmp=NN[0].updateDelta(NN[1].A,tmp)
 	#print(tmp)
