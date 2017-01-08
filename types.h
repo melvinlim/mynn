@@ -2,7 +2,7 @@
 #define TYPES
 
 #define LAYERS 2
-#define GAMMA (0.0001)
+#define GAMMA (0.1)
 
 // Thread block size
 //#define BLOCK_SIZE 16
@@ -28,6 +28,7 @@ struct Layer{
 	Matrix *dW;
 	Array *out;
 	Array *deriv;
+	Array *delta;
 };
 
 struct Net{

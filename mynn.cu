@@ -16,8 +16,8 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 
 void nnInsert(Net *N,Array *x){
 	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
-	N->L[0]->in->len=x->len;	
 }
+/*
 Array *nnForward(Net *N){
 	int i;
 	for(i=0;i<LAYERS;i++){
@@ -30,6 +30,7 @@ Array *nnForward(Net *N){
 	}
 	return N->L[LAYERS-1]->out;
 }
+*/
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
 	int n=y0->len;
@@ -74,12 +75,15 @@ int main(){
 		}
 		net->L[i]->out=(Array *)malloc(sizeof(Array));
 		net->L[i]->deriv=(Array *)malloc(sizeof(Array));
+		net->L[i]->delta=(Array *)malloc(sizeof(Array));
 		net->L[i]->in->len=mDim[i];
 		net->L[i]->in->el=(float *)malloc(mDim[i]*sizeof(float));
 		net->L[i]->out->len=nDim[i];
 		net->L[i]->out->el=(float *)malloc(nDim[i]*sizeof(float));
 		net->L[i]->deriv->len=nDim[i];
 		net->L[i]->deriv->el=(float *)malloc(nDim[i]*sizeof(float));
+		net->L[i]->delta->len=nDim[i];
+		net->L[i]->delta->el=(float *)malloc(nDim[i]*sizeof(float));
 
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
 		net->L[i]->M->height=nDim[i];
@@ -117,7 +121,6 @@ int main(){
 	nnInsert(net,p1);
 	ret=nnForward(net);
 	PRINTARRAY(ret);
-
 	nnError(pError,ret,pAns1);
 	float err=nnTotalError(ret,pAns1);
 	printf("err:%f\n",err);

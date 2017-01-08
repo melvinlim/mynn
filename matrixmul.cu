@@ -37,7 +37,7 @@ void updateWeights(Layer *L){
 	int i,j;
 	Matrix *A=L->M;
 //printf("%d %d\n",A->width,A->height);
-	Array *delta=L->deriv;
+	Array *delta=L->delta;
 	Array *input=L->in;
 	for(i=0;i<A->width;i++){
 		for(j=0;j<A->height;j++){
@@ -50,23 +50,26 @@ void bpDeltas(Layer *L1,Layer *L2){
 	int j,k;
 	float sum;
 	Array *deriv=L1->deriv;
-	Array *delta=L2->deriv;
+	Array *delta1=L1->delta;
+	Array *delta2=L2->delta;
 	Matrix *W=L2->M;
 	for(j=0;j<deriv->len;j++){
 		sum=0;
-		for(k=0;k<delta->len;k++){
-			sum+=W->elements[j*W->width+k]*delta->el[k];
+		for(k=0;k<delta2->len;k++){
+			sum+=W->elements[j*W->width+k]*delta2->el[k];
 		}
-		deriv->el[j]=deriv->el[j]*sum;
+		delta1->el[j]=deriv->el[j]*sum;
 	}
 }
 
-void bpDeltas0(Layer *L,Array *error){
+void bpDeltas0(Layer *L,const Array *error){
 	int j;
 	Array *deriv=L->deriv;
+	Array *delta=L->delta;
 	for(j=0;j<deriv->len;j++){
-		//storing delta in deriv...  should possibly have dedicated array...
-		deriv->el[j]=deriv->el[j]*error->el[j];
+		//deriv->el[j]=deriv->el[j]*error->el[j];
+		delta->el[j]=deriv->el[j]*error->el[j];
+		//delta->el[j]=error->el[j];
 	}
 }
 
@@ -79,6 +82,39 @@ void nnBackProp(Net *N,Array *error){
 	for(i=LAYERS-1;i>=0;i--){
 		updateWeights(N->L[i]);
 	}
+}
+
+void layerForward(const Matrix *M,const Array *in,Array *out,Array *deriv){
+	int i,j;
+	float a,tmp;
+	for(j=0;j<M->height;j++){
+		a=0;
+		for(i=0;i<M->width;i++){
+			a+=M->elements[j*M->width+i]*in->el[i];
+		}
+		tmp=tanh(a);
+		out->el[j]=tmp;
+		deriv->el[j]=1.0-tmp*tmp;
+	}
+}
+
+Array *nnForward(Net *N){
+	int i;
+	Matrix *M;
+	Array *in;
+	Array *out;
+	Array *deriv;
+	for(i=0;i<LAYERS;i++){
+		M=N->L[i]->M;
+		in=N->L[i]->in;
+		out=N->L[i]->out;
+		deriv=N->L[i]->deriv;
+//PRINTARRAY(in);
+		layerForward(M,in,out,deriv);
+//PRINTARRAY(out);
+//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
+	}
+	return out;
 }
 
 //this actually does more than simply multiply.

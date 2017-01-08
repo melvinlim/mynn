@@ -6,7 +6,7 @@
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
-void PRINTMATRIX(Matrix *M){
+void PRINTMATRIX(const Matrix *M){
 	int i,j;
 	for(i=0;i<M->height;i++){
 		for(j=0;j<M->width;j++){
@@ -16,7 +16,7 @@ void PRINTMATRIX(Matrix *M){
 	}
 	printf("\n");
 }
-void PRINTARRAY(Array *A){
+void PRINTARRAY(const Array *A){
 	int i;
 	float *x;
 	int sz=A->len;
