@@ -1,5 +1,5 @@
 import numpy as np
-MIDDLELAYER=25
+MIDDLELAYER=16
 EPOCHS=1000
 GAMMA=0.01
 class Layer:
@@ -28,8 +28,9 @@ class Layer:
 	def updateWeights(self,x):
 		for i in range(self.A.shape[0]):
 			for j in range(self.A.shape[1]):
-				self.A -= self.delta[i]*x[j]
-NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
+				self.A[i][j] -= self.delta[i]*x[j]
+#NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
+NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 inp1=np.array([-1,-1])
 inp2=np.array([-1,+1])
 inp3=np.array([+1,-1])
@@ -43,16 +44,17 @@ out=[out1,out2,out3,out4]
 
 for i in range(EPOCHS):
 	r=np.random.randint(0,4)
-	theInput=np.append(inp[r],[1])
+#	theInput=np.append(inp[r],[1])
+	theInput=inp[r]
 	tmp=NN[0].insert(theInput)
 	tmp=NN[1].insert(tmp)
 	error=tmp-out[r]
 	print('error:'),
 	print(error)
-	#print('output:'),
-	#print(tmp)
-	#print('target:'),
-	#print(out[r])
+	print('output:'),
+	print(tmp)
+	print('target:'),
+	print(out[r])
 	tmp=NN[1].updateDelta0(error)
 	tmp=NN[0].updateDelta(NN[1].A,tmp)
 	#print(tmp)
