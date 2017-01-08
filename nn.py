@@ -1,5 +1,5 @@
 import numpy as np
-MIDDLELAYER=16
+MIDDLELAYER=7
 EPOCHS=1000
 GAMMA=0.01
 class Layer:
@@ -44,6 +44,23 @@ out=[out1,out2,out3,out4]
 
 for i in range(EPOCHS):
 	r=np.random.randint(0,4)
+#	theInput=np.append(inp[r],[1])
+	theInput=inp[r]
+	tmp=NN[0].insert(theInput)
+	tmp=NN[1].insert(tmp)
+	error=tmp-out[r]
+	print('error:'),
+	print(error)
+	print('output:'),
+	print(tmp)
+	print('target:'),
+	print(out[r])
+	tmp=NN[1].updateDelta0(error)
+	tmp=NN[0].updateDelta(NN[1].A,tmp)
+	#print(tmp)
+	NN[1].updateWeights(NN[0].out)
+	NN[0].updateWeights(theInput)
+for r in range(4):
 #	theInput=np.append(inp[r],[1])
 	theInput=inp[r]
 	tmp=NN[0].insert(theInput)

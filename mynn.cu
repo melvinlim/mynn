@@ -6,12 +6,12 @@
 #include "manip.cu"
 #include "matrixmul.cu"
 
-#define NINPUTS (2+1)
+#define NINPUTS (2)
 #define NOUTPUTS (2)
 
 #define L1M (NINPUTS)
-#define L1N (12+1)
-#define L2M (12+1)
+#define L1N (7)
+#define L2M (7)
 #define L2N (NOUTPUTS)
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
@@ -59,10 +59,7 @@ const float ans3[NOUTPUTS]={+1,-1};
 const float ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
-	Net *net;
-	net=(Net *)malloc(sizeof(Net));
-	net->L=(Layer **)malloc(LAYERS*sizeof(Layer *));
-	net->size=LAYERS;
+	Net *net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
 		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		if(i>0){

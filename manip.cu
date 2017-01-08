@@ -45,7 +45,7 @@ void randArray(Array *A){
 void nnRand(Net *N){
 	Matrix *pM;
 	int i;
-	int n=N->size;
+	int n=N->n;
 	for(i=0;i<n;i++){
 		pM=N->L[i]->M;
 		randMatrix(pM);
