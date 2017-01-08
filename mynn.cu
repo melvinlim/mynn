@@ -20,11 +20,13 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 //const int nDim[LAYERS]={L1N,L2N,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
 
-void PRINTINFO(Array *pIn,Net *net,Array *pOut,float err){
-	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:%f\n",
+void PRINTINFO(Array *pIn,Net *net,Array *pOut,Array *pErr){
+	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
 	pIn->el[0],pIn->el[1],
 	net->L[LAYERS-1]->out->el[0],net->L[LAYERS-1]->out->el[1],
-	pOut->el[0],pOut->el[1],err);
+	pOut->el[0],pOut->el[1],
+	pErr->el[0],pErr->el[1]
+	);
 }
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
@@ -68,7 +70,6 @@ int main(){
 
 	Array *p1,*p2,*p3,*p4,*ret;
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
-	Array *pError;
 
 	p1=new Array(ex1,NINPUTS);
 	p2=new Array(ex2,NINPUTS);
@@ -80,17 +81,7 @@ int main(){
 	pAns3=new Array(ans3,NOUTPUTS);
 	pAns4=new Array(ans4,NOUTPUTS);
 
-	pError=new Array(NOUTPUTS);
-
-	ret=net->input(p1);
-	//PRINTARRAY(ret);
-
-	nnError(pError,ret,pAns1);
-	float err=nnTotalError(ret,pAns1);
-
-	printf("err:%f\n",err);
-
-	net->insertError(p1,pError);
+	net->train(p1,pAns1);
 
 	Array **pInputs=(Array **)malloc(4*sizeof(Array *));
 	pInputs[0]=p1;
@@ -108,11 +99,7 @@ int main(){
 		tmpvar=rand()%4;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
-		net->input(pIn);
-		ret=net->input(pIn);
-		nnError(pError,ret,pOut);
-		err=nnTotalError(ret,pOut);
-		PRINTINFO(pIn,net,pOut,err);
-		net->insertError(pIn,pError);
+		net->train(pIn,pOut);
+		PRINTINFO(pIn,net,pOut,net->error);
 	}
 }

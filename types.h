@@ -158,6 +158,7 @@ class Net{
 public:
 	Layer **L;
 	int n;
+	Array *error;
 	Net(int n=0){
 		this->n=n;
 		L=(Layer **)malloc(n*sizeof(Layer *));
@@ -170,8 +171,11 @@ public:
 	}
 	void insertLayer(int i,int n,int m){
 		L[i]=new Layer(n,m);
+		if(i==(this->n-1)){
+			error=new Array(n);
+		}
 	}
-	Array *input(Array *x){
+	Array *forward(Array *x){
 		int i;
 		for(i=0;i<this->n;i++){
 			x=L[i]->forward(x);
@@ -179,9 +183,9 @@ public:
 		}
 		return(x);
 	}
-	void insertError(const Array *input,const Array *error){
+	void backward(const Array *input){
 		//int i;
-		L[1]->outputDelta(error);
+		L[1]->outputDelta(this->error);
 		L[0]->upDelta(L[1]->M,L[1]->delta);
 /*
 		L[LAYERS-1]->outputDelta(error);
@@ -207,6 +211,31 @@ public:
 			L[i]->M->print();
 		}
 	}
+	Array *train(Array *x,const Array *y){
+		Array *err,*y0;
+		y0=this->forward(x);
+		this->upError(y0,y);
+		this->backward(y);
+		return(this->error);
+	}
+	void upError(const Array *y0,const Array *yTarget){
+		int i;
+		for(i=0;i<y0->n;i++){
+			this->error->el[i]=(y0->el[i]-yTarget->el[i]);
+		}
+	}
 };
 
 #endif
+/*
+float nnTotalError(const Array *y0,const Array *y){
+	int i;
+	int n=y0->n;
+	float ret=0;
+	for(i=0;i<n;i++){
+		ret+=fabs(y0->el[i]-y->el[i]);
+		ret*=ret;
+	}
+	return(ret/2.0);
+}
+*/
