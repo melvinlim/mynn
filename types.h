@@ -35,8 +35,12 @@ public:
 	int n;
 	float *el;
 	Array(int n){
+		int i;
 		this->n=n;
 		el=new float[n];
+		for(i=0;i<n;i++){
+			el[i]=0;
+		}
 	}
 	Array(const float *x,int n){
 		int i;
@@ -78,7 +82,7 @@ public:
 			}
 			tmp=tanh(a);
 			out->el[j]=tmp;
-			deriv->el[j]=1.0-tmp*tmp;
+			deriv->el[j]=1.0-(tmp*tmp);
 		}
 		return(this->out);
 	}
@@ -95,7 +99,7 @@ public:
 		for(j=0;j<deriv->n;j++){
 			sum=0;
 			for(k=0;k<delta2->n;k++){
-				sum+=W->el[j*W->m+k]*delta2->el[k];
+				sum+=W->el[k*delta2->n+j]*delta2->el[k];
 			}
 			delta->el[j]=deriv->el[j]*sum;
 		}
@@ -129,7 +133,7 @@ public:
 	}
 	Array *input(Array *x){
 		int i;
-		for(i=0;i<x->n;i++){
+		for(i=0;i<this->n;i++){
 			x=L[i]->forward(x);
 	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
 		}
@@ -137,6 +141,9 @@ public:
 	}
 	void insertError(const Array *input,const Array *error){
 		int i;
+		L[1]->outputDelta(error);
+		L[0]->upDelta(L[1]->M,L[1]->delta);
+/*
 		L[LAYERS-1]->outputDelta(error);
 		for(i=LAYERS-2;i>=0;i--){
 			L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
@@ -144,6 +151,8 @@ public:
 		for(i=LAYERS-1;i>=1;i--){
 			L[i]->updateWeights(L[i-1]->out);
 		}
+*/
+		L[1]->updateWeights(L[0]->out);
 		L[0]->updateWeights(input);
 	}
 };

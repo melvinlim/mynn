@@ -27,8 +27,7 @@ void PRINTINFO(Array *pIn,Net *net,Array *pOut,float err){
 }
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
-	int n=y0->n;
-	for(i=0;i<n;i++){
+	for(i=0;i<y0->n;i++){
 		err->el[i]=(y0->el[i]-yTarget->el[i]);
 	}
 }
