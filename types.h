@@ -1,6 +1,7 @@
 #ifndef TYPES
 #define TYPES
 
+#define EPOCHS 1000
 #define LAYERS 2
 #define GAMMA (0.01)
 

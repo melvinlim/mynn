@@ -10,13 +10,21 @@
 #define NOUTPUTS (2)
 
 #define L1M (NINPUTS)
-#define L1N (6+1)
-#define L2M (6+1)
+#define L1N (12+1)
+#define L2M (12+1)
 #define L2N (NOUTPUTS)
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
+//const int nDim[LAYERS]={L1N,L2N,L3N};
+//const int mDim[LAYERS]={L1M,L2M,L3M};
 
+void PRINTINFO(Array *pIn,Net *net,Array *pOut,float err){
+	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:%f\n",
+	pIn->el[0],pIn->el[1],
+	net->L[LAYERS-1]->out->el[0],net->L[LAYERS-1]->out->el[1],
+	pOut->el[0],pOut->el[1],err);
+}
 void nnInsert(Net *N,Array *x){
 	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
 }
@@ -132,7 +140,7 @@ int main(){
 	pOutputs[3]=pAns4;
 	Array *pIn,*pOut;
 	int tmpvar;
-	for(i=0;i<100000;i++){
+	for(i=0;i<EPOCHS;i++){
 		tmpvar=rand()%4;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
@@ -140,7 +148,7 @@ int main(){
 		ret=nnForward(net);
 		nnError(pError,ret,pOut);
 		err=nnTotalError(ret,pOut);
-		printf("out:[%f,%f] targ:[%f,%f] err:%f\n",net->L[LAYERS-1]->out->el[0],net->L[LAYERS-1]->out->el[1],pOut->el[0],pOut->el[1],err);
+		PRINTINFO(pIn,net,pOut,err);
 		nnBackProp(net,pError);
 	}
 
