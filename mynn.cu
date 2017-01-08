@@ -1,3 +1,6 @@
+#ifndef _MYNN
+#define _MYNN
+
 #include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +55,7 @@ int main(){
 	net->rand();
 	net->print();
 
-	Array *p1,*p2,*p3,*p4,*ret;
+	Array *p1,*p2,*p3,*p4;
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
 
 	p1=new Array(ex1,NINPUTS);
@@ -87,3 +90,5 @@ int main(){
 		PRINTINFO(pIn,net,pOut,net->error);
 	}
 }
+
+#endif

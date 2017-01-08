@@ -63,7 +63,7 @@ public:
 			el[i]=0;
 		}
 	}
-	Array(const float *x,int n){
+	Array(const float *x,const int n){
 		int i;
 		this->n=n;
 		this->el=new float[n];
@@ -178,7 +178,7 @@ public:
 		}
 	}
 	void forward(const Array *x){
-		int i;
+		//int i;
 		L[0]->forward(x);
 		L[1]->forward(L[0]->out);
 /*
@@ -218,7 +218,7 @@ public:
 			L[i]->M->print();
 		}
 	}
-	Array *train(Array *x,const Array *y){
+	Array *train(const Array *x,const Array *y){
 		this->forward(x);
 		this->upError(y);
 		this->backward(y);
