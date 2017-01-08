@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "manip.cu"
-#include "matrixmul.cu"
+#include "types.h"
+//#include "manip.cu"
+//#include "matrixmul.cu"
 
 #define NINPUTS (2)
 #define NOUTPUTS (2)
@@ -61,10 +62,9 @@ int main(){
 		net->insertLayer(i,nDim[i],mDim[i]);
 	}
 
-	nnRand(net);
-	for(i=0;i<LAYERS;i++){
-		PRINTMATRIX(net->L[i]->M);
-	}
+	net->print();
+	net->rand();
+	net->print();
 
 	Array *p1,*p2,*p3,*p4,*ret;
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
@@ -83,7 +83,7 @@ int main(){
 	pError=new Array(NOUTPUTS);
 
 	ret=net->input(p1);
-	PRINTARRAY(ret);
+	//PRINTARRAY(ret);
 
 	nnError(pError,ret,pAns1);
 	float err=nnTotalError(ret,pAns1);

@@ -39,6 +39,16 @@ public:
 			}
 		}
 	}
+	void print(){
+		int i,j;
+		for(i=0;i<this->n;i++){
+			for(j=0;j<this->m;j++){
+				printf("[%i,%i]%.09f ",i,j,*this->e(i,j));
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
 };
 
 class Array{
@@ -65,6 +75,22 @@ public:
 		}
 	}
 	~Array(){
+	}
+	void print(){
+		int i;
+		float *x;
+		x=this->el;
+		for(i=0;i<this->n;i++){
+			printf("[%i]%.02f\t",i,*x++);
+		}
+		printf("\n");
+	}
+	void rand(){
+		int i;
+		for(i=0;i<this->n;i++){
+			this->el[i]=
+			(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+		}
 	}
 };
 
@@ -154,7 +180,7 @@ public:
 		return(x);
 	}
 	void insertError(const Array *input,const Array *error){
-		int i;
+		//int i;
 		L[1]->outputDelta(error);
 		L[0]->upDelta(L[1]->M,L[1]->delta);
 /*
@@ -175,36 +201,12 @@ public:
 			this->L[i]->rand();
 		}
 	}
+	void print(){
+		int i;
+		for(i=0;i<this->n;i++){
+			L[i]->M->print();
+		}
+	}
 };
 
 #endif
-
-/*
-void PRINTMATRIX(const Matrix *M){
-	int i,j;
-	for(i=0;i<M->n;i++){
-		for(j=0;j<M->m;j++){
-			printf("[%i,%i]%.09f ",i,j,M->el[i*M->m+j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-void PRINTARRAY(const Array *A){
-	int i;
-	float *x;
-	int sz=A->n;
-	x=A->el;
-	for(i=0;i<sz;i++){
-		printf("[%i]%.02f\t",i,*x++);
-	}
-	printf("\n");
-}
-void randArray(Array *A){
-	int i;
-	for(i=0;i<A->n;i++){
-		A->el[i]=
-		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
-	}
-}
-*/
