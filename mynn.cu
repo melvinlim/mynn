@@ -11,66 +11,9 @@
 #define L2N 2
 #define L2M 40
 
-#define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
-
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
-/*
-void PRINTMATRIX(Matrix *M){
-	int i,j;
-	for(i=0;i<M->height;i++){
-		for(j=0;j<M->width;j++){
-			printf("[%i,%i]%.09f ",i,j,M->elements[i*M->stride+j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-void PRINTARRAY(Array *A){
-	int i;
-	float *x;
-	int sz=A->len;
-	x=A->el;
-	for(i=0;i<sz;i++){
-		printf("[%i]%.02f\t",i,*x++);
-	}
-	printf("\n");
-}
-void randMatrix(Matrix *M){
-	int i,j;
-	for(i=0;i<M->height;i++){
-		for(j=0;j<M->width;j++){
-			M->elements[i*M->stride+j]=
-			(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
-		}
-	}
-}
-void randArray(Array *A){
-	int i;
-	for(i=0;i<A->len;i++){
-		A->el[i]=
-		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
-	}
-}
-void nnRand(Net *N){
-	Matrix *pM;
-	int i;
-	int n=N->size;
-	for(i=0;i<n;i++){
-		pM=N->L[i]->M;
-		randMatrix(pM);
-	}
-}
-Array *CREATEARRAY(const float *x,int n){
-	Array *p=(Array *)malloc(sizeof(Array));
-	p->len=n;
-	p->el=(float *)malloc(n*sizeof(float));
-	if(x){
-		memcpy(p->el,x,n*sizeof(float));
-	}
-	return(p);
-}
-*/
+
 void nnInsert(Net *N,Array *x){
 	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
 	N->L[0]->in->len=x->len;	
@@ -90,7 +33,6 @@ Array *nnForward(Net *N){
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
 	int n=y0->len;
-	float ret=0;
 	for(i=0;i<n;i++){
 		err->el[i]=(y0->el[i]-yTarget->el[i]);
 	}
@@ -118,7 +60,7 @@ const float ans2[L2N]={-1,+1};
 const float ans3[L2N]={-1,+1};
 const float ans4[L2N]={+1,-1};
 int main(){
-	int i,j,k;
+	int i;
 	Net *net;
 	net=(Net *)malloc(sizeof(Net));
 	net->L=(Layer **)malloc(LAYERS*sizeof(Layer *));
