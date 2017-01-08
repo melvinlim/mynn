@@ -9,6 +9,8 @@
 //#define BLOCK_SIZE 16
 #define BLOCK_SIZE 2
 
+#define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
+
 class Matrix{
 public:
 	int n;
@@ -27,6 +29,15 @@ public:
 	}
 	float *e(int i,int j){
 		return(this->el+(i*this->m+j));
+	}
+	void rand(){
+		int i,j;
+		for(i=0;i<this->n;i++){
+			for(j=0;j<this->m;j++){
+				*this->e(i,j)=
+				(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+			}
+		}
 	}
 };
 
@@ -112,6 +123,9 @@ public:
 			}
 		}
 	}
+	void rand(){
+		this->M->rand();
+	}
 };
 
 class Net{
@@ -155,6 +169,42 @@ public:
 		L[1]->updateWeights(L[0]->out);
 		L[0]->updateWeights(input);
 	}
+	void rand(){
+		int i;
+		for(i=0;i<this->n;i++){
+			this->L[i]->rand();
+		}
+	}
 };
 
 #endif
+
+/*
+void PRINTMATRIX(const Matrix *M){
+	int i,j;
+	for(i=0;i<M->n;i++){
+		for(j=0;j<M->m;j++){
+			printf("[%i,%i]%.09f ",i,j,M->el[i*M->m+j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+void PRINTARRAY(const Array *A){
+	int i;
+	float *x;
+	int sz=A->n;
+	x=A->el;
+	for(i=0;i<sz;i++){
+		printf("[%i]%.02f\t",i,*x++);
+	}
+	printf("\n");
+}
+void randArray(Array *A){
+	int i;
+	for(i=0;i<A->n;i++){
+		A->el[i]=
+		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+	}
+}
+*/

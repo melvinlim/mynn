@@ -80,7 +80,7 @@ int main(){
 	pAns3=new Array(ans3,NOUTPUTS);
 	pAns4=new Array(ans4,NOUTPUTS);
 
-	pError=new Array(0,NOUTPUTS);
+	pError=new Array(NOUTPUTS);
 
 	ret=net->input(p1);
 	PRINTARRAY(ret);
