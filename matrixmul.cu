@@ -1,3 +1,4 @@
+/*
 void updateWeights(Layer *L){
 	int i,j;
 	Matrix *A=L->M;
@@ -95,6 +96,7 @@ __global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array deriv
 	y.el[row]=tmp;
 	deriv.el[row]=1.0-(tmp*tmp);
 }
+*/
 /*
 void MatMul(const Matrix A, const Array x, Array y, Array deriv)
 {

@@ -15,9 +15,13 @@ public:
 	int m;
 	float *el;
 	Matrix(int n,int m){
+		int i;
 		this->n=n;
 		this->m=m;
-		el=new float(n*m);
+		el=new float[n*m];
+		for(i=0;i<n*m;i++){
+			el[i]=0;
+		}
 	}
 	~Matrix(){
 	}
@@ -32,12 +36,12 @@ public:
 	float *el;
 	Array(int n){
 		this->n=n;
-		el=new float(n);
+		el=new float[n];
 	}
 	Array(const float *x,int n){
 		int i;
 		this->n=n;
-		this->el=new float(n);
+		this->el=new float[n];
 		if(x){
 			for(i=0;i<n;i++){
 				this->el[i]=x[i];
@@ -52,7 +56,6 @@ public:
 class Layer{
 public:
 	Matrix *M;
-	Matrix *dW;
 	Array *out;
 	Array *deriv;
 	Array *delta;
@@ -61,7 +64,6 @@ public:
 		deriv=new Array(n);
 		delta=new Array(n);
 		M=new Matrix(n,m);
-		dW=new Matrix(n,m);
 	}
 	~Layer(){
 	}
@@ -90,22 +92,19 @@ public:
 	void upDelta(const Matrix *W,const Array *delta2){
 		int j,k;
 		float sum;
-		Array *delta1=this->delta;
 		for(j=0;j<deriv->n;j++){
 			sum=0;
 			for(k=0;k<delta2->n;k++){
 				sum+=W->el[j*W->m+k]*delta2->el[k];
 			}
-			delta1->el[j]=deriv->el[j]*sum;
+			delta->el[j]=deriv->el[j]*sum;
 		}
 	}
 	void updateWeights(const Array *input){
 		int i,j;
-		Matrix *A=this->M;
-		Array *delta=this->delta;
-		for(j=0;j<A->n;j++){
-			for(i=0;i<A->m;i++){
-				A->el[j*A->m+i]-=GAMMA*input->el[i]*delta->el[j];
+		for(j=0;j<M->n;j++){
+			for(i=0;i<M->m;i++){
+				M->el[j*M->m+i]-=GAMMA*input->el[i]*delta->el[j];
 			}
 		}
 	}
@@ -138,10 +137,8 @@ public:
 	}
 	void insertError(const Array *input,const Array *error){
 		int i;
-		//bpDeltas0(N->L[LAYERS-1],error);
 		L[LAYERS-1]->outputDelta(error);
 		for(i=LAYERS-2;i>=0;i--){
-			//bpDeltas(N->L[i],N->L[i+1]);
 			L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
 		}
 		for(i=LAYERS-1;i>=1;i--){

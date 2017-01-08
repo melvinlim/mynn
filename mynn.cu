@@ -46,16 +46,17 @@ const float ex1[NINPUTS]={-1,-1};
 const float ex2[NINPUTS]={-1,+1};
 const float ex3[NINPUTS]={+1,-1};
 const float ex4[NINPUTS]={+1,+1};
-//const float ans1[NOUTPUTS]={-1,+1};
-//const float ans2[NOUTPUTS]={+1,-1};
-//const float ans3[NOUTPUTS]={+1,-1};
-//const float ans4[NOUTPUTS]={-1,+1};
 const float ans1[NOUTPUTS]={-1,+1};
 const float ans2[NOUTPUTS]={+1,-1};
 const float ans3[NOUTPUTS]={+1,-1};
-const float ans4[NOUTPUTS]={+1,-1};
+const float ans4[NOUTPUTS]={-1,+1};
+//const float ans1[NOUTPUTS]={-1,+1};
+//const float ans2[NOUTPUTS]={+1,-1};
+//const float ans3[NOUTPUTS]={+1,-1};
+//const float ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
+	srand(time(0));
 	Net *net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
 		net->insertLayer(i,nDim[i],mDim[i]);
@@ -80,9 +81,7 @@ int main(){
 	pAns3=new Array(ans3,NOUTPUTS);
 	pAns4=new Array(ans4,NOUTPUTS);
 
-	pError=new Array(ans4,NOUTPUTS);
-
-	ret=new Array(0,NOUTPUTS);
+	pError=new Array(0,NOUTPUTS);
 
 	ret=net->input(p1);
 	PRINTARRAY(ret);
@@ -115,10 +114,6 @@ int main(){
 		nnError(pError,ret,pOut);
 		err=nnTotalError(ret,pOut);
 		PRINTINFO(pIn,net,pOut,err);
-		net->insertError(pOut,pError);
-	}
-
-	for(i=0;i<LAYERS;i++){
-		PRINTARRAY(net->L[i]->out);
+		net->insertError(pIn,pError);
 	}
 }
