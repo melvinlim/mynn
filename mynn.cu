@@ -6,10 +6,10 @@
 #include "manip.cu"
 #include "matrixmul.cu"
 
-#define L1N 40
 #define L1M 2
-#define L2N 2
+#define L1N 40
 #define L2M 40
+#define L2N 2
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -56,8 +56,8 @@ const float ex4[L1M]={+1,+1};
 //const float ans3[L2N]={+1,-1};
 //const float ans4[L2N]={-1,+1};
 const float ans1[L2N]={-1,+1};
-const float ans2[L2N]={-1,+1};
-const float ans3[L2N]={-1,+1};
+const float ans2[L2N]={+1,-1};
+const float ans3[L2N]={+1,-1};
 const float ans4[L2N]={+1,-1};
 int main(){
 	int i;
@@ -65,29 +65,22 @@ int main(){
 	net=(Net *)malloc(sizeof(Net));
 	net->L=(Layer **)malloc(LAYERS*sizeof(Layer *));
 	net->size=LAYERS;
-	net->L[0]=(Layer *)malloc(sizeof(Layer));
-	net->L[0]->in=(Array *)malloc(sizeof(Array));
-	net->L[0]->out=(Array *)malloc(sizeof(Array));
-	net->L[0]->deriv=(Array *)malloc(sizeof(Array));
-	net->L[0]->in->len=L1M;
-	net->L[0]->in->el=(float *)malloc(L1M*sizeof(float));
-	net->L[0]->out->len=L1N;
-	net->L[0]->out->el=(float *)malloc(L1N*sizeof(float));
-	net->L[0]->deriv->len=L1N;
-	net->L[0]->deriv->el=(float *)malloc(L1N*sizeof(float));
 	for(i=0;i<LAYERS;i++){
+		net->L[i]=(Layer *)malloc(sizeof(Layer));
 		if(i>0){
-			net->L[i]=(Layer *)malloc(sizeof(Layer));
 			net->L[i]->in=net->L[i-1]->out;
-			net->L[i]->out=(Array *)malloc(sizeof(Array));
-			net->L[i]->deriv=(Array *)malloc(sizeof(Array));
-			net->L[i]->in->len=mDim[i];
-			net->L[i]->in->el=(float *)malloc(mDim[i]*sizeof(float));
-			net->L[i]->out->len=nDim[i];
-			net->L[i]->out->el=(float *)malloc(nDim[i]*sizeof(float));
-			net->L[i]->deriv->len=nDim[i];
-			net->L[i]->deriv->el=(float *)malloc(nDim[i]*sizeof(float));
+		}else{
+			net->L[0]->in=(Array *)malloc(sizeof(Array));
 		}
+		net->L[i]->out=(Array *)malloc(sizeof(Array));
+		net->L[i]->deriv=(Array *)malloc(sizeof(Array));
+		net->L[i]->in->len=mDim[i];
+		net->L[i]->in->el=(float *)malloc(mDim[i]*sizeof(float));
+		net->L[i]->out->len=nDim[i];
+		net->L[i]->out->el=(float *)malloc(nDim[i]*sizeof(float));
+		net->L[i]->deriv->len=nDim[i];
+		net->L[i]->deriv->el=(float *)malloc(nDim[i]*sizeof(float));
+
 		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
 		net->L[i]->M->height=nDim[i];
 		net->L[i]->M->width=mDim[i];
@@ -97,16 +90,13 @@ int main(){
 		net->L[i]->dW->height=nDim[i];
 		net->L[i]->dW->width=mDim[i];
 		net->L[i]->dW->stride=mDim[i];
-printf("i=%d,ndim=%d %d\n",i,nDim[i],net->L[i]->M->height);
 		net->L[i]->dW->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
 	}
-	//Matrix *pM=net->L[0]->M;
-	//PRINTMATRIX(net->L[0]->M);
+
 	nnRand(net);
 	for(i=0;i<LAYERS;i++){
 		PRINTMATRIX(net->L[i]->M);
 	}
-	//PRINTMATRIX(net->L[0]->M);
 
 	Array *p1,*p2,*p3,*p4,*ret;
 	p1=CREATEARRAY(ex1,L1M);
