@@ -6,10 +6,10 @@
 #include "manip.cu"
 #include "matrixmul.cu"
 
-#define L1M 2
-#define L1N 40
-#define L2M 40
-#define L2N 2
+#define L1M (2)
+#define L1N (6)
+#define L2M (6)
+#define L2N (2)
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -17,20 +17,6 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 void nnInsert(Net *N,Array *x){
 	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
 }
-/*
-Array *nnForward(Net *N){
-	int i;
-	for(i=0;i<LAYERS;i++){
-//printf("***********%d\n",i);
-//		PRINTARRAY(N->L[i]->in);
-//		PRINTARRAY(N->L[i]->out);
-		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
-//		PRINTARRAY(N->L[i]->in);
-//		PRINTARRAY(N->L[i]->out);
-	}
-	return N->L[LAYERS-1]->out;
-}
-*/
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
 	int n=y0->len;

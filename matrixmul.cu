@@ -1,38 +1,3 @@
-/*#define LAYERS 2
-
-#define GAMMA (0.0001)
-
-// Thread block size
-//#define BLOCK_SIZE 16
-#define BLOCK_SIZE 2
-
-// Matrices are stored in row-major order:
-// M(row, col) = *(M.elements + row * M.stride + col)
-typedef struct {
-    int width;
-    int height;
-    int stride; 
-    float* elements;
-}Matrix;
-
-typedef struct{
-	int len;
-	float *el;
-}Array;
-
-struct Layer{
-	Array *in;
-	Matrix *M;
-	Matrix *dW;
-	Array *out;
-	Array *deriv;
-};
-
-struct Net{
-	Layer **L;
-	int size;
-};
-*/
 void updateWeights(Layer *L){
 	int i,j;
 	Matrix *A=L->M;
@@ -67,7 +32,6 @@ void bpDeltas0(Layer *L,const Array *error){
 	Array *deriv=L->deriv;
 	Array *delta=L->delta;
 	for(j=0;j<deriv->len;j++){
-		//deriv->el[j]=deriv->el[j]*error->el[j];
 		delta->el[j]=deriv->el[j]*error->el[j];
 		//delta->el[j]=error->el[j];
 	}
