@@ -6,12 +6,12 @@
 #include "manip.cu"
 #include "matrixmul.cu"
 
-#define NINPUTS 2
-#define NOUTPUTS 2
+#define NINPUTS (2+1)
+#define NOUTPUTS (2)
 
 #define L1M (NINPUTS)
-#define L1N (6)
-#define L2M (6)
+#define L1N (6+1)
+#define L2M (6+1)
 #define L2N (NOUTPUTS)
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
@@ -106,6 +106,10 @@ int main(){
 	pError=CREATEARRAY(ans4,NOUTPUTS);
 
 	ret=CREATEARRAY(0,NOUTPUTS);
+	p1->el[L1M]=1;
+	p2->el[L1M]=1;
+	p3->el[L1M]=1;
+	p4->el[L1M]=1;
 
 	nnInsert(net,p1);
 	ret=nnForward(net);
@@ -128,7 +132,7 @@ int main(){
 	pOutputs[3]=pAns4;
 	Array *pIn,*pOut;
 	int tmpvar;
-	for(i=0;i<1000;i++){
+	for(i=0;i<100000;i++){
 		tmpvar=rand()%4;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];

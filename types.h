@@ -2,7 +2,7 @@
 #define TYPES
 
 #define LAYERS 2
-#define GAMMA (0.1)
+#define GAMMA (0.01)
 
 // Thread block size
 //#define BLOCK_SIZE 16

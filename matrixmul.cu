@@ -4,8 +4,8 @@ void updateWeights(Layer *L){
 //printf("%d %d\n",A->width,A->height);
 	Array *delta=L->delta;
 	Array *input=L->in;
-	for(i=0;i<A->width;i++){
-		for(j=0;j<A->height;j++){
+	for(j=0;j<A->height;j++){
+		for(i=0;i<A->width;i++){
 			A->elements[j*A->width+i]-=GAMMA*input->el[i]*delta->el[j];
 		}
 	}
