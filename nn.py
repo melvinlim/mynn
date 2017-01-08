@@ -1,6 +1,7 @@
 import numpy as np
+MIDDLELAYER=25
 EPOCHS=1000
-GAMMA=0.1
+GAMMA=0.01
 class Layer:
 	def __init__(self,n,m):
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -27,10 +28,8 @@ class Layer:
 	def updateWeights(self,x):
 		for i in range(self.A.shape[0]):
 			for j in range(self.A.shape[1]):
-				self.A += self.delta[i]*x[j]
-NN=[Layer(16,2),Layer(2,16)]
-#A1=np.random.randint(-10000,10000,(16,2))/100000.0
-#A2=np.random.randint(-10000,10000,(2,16))/100000.0
+				self.A -= self.delta[i]*x[j]
+NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 inp1=np.array([-1,-1])
 inp2=np.array([-1,+1])
 inp3=np.array([+1,-1])
@@ -44,9 +43,10 @@ out=[out1,out2,out3,out4]
 
 for i in range(EPOCHS):
 	r=np.random.randint(0,4)
-	tmp=NN[0].insert(inp[r])
+	theInput=np.append(inp[r],[1])
+	tmp=NN[0].insert(theInput)
 	tmp=NN[1].insert(tmp)
-	error=out[r]-tmp
+	error=tmp-out[r]
 	print('error:'),
 	print(error)
 	#print('output:'),
@@ -57,4 +57,4 @@ for i in range(EPOCHS):
 	tmp=NN[0].updateDelta(NN[1].A,tmp)
 	#print(tmp)
 	NN[1].updateWeights(NN[0].out)
-	NN[0].updateWeights(inp[r])
+	NN[0].updateWeights(theInput)
