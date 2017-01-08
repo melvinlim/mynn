@@ -8,9 +8,9 @@
 
 void PRINTMATRIX(const Matrix *M){
 	int i,j;
-	for(i=0;i<M->height;i++){
-		for(j=0;j<M->width;j++){
-			printf("[%i,%i]%.09f ",i,j,M->elements[i*M->stride+j]);
+	for(i=0;i<M->n;i++){
+		for(j=0;j<M->m;j++){
+			printf("[%i,%i]%.09f ",i,j,M->el[i*M->m+j]);
 		}
 		printf("\n");
 	}
@@ -28,9 +28,9 @@ void PRINTARRAY(const Array *A){
 }
 void randMatrix(Matrix *M){
 	int i,j;
-	for(i=0;i<M->height;i++){
-		for(j=0;j<M->width;j++){
-			M->elements[i*M->stride+j]=
+	for(i=0;i<M->n;i++){
+		for(j=0;j<M->m;j++){
+			M->el[i*M->m+j]=
 			(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 		}
 	}

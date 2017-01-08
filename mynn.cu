@@ -25,9 +25,6 @@ void PRINTINFO(Array *pIn,Net *net,Array *pOut,float err){
 	net->L[LAYERS-1]->out->el[0],net->L[LAYERS-1]->out->el[1],
 	pOut->el[0],pOut->el[1],err);
 }
-void nnInsert(Net *N,Array *x){
-	memcpy(N->L[0]->in->el,x->el,x->len*sizeof(float));
-}
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
 	int n=y0->len;
@@ -61,34 +58,7 @@ int main(){
 	int i;
 	Net *net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
-		net->L[i]=(Layer *)malloc(sizeof(Layer));
-		if(i>0){
-			net->L[i]->in=net->L[i-1]->out;
-		}else{
-			net->L[0]->in=(Array *)malloc(sizeof(Array));
-		}
-		net->L[i]->out=(Array *)malloc(sizeof(Array));
-		net->L[i]->deriv=(Array *)malloc(sizeof(Array));
-		net->L[i]->delta=(Array *)malloc(sizeof(Array));
-		net->L[i]->in->len=mDim[i];
-		net->L[i]->in->el=(float *)malloc(mDim[i]*sizeof(float));
-		net->L[i]->out->len=nDim[i];
-		net->L[i]->out->el=(float *)malloc(nDim[i]*sizeof(float));
-		net->L[i]->deriv->len=nDim[i];
-		net->L[i]->deriv->el=(float *)malloc(nDim[i]*sizeof(float));
-		net->L[i]->delta->len=nDim[i];
-		net->L[i]->delta->el=(float *)malloc(nDim[i]*sizeof(float));
-
-		net->L[i]->M=(Matrix *)malloc(sizeof(Matrix));
-		net->L[i]->M->height=nDim[i];
-		net->L[i]->M->width=mDim[i];
-		net->L[i]->M->stride=mDim[i];
-		net->L[i]->M->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
-		net->L[i]->dW=(Matrix *)malloc(sizeof(Matrix));
-		net->L[i]->dW->height=nDim[i];
-		net->L[i]->dW->width=mDim[i];
-		net->L[i]->dW->stride=mDim[i];
-		net->L[i]->dW->elements=(float *)malloc(nDim[i]*mDim[i]*sizeof(float));
+		net->insertLayer(i,nDim[i],mDim[i]);
 	}
 
 	nnRand(net);
@@ -97,26 +67,25 @@ int main(){
 	}
 
 	Array *p1,*p2,*p3,*p4,*ret;
-	p1=CREATEARRAY(ex1,NINPUTS);
-	p2=CREATEARRAY(ex2,NINPUTS);
-	p3=CREATEARRAY(ex3,NINPUTS);
-	p4=CREATEARRAY(ex4,NINPUTS);
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
-	pAns1=CREATEARRAY(ans1,NOUTPUTS);
-	pAns2=CREATEARRAY(ans2,NOUTPUTS);
-	pAns3=CREATEARRAY(ans3,NOUTPUTS);
-	pAns4=CREATEARRAY(ans4,NOUTPUTS);
-
 	Array *pError;
-	pError=CREATEARRAY(ans4,NOUTPUTS);
 
-	ret=CREATEARRAY(0,NOUTPUTS);
-	p1->el[L1M]=1;
-	p2->el[L1M]=1;
-	p3->el[L1M]=1;
-	p4->el[L1M]=1;
+	p1=new Array(ex1,NINPUTS);
+	p2=new Array(ex2,NINPUTS);
+	p3=new Array(ex3,NINPUTS);
+	p4=new Array(ex4,NINPUTS);
 
-	nnInsert(net,p1);
+	pAns1=new Array(ans1,NOUTPUTS);
+	pAns2=new Array(ans2,NOUTPUTS);
+	pAns3=new Array(ans3,NOUTPUTS);
+	pAns4=new Array(ans4,NOUTPUTS);
+
+	pError=new Array(ans4,NOUTPUTS);
+
+	ret=new Array(0,NOUTPUTS);
+
+	net->input(p1);
+
 	ret=nnForward(net);
 	PRINTARRAY(ret);
 	nnError(pError,ret,pAns1);
@@ -141,7 +110,7 @@ int main(){
 		tmpvar=rand()%4;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
-		nnInsert(net,pIn);
+		net->input(pIn);
 		ret=nnForward(net);
 		nnError(pError,ret,pOut);
 		err=nnTotalError(ret,pOut);

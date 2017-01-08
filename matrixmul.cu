@@ -1,12 +1,12 @@
 void updateWeights(Layer *L){
 	int i,j;
 	Matrix *A=L->M;
-//printf("%d %d\n",A->width,A->height);
+//printf("%d %d\n",A->m,A->n);
 	Array *delta=L->delta;
-	Array *input=L->in;
-	for(j=0;j<A->height;j++){
-		for(i=0;i<A->width;i++){
-			A->elements[j*A->width+i]-=GAMMA*input->el[i]*delta->el[j];
+	//Array *input=L->in;
+	for(j=0;j<A->n;j++){
+		for(i=0;i<A->m;i++){
+			//A->el[j*A->m+i]-=GAMMA*input->el[i]*delta->el[j];
 		}
 	}
 }
@@ -21,7 +21,7 @@ void bpDeltas(Layer *L1,Layer *L2){
 	for(j=0;j<deriv->len;j++){
 		sum=0;
 		for(k=0;k<delta2->len;k++){
-			sum+=W->elements[j*W->width+k]*delta2->el[k];
+			sum+=W->el[j*W->m+k]*delta2->el[k];
 		}
 		delta1->el[j]=deriv->el[j]*sum;
 	}
@@ -51,10 +51,10 @@ void nnBackProp(Net *N,Array *error){
 void layerForward(const Matrix *M,const Array *in,Array *out,Array *deriv){
 	int i,j;
 	float a,tmp;
-	for(j=0;j<M->height;j++){
+	for(j=0;j<M->n;j++){
 		a=0;
-		for(i=0;i<M->width;i++){
-			a+=M->elements[j*M->width+i]*in->el[i];
+		for(i=0;i<M->m;i++){
+			a+=M->el[j*M->m+i]*in->el[i];
 		}
 		tmp=tanh(a);
 		out->el[j]=tmp;
@@ -70,7 +70,7 @@ Array *nnForward(Net *N){
 	Array *deriv;
 	for(i=0;i<LAYERS;i++){
 		M=N->L[i]->M;
-		in=N->L[i]->in;
+		//in=N->L[i]->in;
 		out=N->L[i]->out;
 		deriv=N->L[i]->deriv;
 //PRINTARRAY(in);
@@ -88,21 +88,21 @@ __global__ void MatMulKernel(const Matrix A, const Array x, Array y, Array deriv
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
   //int col = blockIdx.x * blockDim.x + threadIdx.x;
   int row = blockIdx.x * blockDim.x + threadIdx.x;
-	for(i=0;i<A.width;i++){
-		Cval+=A.elements[row*A.width+i]*x.el[i];
+	for(i=0;i<A.m;i++){
+		Cval+=A.el[row*A.m+i]*x.el[i];
 	}
 	float tmp=tanhf(Cval);
 	y.el[row]=tmp;
 	deriv.el[row]=1.0-(tmp*tmp);
 }
-
+/*
 void MatMul(const Matrix A, const Array x, Array y, Array deriv)
 {
     Matrix d_A;
-    d_A.width = d_A.stride = A.width; d_A.height = A.height;
-    size_t size = A.width * A.height * sizeof(float);
-    cudaMalloc(&d_A.elements, size);
-    cudaMemcpy(d_A.elements, A.elements, size,
+    d_A.m = d_A.m = A.m; d_A.n = A.n;
+    size_t size = A.m * A.n * sizeof(float);
+    cudaMalloc(&d_A.el, size);
+    cudaMemcpy(d_A.el, A.el, size,
                cudaMemcpyHostToDevice);
 
 		Array d_x;
@@ -126,10 +126,10 @@ void MatMul(const Matrix A, const Array x, Array y, Array deriv)
 
     // Invoke kernel
     //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    //dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
-    //dim3 dimGrid(dimBlock.x, A.height / dimBlock.y);
+    //dim3 dimGrid(B.m / dimBlock.x, A.n / dimBlock.y);
+    //dim3 dimGrid(dimBlock.x, A.n / dimBlock.y);
     dim3 dimBlock(BLOCK_SIZE);
-    dim3 dimGrid(A.height / dimBlock.y);
+    dim3 dimGrid(A.n / dimBlock.y);
     MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y, d_deriv);
     //MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_x, d_y);
 
@@ -141,35 +141,35 @@ void MatMul(const Matrix A, const Array x, Array y, Array deriv)
     	cudaMemcpyDeviceToHost);
 
     // Free device memory
-    cudaFree(d_A.elements);
+    cudaFree(d_A.el);
     cudaFree(d_x.el);
     cudaFree(d_y.el);
     cudaFree(d_deriv.el);
 }
-
+*/
 // Get a matrix element
 __device__ float GetElement(const Matrix A, int row, int col)
 {
-    return A.elements[row * A.stride + col];
+    return A.el[row * A.m + col];
 }
 
 // Set a matrix element
 __device__ void SetElement(Matrix A, int row, int col,
                            float value)
 {
-    A.elements[row * A.stride + col] = value;
+    A.el[row * A.m + col] = value;
 }
-
+/*
 // Get the BLOCK_SIZExBLOCK_SIZE sub-matrix Asub of A that is
 // located col sub-matrices to the right and row sub-matrices down
 // from the upper-left corner of A
  __device__ Matrix GetSubMatrix(Matrix A, int row, int col) 
 {
     Matrix Asub;
-    Asub.width    = BLOCK_SIZE;
-    Asub.height   = BLOCK_SIZE;
-    Asub.stride   = A.stride;
-    Asub.elements = &A.elements[A.stride * BLOCK_SIZE * row
+    Asub.m    = BLOCK_SIZE;
+    Asub.n   = BLOCK_SIZE;
+    Asub.m   = A.m;
+    Asub.el = &A.el[A.m * BLOCK_SIZE * row
                                          + BLOCK_SIZE * col];
     return Asub;
 }
@@ -183,38 +183,38 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
 {
     // Load A and B to device memory
     Matrix d_A;
-    d_A.width = d_A.stride = A.width; d_A.height = A.height;
-    size_t size = A.width * A.height * sizeof(float);
-    cudaMalloc(&d_A.elements, size);
-    cudaMemcpy(d_A.elements, A.elements, size,
+    d_A.m = d_A.m = A.m; d_A.n = A.n;
+    size_t size = A.m * A.n * sizeof(float);
+    cudaMalloc(&d_A.el, size);
+    cudaMemcpy(d_A.el, A.el, size,
                cudaMemcpyHostToDevice);
     Matrix d_B;
-    d_B.width = d_B.stride = B.width; d_B.height = B.height;
-    size = B.width * B.height * sizeof(float);
+    d_B.m = d_B.m = B.m; d_B.n = B.n;
+    size = B.m * B.n * sizeof(float);
 
-    cudaMalloc(&d_B.elements, size);
-    cudaMemcpy(d_B.elements, B.elements, size,
+    cudaMalloc(&d_B.el, size);
+    cudaMemcpy(d_B.el, B.el, size,
     cudaMemcpyHostToDevice);
 
     // Allocate C in device memory
     Matrix d_C;
-    d_C.width = d_C.stride = C.width; d_C.height = C.height;
-    size = C.width * C.height * sizeof(float);
-    cudaMalloc(&d_C.elements, size);
+    d_C.m = d_C.m = C.m; d_C.n = C.n;
+    size = C.m * C.n * sizeof(float);
+    cudaMalloc(&d_C.el, size);
 
     // Invoke kernel
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
+    dim3 dimGrid(B.m / dimBlock.x, A.n / dimBlock.y);
     MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_B, d_C);
 
     // Read C from device memory
-    cudaMemcpy(C.elements, d_C.elements, size,
+    cudaMemcpy(C.el, d_C.el, size,
                cudaMemcpyDeviceToHost);
 
     // Free device memory
-    cudaFree(d_A.elements);
-    cudaFree(d_B.elements);
-    cudaFree(d_C.elements);
+    cudaFree(d_A.el);
+    cudaFree(d_B.el);
+    cudaFree(d_C.el);
 }
 
 // Matrix multiplication kernel called by MatMul()
@@ -239,7 +239,7 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
     // required to compute Csub
     // Multiply each pair of sub-matrices together
     // and accumulate the results
-    for (int m = 0; m < (A.width / BLOCK_SIZE); ++m) {
+    for (int m = 0; m < (A.m / BLOCK_SIZE); ++m) {
 
         // Get sub-matrix Asub of A
         Matrix Asub = GetSubMatrix(A, blockRow, m);
@@ -274,3 +274,4 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
     // Each thread writes one element
     SetElement(Csub, row, col, Cvalue);
 }
+*/
