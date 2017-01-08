@@ -18,9 +18,9 @@ void bpDeltas(Layer *L1,Layer *L2){
 	Array *delta1=L1->delta;
 	Array *delta2=L2->delta;
 	Matrix *W=L2->M;
-	for(j=0;j<deriv->len;j++){
+	for(j=0;j<deriv->n;j++){
 		sum=0;
-		for(k=0;k<delta2->len;k++){
+		for(k=0;k<delta2->n;k++){
 			sum+=W->el[j*W->m+k]*delta2->el[k];
 		}
 		delta1->el[j]=deriv->el[j]*sum;
@@ -31,7 +31,7 @@ void bpDeltas0(Layer *L,const Array *error){
 	int j;
 	Array *deriv=L->deriv;
 	Array *delta=L->delta;
-	for(j=0;j<deriv->len;j++){
+	for(j=0;j<deriv->n;j++){
 		delta->el[j]=deriv->el[j]*error->el[j];
 		//delta->el[j]=error->el[j];
 	}
@@ -106,21 +106,21 @@ void MatMul(const Matrix A, const Array x, Array y, Array deriv)
                cudaMemcpyHostToDevice);
 
 		Array d_x;
-		d_x.len=x.len;
+		d_x.n=x.n;
 		d_x.el=x.el;
-		size_t xSz=x.len*sizeof(float);
+		size_t xSz=x.n*sizeof(float);
     cudaMalloc(&d_x.el,xSz);
     cudaMemcpy(d_x.el,x.el,xSz,
 	    cudaMemcpyHostToDevice);
 		
 		Array d_y;
-		d_y.len=y.len;
+		d_y.n=y.n;
 		d_y.el=y.el;
-		size_t ySz=y.len*sizeof(float);
+		size_t ySz=y.n*sizeof(float);
     cudaMalloc(&d_y.el,ySz);
 		
 		Array d_deriv;
-		d_deriv.len=deriv.len;
+		d_deriv.n=deriv.n;
 		d_deriv.el=deriv.el;
     cudaMalloc(&d_deriv.el,ySz);
 

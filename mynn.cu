@@ -27,14 +27,14 @@ void PRINTINFO(Array *pIn,Net *net,Array *pOut,float err){
 }
 void nnError(Array *err,const Array *y0,const Array *yTarget){
 	int i;
-	int n=y0->len;
+	int n=y0->n;
 	for(i=0;i<n;i++){
 		err->el[i]=(y0->el[i]-yTarget->el[i]);
 	}
 }
 float nnTotalError(const Array *y0,const Array *y){
 	int i;
-	int n=y0->len;
+	int n=y0->n;
 	float ret=0;
 	for(i=0;i<n;i++){
 		ret+=fabs(y0->el[i]-y->el[i]);
@@ -84,15 +84,15 @@ int main(){
 
 	ret=new Array(0,NOUTPUTS);
 
-	net->input(p1);
-
-	ret=nnForward(net);
+	ret=net->input(p1);
 	PRINTARRAY(ret);
+
 	nnError(pError,ret,pAns1);
 	float err=nnTotalError(ret,pAns1);
-	printf("err:%f\n",err);
-	nnBackProp(net,pError);
 
+	printf("err:%f\n",err);
+
+	net->insertError(pError);
 
 	Array **pInputs=(Array **)malloc(4*sizeof(Array *));
 	pInputs[0]=p1;

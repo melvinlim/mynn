@@ -21,19 +21,22 @@ public:
 	}
 	~Matrix(){
 	}
+	float *e(int i,int j){
+		return(this->el+(i*this->m+j));
+	}
 };
 
 class Array{
 public:
-	int len;
+	int n;
 	float *el;
 	Array(int n){
-		len=n;
+		this->n=n;
 		el=new float(n);
 	}
 	Array(const float *x,int n){
 		int i;
-		this->len=n;
+		this->n=n;
 		this->el=new float(n);
 		if(x){
 			for(i=0;i<n;i++){
@@ -62,6 +65,40 @@ public:
 	}
 	~Layer(){
 	}
+	Array *forward(const Array *x){
+		int i,j;
+		float a,tmp;
+		for(j=0;j<M->n;j++){
+			a=0;
+			for(i=0;i<M->m;i++){
+				a+=M->el[j*M->m+i]*x->el[i];
+				//a+=M->e(j,i)*x->el[i];
+			}
+			tmp=tanh(a);
+			out->el[j]=tmp;
+			deriv->el[j]=1.0-tmp*tmp;
+		}
+		return(this->out);
+	}
+	void outputDelta(const Array *error){
+		int j;
+		for(j=0;j<error->n;j++){
+			delta->el[j]=deriv->el[j]*error->el[j];
+			//delta->el[j]=error->el[j];
+		}
+	}
+	void upDelta(const Matrix *W,const Array *delta2){
+		int j,k;
+		float sum;
+		Array *delta1=this->delta;
+		for(j=0;j<deriv->n;j++){
+			sum=0;
+			for(k=0;k<delta2->n;k++){
+				sum+=W->el[j*W->m+k]*delta2->el[k];
+			}
+			delta1->el[j]=deriv->el[j]*sum;
+		}
+	}
 };
 
 class Net{
@@ -81,8 +118,42 @@ public:
 	void insertLayer(int i,int n,int m){
 		L[i]=new Layer(n,m);
 	}
-	void input(Array *in){
+	Array *input(Array *x){
+		int i;
+		for(i=0;i<x->n;i++){
+			x=L[i]->forward(x);
+	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
+		}
+		return(x);
+	}
+	void insertError(const Array *error){
+		int i;
+		//bpDeltas0(N->L[LAYERS-1],error);
+		L[LAYERS-1]->outputDelta(error);
+		for(i=LAYERS-2;i>=0;i--){
+			//bpDeltas(N->L[i],N->L[i+1]);
+			L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
+		}
+		for(i=LAYERS-1;i>=0;i--){
+			//updateWeights(N->L[i]);
+		}
 	}
 };
 
 #endif
+/*
+void updateWeights(Layer *L){
+	int i,j;
+	Matrix *A=L->M;
+	Array *delta=L->delta;
+	//Array *input=L->in;
+	for(j=0;j<A->n;j++){
+		for(i=0;i<A->m;i++){
+			//A->el[j*A->m+i]-=GAMMA*input->el[i]*delta->el[j];
+		}
+	}
+}
+
+
+
+*/

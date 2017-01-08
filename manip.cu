@@ -19,7 +19,7 @@ void PRINTMATRIX(const Matrix *M){
 void PRINTARRAY(const Array *A){
 	int i;
 	float *x;
-	int sz=A->len;
+	int sz=A->n;
 	x=A->el;
 	for(i=0;i<sz;i++){
 		printf("[%i]%.02f\t",i,*x++);
@@ -37,7 +37,7 @@ void randMatrix(Matrix *M){
 }
 void randArray(Array *A){
 	int i;
-	for(i=0;i<A->len;i++){
+	for(i=0;i<A->n;i++){
 		A->el[i]=
 		(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 	}
@@ -50,13 +50,4 @@ void nnRand(Net *N){
 		pM=N->L[i]->M;
 		randMatrix(pM);
 	}
-}
-Array *CREATEARRAY(const float *x,int n){
-	Array *p=(Array *)malloc(sizeof(Array));
-	p->len=n;
-	p->el=(float *)malloc(n*sizeof(float));
-	if(x){
-		memcpy(p->el,x,n*sizeof(float));
-	}
-	return(p);
 }
