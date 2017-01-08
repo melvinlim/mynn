@@ -1,6 +1,6 @@
-#define LAYERS 2
+/*#define LAYERS 2
 
-#define GAMMA (0.1)
+#define GAMMA (0.0001)
 
 // Thread block size
 //#define BLOCK_SIZE 16
@@ -32,7 +32,7 @@ struct Net{
 	Layer **L;
 	int size;
 };
-
+*/
 void updateWeights(Layer *L){
 	int i,j;
 	Matrix *A=L->M;
