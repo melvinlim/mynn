@@ -92,7 +92,7 @@ int main(){
 
 	printf("err:%f\n",err);
 
-	net->insertError(pError);
+	net->insertError(p1,pError);
 
 	Array **pInputs=(Array **)malloc(4*sizeof(Array *));
 	pInputs[0]=p1;
@@ -111,11 +111,11 @@ int main(){
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->input(pIn);
-		ret=nnForward(net);
+		ret=net->input(pIn);
 		nnError(pError,ret,pOut);
 		err=nnTotalError(ret,pOut);
 		PRINTINFO(pIn,net,pOut,err);
-		nnBackProp(net,pError);
+		net->insertError(pOut,pError);
 	}
 
 	for(i=0;i<LAYERS;i++){

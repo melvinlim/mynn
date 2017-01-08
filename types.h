@@ -99,6 +99,16 @@ public:
 			delta1->el[j]=deriv->el[j]*sum;
 		}
 	}
+	void updateWeights(const Array *input){
+		int i,j;
+		Matrix *A=this->M;
+		Array *delta=this->delta;
+		for(j=0;j<A->n;j++){
+			for(i=0;i<A->m;i++){
+				A->el[j*A->m+i]-=GAMMA*input->el[i]*delta->el[j];
+			}
+		}
+	}
 };
 
 class Net{
@@ -126,7 +136,7 @@ public:
 		}
 		return(x);
 	}
-	void insertError(const Array *error){
+	void insertError(const Array *input,const Array *error){
 		int i;
 		//bpDeltas0(N->L[LAYERS-1],error);
 		L[LAYERS-1]->outputDelta(error);
@@ -134,26 +144,11 @@ public:
 			//bpDeltas(N->L[i],N->L[i+1]);
 			L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
 		}
-		for(i=LAYERS-1;i>=0;i--){
-			//updateWeights(N->L[i]);
+		for(i=LAYERS-1;i>=1;i--){
+			L[i]->updateWeights(L[i-1]->out);
 		}
+		L[0]->updateWeights(input);
 	}
 };
 
 #endif
-/*
-void updateWeights(Layer *L){
-	int i,j;
-	Matrix *A=L->M;
-	Array *delta=L->delta;
-	//Array *input=L->in;
-	for(j=0;j<A->n;j++){
-		for(i=0;i<A->m;i++){
-			//A->el[j*A->m+i]-=GAMMA*input->el[i]*delta->el[j];
-		}
-	}
-}
-
-
-
-*/
