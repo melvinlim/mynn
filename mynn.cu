@@ -28,22 +28,6 @@ void PRINTINFO(Array *pIn,Net *net,Array *pOut,Array *pErr){
 	pErr->el[0],pErr->el[1]
 	);
 }
-void nnError(Array *err,const Array *y0,const Array *yTarget){
-	int i;
-	for(i=0;i<y0->n;i++){
-		err->el[i]=(y0->el[i]-yTarget->el[i]);
-	}
-}
-float nnTotalError(const Array *y0,const Array *y){
-	int i;
-	int n=y0->n;
-	float ret=0;
-	for(i=0;i<n;i++){
-		ret+=fabs(y0->el[i]-y->el[i]);
-		ret*=ret;
-	}
-	return(ret/2.0);
-}
 const float ex1[NINPUTS]={-1,-1};
 const float ex2[NINPUTS]={-1,+1};
 const float ex3[NINPUTS]={+1,-1};

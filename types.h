@@ -159,6 +159,7 @@ public:
 	Layer **L;
 	int n;
 	Array *error;
+	Array *answer;
 	Net(int n=0){
 		this->n=n;
 		L=(Layer **)malloc(n*sizeof(Layer *));
@@ -173,15 +174,21 @@ public:
 		L[i]=new Layer(n,m);
 		if(i==(this->n-1)){
 			error=new Array(n);
+			answer=new Array(n);
 		}
 	}
-	Array *forward(Array *x){
+	void forward(const Array *x){
 		int i;
+		L[0]->forward(x);
+		L[1]->forward(L[0]->out);
+/*
+		Array *t=x;
 		for(i=0;i<this->n;i++){
-			x=L[i]->forward(x);
+			t=L[i]->forward(t);
 	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
 		}
-		return(x);
+*/
+		this->answer=L[1]->out;
 	}
 	void backward(const Array *input){
 		//int i;
@@ -212,16 +219,15 @@ public:
 		}
 	}
 	Array *train(Array *x,const Array *y){
-		Array *err,*y0;
-		y0=this->forward(x);
-		this->upError(y0,y);
+		this->forward(x);
+		this->upError(y);
 		this->backward(y);
 		return(this->error);
 	}
-	void upError(const Array *y0,const Array *yTarget){
+	void upError(const Array *yTarget){
 		int i;
-		for(i=0;i<y0->n;i++){
-			this->error->el[i]=(y0->el[i]-yTarget->el[i]);
+		for(i=0;i<answer->n;i++){
+			this->error->el[i]=(answer->el[i]-yTarget->el[i]);
 		}
 	}
 };
