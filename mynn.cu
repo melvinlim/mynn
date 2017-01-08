@@ -6,10 +6,13 @@
 #include "manip.cu"
 #include "matrixmul.cu"
 
-#define L1M (2)
+#define NINPUTS 2
+#define NOUTPUTS 2
+
+#define L1M (NINPUTS)
 #define L1N (6)
 #define L2M (6)
-#define L2N (2)
+#define L2N (NOUTPUTS)
 
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -34,18 +37,18 @@ float nnTotalError(const Array *y0,const Array *y){
 	}
 	return(ret/2.0);
 }
-const float ex1[L1M]={-1,-1};
-const float ex2[L1M]={-1,+1};
-const float ex3[L1M]={+1,-1};
-const float ex4[L1M]={+1,+1};
-//const float ans1[L2N]={-1,+1};
-//const float ans2[L2N]={+1,-1};
-//const float ans3[L2N]={+1,-1};
-//const float ans4[L2N]={-1,+1};
-const float ans1[L2N]={-1,+1};
-const float ans2[L2N]={+1,-1};
-const float ans3[L2N]={+1,-1};
-const float ans4[L2N]={+1,-1};
+const float ex1[NINPUTS]={-1,-1};
+const float ex2[NINPUTS]={-1,+1};
+const float ex3[NINPUTS]={+1,-1};
+const float ex4[NINPUTS]={+1,+1};
+//const float ans1[NOUTPUTS]={-1,+1};
+//const float ans2[NOUTPUTS]={+1,-1};
+//const float ans3[NOUTPUTS]={+1,-1};
+//const float ans4[NOUTPUTS]={-1,+1};
+const float ans1[NOUTPUTS]={-1,+1};
+const float ans2[NOUTPUTS]={+1,-1};
+const float ans3[NOUTPUTS]={+1,-1};
+const float ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
 	Net *net;
@@ -89,20 +92,20 @@ int main(){
 	}
 
 	Array *p1,*p2,*p3,*p4,*ret;
-	p1=CREATEARRAY(ex1,L1M);
-	p2=CREATEARRAY(ex2,L1M);
-	p3=CREATEARRAY(ex3,L1M);
-	p4=CREATEARRAY(ex4,L1M);
+	p1=CREATEARRAY(ex1,NINPUTS);
+	p2=CREATEARRAY(ex2,NINPUTS);
+	p3=CREATEARRAY(ex3,NINPUTS);
+	p4=CREATEARRAY(ex4,NINPUTS);
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
-	pAns1=CREATEARRAY(ans1,L2N);
-	pAns2=CREATEARRAY(ans2,L2N);
-	pAns3=CREATEARRAY(ans3,L2N);
-	pAns4=CREATEARRAY(ans4,L2N);
+	pAns1=CREATEARRAY(ans1,NOUTPUTS);
+	pAns2=CREATEARRAY(ans2,NOUTPUTS);
+	pAns3=CREATEARRAY(ans3,NOUTPUTS);
+	pAns4=CREATEARRAY(ans4,NOUTPUTS);
 
 	Array *pError;
-	pError=CREATEARRAY(ans4,L2N);
+	pError=CREATEARRAY(ans4,NOUTPUTS);
 
-	ret=CREATEARRAY(0,L2N);
+	ret=CREATEARRAY(0,NOUTPUTS);
 
 	nnInsert(net,p1);
 	ret=nnForward(net);
