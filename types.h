@@ -227,7 +227,7 @@ public:
 	Array *train(const Array *x,const Array *y){
 		this->forward(x);
 		this->upError(y);
-		this->backward(y);
+		this->backward(x);
 		return(this->error);
 	}
 	void upError(const Array *yTarget){
