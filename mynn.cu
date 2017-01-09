@@ -91,7 +91,7 @@ int main(){
 	for(i=0;i<EPOCHS;i++){
 		tmpvar=rand()%4;
 		net->train(pIn[tmpvar],pOut[tmpvar]);
-		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
+//		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
 	}
 }
 

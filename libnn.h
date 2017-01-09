@@ -140,6 +140,8 @@ public:
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
+L[1].out.print();
+y.print();
 		return(this->error);
 	}
 	void upError(const Array<double> &yTarget){

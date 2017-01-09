@@ -50,7 +50,7 @@ public:
 			}
 		}
 	}
-	void print(){
+	void print() const{
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
@@ -132,8 +132,8 @@ public:
 		return lhs;
 	}
 	Array<T> &operator=(const Array<T> &rhs){
-		printf("in operator=\n");
 /*
+		printf("in operator=\n");
 		for(int i=0;i<rhs.n;i++){
 			this->el[i]=rhs.el[i];
 		}
@@ -142,7 +142,7 @@ public:
 		this->n=rhs.n;
 		return *this;
 	}
-	void print(){
+	void print() const{
 		int i=0;
 		for(double x:el){
 			printf("[%i]%.02f\t",i++,x);
