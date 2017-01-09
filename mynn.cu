@@ -27,12 +27,12 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 //const int nDim[LAYERS]={L1N,L2N,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
 
-void PRINTINFO(Array<double> *pIn,Array<double> *answer,Array<double> *pOut,Array<double> *pErr){
+void PRINTINFO(const Array<double> &pIn,const Array<double> &answer,const Array<double> &pOut,const Array<double> &pErr){
 	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
-	pIn->el[0],pIn->el[1],
-	answer->el[0],answer->el[1],
-	pOut->el[0],pOut->el[1],
-	pErr->el[0],pErr->el[1]
+	pIn(0),pIn(1),
+	answer(0),answer(1),
+	pOut(0),pOut(1),
+	pErr(0),pErr(1)
 	);
 }
 double ex1[NINPUTS]={-1,-1};
@@ -89,7 +89,6 @@ int main(){
 	for(Array<double> x:pOut)
 		x.print();
 //	pIn[i].print();
-	return 0;
 /*
 	double **pInputs=(double **)malloc(4*sizeof(double *));
 	pInputs[0]=ex1;
@@ -109,7 +108,7 @@ int main(){
 //		pIn=new Array<double>(pInputs[tmpvar],NINPUTS);
 //		pOut=new Array<double>(pOutputs[tmpvar],NOUTPUTS);
 		net->train(pIn[tmpvar],pOut[tmpvar]);
-		//PRINTINFO(pIn[tmpvar],&net->answer,pOut[tmpvar],&net->error);
+		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
 //		delete pIn;
 //		delete pOut;
 	}
