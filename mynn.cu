@@ -2,6 +2,8 @@
 #define _MYNN
 
 #include <cuda.h>
+#include <math.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,10 +23,10 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 //const int nDim[LAYERS]={L1N,L2N,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
 
-void PRINTINFO(Array *pIn,Net *net,Array *pOut,Array *pErr){
+void PRINTINFO(Array *pIn,Array *answer,Array *pOut,Array *pErr){
 	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
 	pIn->el[0],pIn->el[1],
-	net->L[LAYERS-1]->out->el[0],net->L[LAYERS-1]->out->el[1],
+	answer->el[0],answer->el[1],
 	pOut->el[0],pOut->el[1],
 	pErr->el[0],pErr->el[1]
 	);
@@ -83,7 +85,7 @@ int main(){
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->train(pIn,pOut);
-		PRINTINFO(pIn,net,pOut,net->error);
+		PRINTINFO(pIn,net->answer,pOut,net->error);
 	}
 }
 

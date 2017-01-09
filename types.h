@@ -151,7 +151,7 @@ public:
 		int i,j;
 		for(i=0;i<this->M->n;i++){
 			for(j=0;j<this->M->m;j++){
-				this->M->el[i*this->M->m+j]-=GAMMA*input->el[j]*delta->el[i];
+				this->M->el[i*this->M->m+j]-=GAMMA*input->el[j]*this->delta->el[i];
 			}
 		}
 	}
@@ -232,8 +232,8 @@ public:
 	}
 	void upError(const Array *yTarget){
 		int i;
-		for(i=0;i<answer->n;i++){
-			this->error->el[i]=(answer->el[i]-yTarget->el[i]);
+		for(i=0;i<yTarget->n;i++){
+			this->error->el[i]=(this->answer->el[i]-yTarget->el[i]);
 		}
 	}
 };
