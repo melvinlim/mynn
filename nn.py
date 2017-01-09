@@ -6,9 +6,10 @@ import cudaModules
 import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
-MIDDLELAYER=9
+MIDDLELAYER=7
 EPOCHS=1000
 GAMMA=0.01
+PRINTFREQ=100
 class Layer:
 	def __init__(self,n,m):
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -16,9 +17,15 @@ class Layer:
 		self.out=np.array(n*[0]).astype(np.float64)
 		self.delta=np.array(n*[0]).astype(np.float64)
 		self.deriv=np.array(n*[0]).astype(np.float64)
+
 		kernel_code=cudaModules.forwardTemplate%{'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.forwardKernel=module.get_function("forwardKernel")
+
+		kernel_code=cudaModules.deltaTemplate%{'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.deltaKernel=module.get_function("deltaKernel")
+
 	def insert(self,x):
 		#self.out=np.tanh(np.dot(self.A,x))
 		#self.deriv=1.0-(self.out*self.out)
@@ -34,14 +41,22 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		arr=[]
-		for j in range(len(self.delta)):
-			s=0
-			for k in range(len(y)):
-				s += A[k][j]*y[k]
-			arr.append(s)
-		self.delta=self.deriv*s
-#			self.delta[j]=self.deriv[j]*s
+		if(True):
+			arr=[]
+			for j in range(len(self.delta)):
+				s=0
+				for k in range(len(y)):
+					s += A[k][j]*y[k]
+				arr.append(s)
+			self.delta=self.deriv*s
+		else:
+			self.deltaKernel(
+				drv.In(self.A),
+				drv.Out(self.delta),
+				drv.In(self.out),
+				drv.In(self.deriv),
+				block=(self.A.shape[1],1,1),
+				grid=(1,1))
 		return self.delta
 	def updateWeights(self,x):
 		for i in range(self.A.shape[0]):
@@ -67,12 +82,13 @@ for i in range(EPOCHS):
 	tmp=NN[0].insert(theInput)
 	tmp=NN[1].insert(tmp)
 	error=tmp-out[r]
-	print('error:'),
-	print(error)
-	print('output:'),
-	print(tmp)
-	print('target:'),
-	print(out[r])
+	if i%PRINTFREQ:
+		print('error:'),
+		print(error)
+		print('output:'),
+		print(tmp)
+		print('target:'),
+		print(out[r])
 	tmp=NN[1].updateDelta0(error)
 	tmp=NN[0].updateDelta(NN[1].A,tmp)
 	#print(tmp)

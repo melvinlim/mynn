@@ -14,3 +14,14 @@ __global__ void forwardKernel(double *A,double *x,double *y,double *deriv){
 	deriv[row]=1.0-(tmp*tmp);
 }
 """
+deltaTemplate="""
+__global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
+	int i;
+	double Cval=0;
+	const int col = threadIdx.x;
+	for(i=0;i<%(NCOLS)s;i++){
+		Cval+=A[i*%(NCOLS)s+col]*y[i];
+	}
+	x[col]=deriv[col]*Cval;
+}
+"""
