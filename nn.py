@@ -26,6 +26,10 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.deltaKernel=module.get_function("deltaKernel")
 
+		kernel_code=cudaModules.weightTemplate%{'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.weightKernel=module.get_function("weightKernel")
+
 	def insert(self,x):
 		#self.out=np.tanh(np.dot(self.A,x))
 		#self.deriv=1.0-(self.out*self.out)
@@ -41,7 +45,7 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		if(True):
+		if(False):
 			arr=[]
 			for j in range(len(self.delta)):
 				s=0
@@ -52,16 +56,22 @@ class Layer:
 		else:
 			self.deltaKernel(
 				drv.In(self.A),
-				drv.Out(self.delta),
+				drv.InOut(self.delta),
 				drv.In(self.out),
 				drv.In(self.deriv),
 				block=(self.A.shape[1],1,1),
 				grid=(1,1))
 		return self.delta
 	def updateWeights(self,x):
-		for i in range(self.A.shape[0]):
-			for j in range(self.A.shape[1]):
-				self.A[i][j] -= self.delta[i]*x[j]
+		self.weightKernel(
+			drv.InOut(self.A),
+			drv.In(x),
+			drv.In(self.delta),
+			block=(self.A.shape[0],1,1),
+			grid=(1,1))
+#		for i in range(self.A.shape[0]):
+#			for j in range(self.A.shape[1]):
+#				self.A[i][j] -= self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 inp1=np.array([-1,-1]).astype(np.float64)
