@@ -13,6 +13,7 @@
 using namespace std;
 
 #include "types.h"
+#include "libnn.h"
 
 #define NINPUTS (2)
 #define NOUTPUTS (2)
