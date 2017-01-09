@@ -1,16 +1,34 @@
+import os
+import sys
+sys.path.append(os.getcwd())
 import numpy as np
-MIDDLELAYER=7
+import cudaModules
+import pycuda.autoinit
+import pycuda.driver as drv
+import pycuda.compiler as compiler
+MIDDLELAYER=9
 EPOCHS=1000
 GAMMA=0.01
 class Layer:
 	def __init__(self,n,m):
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
-		self.out=np.array(n*[0])
-		self.delta=np.array(n*[0])
-		self.deriv=np.array(n*[0])
+		self.A.astype(np.float64)
+		self.out=np.array(n*[0]).astype(np.float64)
+		self.delta=np.array(n*[0]).astype(np.float64)
+		self.deriv=np.array(n*[0]).astype(np.float64)
+		kernel_code=cudaModules.kernelMod%{'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.kernel=module.get_function("Kernel")
 	def insert(self,x):
-		self.out=np.tanh(np.dot(self.A,x))
-		self.deriv=1.0-(self.out*self.out)
+		#self.out=np.tanh(np.dot(self.A,x))
+		#self.deriv=1.0-(self.out*self.out)
+		self.kernel(
+			drv.In(self.A),
+			drv.In(x),
+			drv.Out(self.out),
+			drv.Out(self.deriv),
+			block=(self.A.shape[0],1,1),
+			grid=(1,1))
 		return self.out
 	def updateDelta0(self,y):
 		self.delta=self.deriv*y
@@ -31,17 +49,17 @@ class Layer:
 				self.A[i][j] -= self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
-inp1=np.array([-1,-1])
-inp2=np.array([-1,+1])
-inp3=np.array([+1,-1])
-inp4=np.array([+1,+1])
+inp1=np.array([-1,-1]).astype(np.float64)
+inp2=np.array([-1,+1]).astype(np.float64)
+inp3=np.array([+1,-1]).astype(np.float64)
+inp4=np.array([+1,+1]).astype(np.float64)
 inp=[inp1,inp2,inp3,inp4]
-out1=np.array([-1,-1])
-out2=np.array([-1,+1])
-out3=np.array([+1,-1])
-out4=np.array([+1,+1])
+out1=np.array([-1,-1]).astype(np.float64)
+out2=np.array([-1,+1]).astype(np.float64)
+out3=np.array([+1,-1]).astype(np.float64)
+out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
-
+np.set_printoptions(precision=4)
 for i in range(EPOCHS):
 	r=np.random.randint(0,4)
 #	theInput=np.append(inp[r],[1])
@@ -77,3 +95,4 @@ for r in range(4):
 	#print(tmp)
 	NN[1].updateWeights(NN[0].out)
 	NN[0].updateWeights(theInput)
+
