@@ -11,34 +11,41 @@
 
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
+template<typename T>
 class Matrix{
 public:
 	int n;
 	int m;
-	float *el;
+	std::vector<T> el;
 	Matrix(int n,int m){
 		int i;
 		this->n=n;
 		this->m=m;
-		el=new float[n*m];
+		el.resize(n*m);
 		for(i=0;i<n*m;i++){
 			el[i]=0;
 		}
 	}
 	~Matrix(){
 	}
-	float *e(int i,int j){
-		if(((i+1)*(j+1))>(this->n*this->m)){
-			printf("dimension error\n");
-			exit(1);
+	T& operator()(unsigned int i,unsigned int j){
+		if(i>=this->n||j>=this->m){
+			throw 0;
 		}
-		return(this->el+(i*this->m+j));
+		return(el[(i*(this->m))+j]);
+	}
+	const T& operator()(unsigned int i,unsigned int j) const{
+		if(i>=this->n||j>=this->m){
+			throw 0;
+		}
+		return(el[(i*(this->m))+j]);
 	}
 	void rand(){
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				*this->e(i,j)=
+				//this->el[i*this->m+j]=
+				(*this)(i,j)=
 				(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 			}
 		}
@@ -47,7 +54,8 @@ public:
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				printf("[%i,%i]%.09f ",i,j,*this->e(i,j));
+				//printf("[%i,%i]%.09f ",i,j,this->el[i*this->m+j]);
+				printf("[%i,%i]%.09f ",i,j,(*this)(i,j));
 			}
 			printf("\n");
 		}
@@ -100,7 +108,7 @@ public:
 
 class Layer{
 public:
-	Matrix *M;
+	Matrix<float> *M;
 	Array *out;
 	Array *deriv;
 	Array *delta;
@@ -108,7 +116,7 @@ public:
 		out=new Array(n);
 		deriv=new Array(n);
 		delta=new Array(n);
-		M=new Matrix(n,m);
+		M=new Matrix<float>(n,m);
 	}
 	~Layer(){
 	}
@@ -118,7 +126,7 @@ public:
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=(*(M->e(j,i)))*x->el[i];
+				a+=(*M)(j,i)*x->el[i];
 				//a+=M->el[j*M->m+i]*x->el[i];
 				//a+=M->e(j,i)*x->el[i];
 			}
@@ -135,7 +143,7 @@ public:
 			//delta->el[j]=error->el[j];
 		}
 	}
-	void upDelta(const Matrix *W,const Array *delta2){
+	void upDelta(const Matrix<float> *W,const Array *delta2){
 		int j,k;
 		float sum;
 		for(j=0;j<this->deriv->n;j++){
