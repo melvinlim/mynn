@@ -45,22 +45,13 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		if(False):
-			arr=[]
-			for j in range(len(self.delta)):
-				s=0
-				for k in range(len(y)):
-					s += A[k][j]*y[k]
-				arr.append(s)
-			self.delta=self.deriv*s
-		else:
-			self.deltaKernel(
-				drv.In(self.A),
-				drv.InOut(self.delta),
-				drv.In(self.out),
-				drv.In(self.deriv),
-				block=(self.A.shape[1],1,1),
-				grid=(1,1))
+		self.deltaKernel(
+			drv.In(self.A),
+			drv.InOut(self.delta),
+			drv.In(self.out),
+			drv.In(self.deriv),
+			block=(self.A.shape[1],1,1),
+			grid=(1,1))
 		return self.delta
 	def updateWeights(self,x):
 		self.weightKernel(
@@ -92,7 +83,7 @@ for i in range(EPOCHS):
 	tmp=NN[0].insert(theInput)
 	tmp=NN[1].insert(tmp)
 	error=tmp-out[r]
-	if i%PRINTFREQ:
+	if (i%PRINTFREQ==0):
 		print('error:'),
 		print(error)
 		print('output:'),
