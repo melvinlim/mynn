@@ -232,7 +232,7 @@ public:
 		}
 */
 		int j;
-		for(j=0;j<this->n;j++){
+		for(j=0;j<this->answer.n;j++){
 			(this->answer)(j)=(L[1]->out)(j);
 		}
 	}
