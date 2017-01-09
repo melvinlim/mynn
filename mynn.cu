@@ -50,28 +50,13 @@ double ans4[NOUTPUTS]={-1,+1};
 int main(){
 	int i;
 	srand(time(0));
-	Net *net=new Net(LAYERS);
+	Net *net;
+	net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
 		net->insertLayer(i,nDim[i],mDim[i]);
 	}
 
-	net->print();
 	net->rand();
-	net->print();
-/*
-	Array<double> *p1,*p2,*p3,*p4;
-	Array<double> *pAns1,*pAns2,*pAns3,*pAns4;
-
-	p1=new Array<double>(ex1,NINPUTS);
-	p2=new Array<double>(ex2,NINPUTS);
-	p3=new Array<double>(ex3,NINPUTS);
-	p4=new Array<double>(ex4,NINPUTS);
-
-	pAns1=new Array<double>(ans1,NOUTPUTS);
-	pAns2=new Array<double>(ans2,NOUTPUTS);
-	pAns3=new Array<double>(ans3,NOUTPUTS);
-	pAns4=new Array<double>(ans4,NOUTPUTS);
-*/
 
 	vector<Array<double> > pIn,pOut;
 	pIn.resize(4);
@@ -88,29 +73,11 @@ int main(){
 	pOut[3]=Array<double>(ans4,NOUTPUTS);
 	for(Array<double> x:pOut)
 		x.print();
-//	pIn[i].print();
-/*
-	double **pInputs=(double **)malloc(4*sizeof(double *));
-	pInputs[0]=ex1;
-	pInputs[1]=ex2;
-	pInputs[2]=ex3;
-	pInputs[3]=ex4;
-	double **pOutputs=(double **)malloc(4*sizeof(double *));
-	pOutputs[0]=ans1;
-	pOutputs[1]=ans2;
-	pOutputs[2]=ans3;
-	pOutputs[3]=ans4;
-	Array<double> *pIn,*pOut;
-*/
 	int tmpvar;
 	for(i=0;i<EPOCHS;i++){
 		tmpvar=rand()%4;
-//		pIn=new Array<double>(pInputs[tmpvar],NINPUTS);
-//		pOut=new Array<double>(pOutputs[tmpvar],NOUTPUTS);
 		net->train(pIn[tmpvar],pOut[tmpvar]);
 		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
-//		delete pIn;
-//		delete pOut;
 	}
 }
 
