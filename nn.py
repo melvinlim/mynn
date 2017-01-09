@@ -16,13 +16,13 @@ class Layer:
 		self.out=np.array(n*[0]).astype(np.float64)
 		self.delta=np.array(n*[0]).astype(np.float64)
 		self.deriv=np.array(n*[0]).astype(np.float64)
-		kernel_code=cudaModules.kernelMod%{'NCOLS':self.A.shape[1]}
+		kernel_code=cudaModules.forwardTemplate%{'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
-		self.kernel=module.get_function("Kernel")
+		self.forwardKernel=module.get_function("forwardKernel")
 	def insert(self,x):
 		#self.out=np.tanh(np.dot(self.A,x))
 		#self.deriv=1.0-(self.out*self.out)
-		self.kernel(
+		self.forwardKernel(
 			drv.In(self.A),
 			drv.In(x),
 			drv.Out(self.out),

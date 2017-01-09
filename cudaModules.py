@@ -1,5 +1,5 @@
-kernelMod="""
-__global__ void Kernel(double *A,double *x,double *y,double *deriv){
+forwardTemplate="""
+__global__ void forwardKernel(double *A,double *x,double *y,double *deriv){
 	int i;
 	double Cval=0;
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
