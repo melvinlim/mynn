@@ -17,6 +17,10 @@ public:
 	int n;
 	int m;
 	std::vector<T> el;
+	Matrix(){
+		this->n=0;
+		this->m=0;
+	}
 	Matrix(int n,int m){
 		int i;
 		this->n=n;
@@ -132,7 +136,7 @@ public:
 
 class Layer{
 public:
-	Matrix<double> *M;
+	Matrix<double> M;
 	Array<double> out;
 	Array<double> deriv;
 	Array<double> delta;
@@ -140,17 +144,17 @@ public:
 		out=Array<double>(n);
 		deriv=Array<double>(n);
 		delta=Array<double>(n);
-		M=new Matrix<double>(n,m);
+		M=Matrix<double>(n,m);
 	}
 	~Layer(){
 	}
 	Array<double> forward(const Array<double> &x){
 		int i,j;
 		double a,tmp;
-		for(j=0;j<M->n;j++){
+		for(j=0;j<M.n;j++){
 			a=0;
-			for(i=0;i<M->m;i++){
-				a+=(*M)(j,i)*(x)(i);
+			for(i=0;i<M.m;i++){
+				a+=(M)(j,i)*(x)(i);
 				//a+=M->el[j*M->m+i]*x->el[i];
 				//a+=M->e(j,i)*x->el[i];
 			}
@@ -167,15 +171,15 @@ public:
 			//delta->el[j]=error->el[j];
 		}
 	}
-	void upDelta(const Matrix<double> *W,const Array<double> &delta2){
+	void upDelta(const Matrix<double> &W,const Array<double> &delta2){
 		int j,k;
 		double sum;
 		//for(j=0;j<this->deriv->n;j++){
-		for(j=0;j<W->m;j++){
+		for(j=0;j<W.m;j++){
 			sum=0;
 			//for(k=0;k<delta2->n;k++){
-			for(k=0;k<W->n;k++){
-				sum+=(*W)(k,j)*(delta2)(k);
+			for(k=0;k<W.n;k++){
+				sum+=(W)(k,j)*(delta2)(k);
 				//sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
 				//sum+=(*(W->e(k,j)))*delta2->el[k];
 			}
@@ -184,14 +188,14 @@ public:
 	}
 	void updateWeights(const Array<double> &input){
 		int i,j;
-		for(i=0;i<this->M->n;i++){
-			for(j=0;j<this->M->m;j++){
-				(*this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);
+		for(i=0;i<this->M.n;i++){
+			for(j=0;j<this->M.m;j++){
+				(this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);
 			}
 		}
 	}
 	void rand(){
-		this->M->rand();
+		this->M.rand();
 	}
 };
 
@@ -257,7 +261,7 @@ public:
 	void print(){
 		int i;
 		for(i=0;i<this->n;i++){
-			L[i]->M->print();
+			L[i]->M.print();
 		}
 	}
 	Array<double> train(const Array<double> &x,const Array<double> &y){
