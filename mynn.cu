@@ -58,6 +58,19 @@ int main(){
 
 	net->rand();
 
+	Array<double> arr1=Array<double>(10);
+	Array<double> arr2=Array<double>();
+	arr2.resize(10);
+	for(i=0;i<10;i++){
+		arr1(i)=i;
+		arr2(i)=i+2;
+	}
+	arr1.print();
+	arr2.print();
+	arr1=arr1+arr2;
+	arr1.print();
+	//return 0;
+
 	vector<Array<double> > pIn,pOut;
 	pIn.resize(4);
 	pIn[0]=Array<double>(ex1,NINPUTS);

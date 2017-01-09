@@ -32,13 +32,13 @@ public:
 	}
 	~Matrix(){
 	}
-	T& operator()(unsigned int i,unsigned int j){
+	T &operator()(unsigned int i,unsigned int j){
 		if(i>=this->n||j>=this->m){
 			throw 0;
 		}
 		return(el[(i*(this->m))+j]);
 	}
-	const T& operator()(unsigned int i,unsigned int j) const{
+	const T &operator()(unsigned int i,unsigned int j) const{
 		if(i>=this->n||j>=this->m){
 			throw 0;
 		}
@@ -98,27 +98,42 @@ public:
 	}
 	~Array(){
 	}
-	T& operator()(unsigned int i){
+	T &operator()(unsigned int i){
 		if(i>=this->n){
 			throw 0;
 		}
 		return(el[i]);
 	}
-	const T& operator()(unsigned int i) const{
+	const T &operator()(unsigned int i) const{
 		if(i>=this->n){
 			throw 0;
 		}
 		return(el[i]);
+	}
+	Array<T> &operator+=(const Array<T> &rhs){
+		printf("in operator+=\n");
+		for(int i=0;i<rhs.n;i++){
+			this->el[i]+=rhs.el[i];
+		}
+		return *this;
+	}
+	friend Array<T> operator+(Array<T> lhs,const Array<T> &rhs){
+		printf("in operator+\n");
+		lhs+=rhs;
+		return lhs;
+	}
+	Array<T> &operator=(const Array<T> &rhs){
+		printf("in operator=\n");
+/*
+		for(int i=0;i<rhs.n;i++){
+			this->el[i]=rhs.el[i];
+		}
+*/
+		this->el=rhs.el;
+		this->n=rhs.n;
+		return *this;
 	}
 	void print(){
-/*
-		double *x;
-		x=this->el;
-		for(i=0;i<this->n;i++){
-			printf("[%i]%.02f\t",i,*x++);
-		}
-		printf("\n");
-*/
 		int i=0;
 		for(double x:el){
 			printf("[%i]%.02f\t",i++,x);
@@ -141,9 +156,9 @@ public:
 	Array<double> deriv;
 	Array<double> delta;
 	Layer(int n,int m){
-		out=Array<double>(n);
-		deriv=Array<double>(n);
-		delta=Array<double>(n);
+		out.resize(n);
+		deriv.resize(n);
+		delta.resize(n);
 		M=Matrix<double>(n,m);
 	}
 	~Layer(){
@@ -231,10 +246,7 @@ public:
 	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
 		}
 */
-		int j;
-		for(j=0;j<this->answer.n;j++){
-			(this->answer)(j)=(L[1]->out)(j);
-		}
+		this->answer=L[1]->out;
 	}
 	void backward(const Array<double> &input){
 		//int i;
@@ -273,7 +285,8 @@ public:
 	void upError(const Array<double> &yTarget){
 		int i;
 		for(i=0;i<yTarget.n;i++){
-			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
+//			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
+			(this->error)(i)=(L[1]->out)(i)-(yTarget)(i);
 		}
 	}
 };
