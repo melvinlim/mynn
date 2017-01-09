@@ -107,11 +107,17 @@ public:
 		return(el[i]);
 	}
 	void print(){
-		int i;
+/*
 		double *x;
 		x=this->el;
 		for(i=0;i<this->n;i++){
 			printf("[%i]%.02f\t",i,*x++);
+		}
+		printf("\n");
+*/
+		int i=0;
+		for(double x:el){
+			printf("[%i]%.02f\t",i++,x);
 		}
 		printf("\n");
 	}
@@ -127,37 +133,37 @@ public:
 class Layer{
 public:
 	Matrix<double> *M;
-	Array<double> *out;
+	Array<double> out;
 	Array<double> *deriv;
 	Array<double> *delta;
 	Layer(int n,int m){
-		out=new Array<double>(n);
+		out=Array<double>(n);
 		deriv=new Array<double>(n);
 		delta=new Array<double>(n);
 		M=new Matrix<double>(n,m);
 	}
 	~Layer(){
 	}
-	Array<double> *forward(const Array<double> *x){
+	Array<double> forward(const Array<double> &x){
 		int i,j;
 		double a,tmp;
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=(*M)(j,i)*(*x)(i);
+				a+=(*M)(j,i)*(x)(i);
 				//a+=M->el[j*M->m+i]*x->el[i];
 				//a+=M->e(j,i)*x->el[i];
 			}
 			tmp=tanh(a);
-			(*out)(j)=tmp;
+			(out)(j)=tmp;
 			(*deriv)(j)=1.0-(tmp*tmp);
 		}
 		return(this->out);
 	}
-	void outputDelta(const Array<double> *error){
+	void outputDelta(const Array<double> &error){
 		int j;
-		for(j=0;j<error->n;j++){
-			(*this->delta)(j)=(*this->deriv)(j)*(*error)(j);
+		for(j=0;j<error.n;j++){
+			(*this->delta)(j)=(*this->deriv)(j)*(error)(j);
 			//delta->el[j]=error->el[j];
 		}
 	}
@@ -176,11 +182,11 @@ public:
 			(*this->delta)(j)=(*this->deriv)(j)*sum;
 		}
 	}
-	void updateWeights(const Array<double> *input){
+	void updateWeights(const Array<double> &input){
 		int i,j;
 		for(i=0;i<this->M->n;i++){
 			for(j=0;j<this->M->m;j++){
-				(*this->M)(i,j)-=GAMMA*(*input)(j)*(*this->delta)(i);
+				(*this->M)(i,j)-=GAMMA*(input)(j)*(*this->delta)(i);
 			}
 		}
 	}
@@ -210,7 +216,7 @@ public:
 		error.resize(n);
 		answer.resize(n);
 	}
-	void forward(const Array<double> *x){
+	void forward(const Array<double> &x){
 		//int i;
 		L[0]->forward(x);
 		L[1]->forward(L[0]->out);
@@ -223,12 +229,12 @@ public:
 */
 		int j;
 		for(j=0;j<this->n;j++){
-			(this->answer)(j)=(*L[1]->out)(j);
+			(this->answer)(j)=(L[1]->out)(j);
 		}
 	}
-	void backward(const Array<double> *input){
+	void backward(const Array<double> &input){
 		//int i;
-		L[1]->outputDelta(&this->error);
+		L[1]->outputDelta(this->error);
 		L[0]->upDelta(L[1]->M,L[1]->delta);
 /*
 		L[LAYERS-1]->outputDelta(error);
@@ -254,16 +260,16 @@ public:
 			L[i]->M->print();
 		}
 	}
-	Array<double> *train(const Array<double> *x,const Array<double> *y){
+	Array<double> train(const Array<double> &x,const Array<double> &y){
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
-		return(&this->error);
+		return(this->error);
 	}
-	void upError(const Array<double> *yTarget){
+	void upError(const Array<double> &yTarget){
 		int i;
-		for(i=0;i<yTarget->n;i++){
-			(this->error)(i)=(this->answer)(i)-(*yTarget)(i);
+		for(i=0;i<yTarget.n;i++){
+			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
 		}
 	}
 };
