@@ -134,12 +134,12 @@ class Layer{
 public:
 	Matrix<double> *M;
 	Array<double> out;
-	Array<double> *deriv;
-	Array<double> *delta;
+	Array<double> deriv;
+	Array<double> delta;
 	Layer(int n,int m){
 		out=Array<double>(n);
-		deriv=new Array<double>(n);
-		delta=new Array<double>(n);
+		deriv=Array<double>(n);
+		delta=Array<double>(n);
 		M=new Matrix<double>(n,m);
 	}
 	~Layer(){
@@ -156,18 +156,18 @@ public:
 			}
 			tmp=tanh(a);
 			(out)(j)=tmp;
-			(*deriv)(j)=1.0-(tmp*tmp);
+			(deriv)(j)=1.0-(tmp*tmp);
 		}
 		return(this->out);
 	}
 	void outputDelta(const Array<double> &error){
 		int j;
 		for(j=0;j<error.n;j++){
-			(*this->delta)(j)=(*this->deriv)(j)*(error)(j);
+			(this->delta)(j)=(this->deriv)(j)*(error)(j);
 			//delta->el[j]=error->el[j];
 		}
 	}
-	void upDelta(const Matrix<double> *W,const Array<double> *delta2){
+	void upDelta(const Matrix<double> *W,const Array<double> &delta2){
 		int j,k;
 		double sum;
 		//for(j=0;j<this->deriv->n;j++){
@@ -175,18 +175,18 @@ public:
 			sum=0;
 			//for(k=0;k<delta2->n;k++){
 			for(k=0;k<W->n;k++){
-				sum+=(*W)(k,j)*(*delta2)(k);
+				sum+=(*W)(k,j)*(delta2)(k);
 				//sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
 				//sum+=(*(W->e(k,j)))*delta2->el[k];
 			}
-			(*this->delta)(j)=(*this->deriv)(j)*sum;
+			(this->delta)(j)=(this->deriv)(j)*sum;
 		}
 	}
 	void updateWeights(const Array<double> &input){
 		int i,j;
 		for(i=0;i<this->M->n;i++){
 			for(j=0;j<this->M->m;j++){
-				(*this->M)(i,j)-=GAMMA*(input)(j)*(*this->delta)(i);
+				(*this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);
 			}
 		}
 	}
