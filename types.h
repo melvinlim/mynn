@@ -66,6 +66,13 @@ class Array{
 public:
 	int n;
 	std::vector<T> el;
+	void resize(int n){
+		this->n=n;
+		el.resize(n);
+	}
+	Array(){
+		this->n=0;
+	}
 	Array(int n){
 		int i;
 		this->n=n;
@@ -186,8 +193,8 @@ class Net{
 public:
 	Layer **L;
 	int n;
-	Array<double> *error;
-	Array<double> *answer;
+	Array<double> error;
+	Array<double> answer;
 	Net(int n=0){
 		this->n=n;
 		L=(Layer **)malloc(n*sizeof(Layer *));
@@ -200,10 +207,8 @@ public:
 	}
 	void insertLayer(int i,int n,int m){
 		L[i]=new Layer(n,m);
-		if(i==(this->n-1)){
-			error=new Array<double>(n);
-			answer=new Array<double>(n);
-		}
+		error.resize(n);
+		answer.resize(n);
 	}
 	void forward(const Array<double> *x){
 		//int i;
@@ -216,11 +221,14 @@ public:
 	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
 		}
 */
-		this->answer=L[1]->out;
+		int j;
+		for(j=0;j<this->n;j++){
+			(this->answer)(j)=(*L[1]->out)(j);
+		}
 	}
 	void backward(const Array<double> *input){
 		//int i;
-		L[1]->outputDelta(this->error);
+		L[1]->outputDelta(&this->error);
 		L[0]->upDelta(L[1]->M,L[1]->delta);
 /*
 		L[LAYERS-1]->outputDelta(error);
@@ -250,12 +258,12 @@ public:
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
-		return(this->error);
+		return(&this->error);
 	}
 	void upError(const Array<double> *yTarget){
 		int i;
 		for(i=0;i<yTarget->n;i++){
-			(*this->error)(i)=(*this->answer)(i)-(*yTarget)(i);
+			(this->error)(i)=(this->answer)(i)-(*yTarget)(i);
 		}
 	}
 };

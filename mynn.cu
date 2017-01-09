@@ -89,7 +89,7 @@ int main(){
 		pIn=new Array<double>(pInputs[tmpvar],NINPUTS);
 		pOut=new Array<double>(pOutputs[tmpvar],NOUTPUTS);
 		net->train(pIn,pOut);
-		PRINTINFO(pIn,net->answer,pOut,net->error);
+		PRINTINFO(pIn,&net->answer,pOut,&net->error);
 		delete pIn;
 		delete pOut;
 	}
