@@ -63,22 +63,26 @@ public:
 	}
 };
 
+template<typename T>
 class Array{
 public:
 	int n;
-	float *el;
+	//float *el;
+	std::vector<T> el;
 	Array(int n){
 		int i;
 		this->n=n;
-		el=new float[n];
+		//el=new float[n];
+		el.resize(n);
 		for(i=0;i<n;i++){
 			el[i]=0;
 		}
 	}
-	Array(const float *x,const int n){
+	Array(float *x,int n){
 		int i;
 		this->n=n;
-		this->el=new float[n];
+		//this->el=new float[n];
+		this->el.resize(n);
 		if(x){
 			for(i=0;i<n;i++){
 				this->el[i]=x[i];
@@ -87,6 +91,18 @@ public:
 		}
 	}
 	~Array(){
+	}
+	T& operator()(unsigned int i){
+		if(i>=this->n){
+			throw 0;
+		}
+		return(el[i]);
+	}
+	const T& operator()(unsigned int i) const{
+		if(i>=this->n){
+			throw 0;
+		}
+		return(el[i]);
 	}
 	void print(){
 		int i;
@@ -109,57 +125,58 @@ public:
 class Layer{
 public:
 	Matrix<float> *M;
-	Array *out;
-	Array *deriv;
-	Array *delta;
+	Array<float> *out;
+	Array<float> *deriv;
+	Array<float> *delta;
 	Layer(int n,int m){
-		out=new Array(n);
-		deriv=new Array(n);
-		delta=new Array(n);
+		out=new Array<float>(n);
+		deriv=new Array<float>(n);
+		delta=new Array<float>(n);
 		M=new Matrix<float>(n,m);
 	}
 	~Layer(){
 	}
-	Array *forward(const Array *x){
+	Array<float> *forward(const Array<float> *x){
 		int i,j;
 		float a,tmp;
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=(*M)(j,i)*x->el[i];
+				a+=(*M)(j,i)*(*x)(i);
 				//a+=M->el[j*M->m+i]*x->el[i];
 				//a+=M->e(j,i)*x->el[i];
 			}
 			tmp=tanh(a);
-			out->el[j]=tmp;
-			deriv->el[j]=1.0-(tmp*tmp);
+			(*out)(j)=tmp;
+			(*deriv)(j)=1.0-(tmp*tmp);
 		}
 		return(this->out);
 	}
-	void outputDelta(const Array *error){
+	void outputDelta(const Array<float> *error){
 		int j;
 		for(j=0;j<error->n;j++){
-			this->delta->el[j]=this->deriv->el[j]*error->el[j];
+			(*this->delta)(j)=(*this->deriv)(j)*(*error)(j);
 			//delta->el[j]=error->el[j];
 		}
 	}
-	void upDelta(const Matrix<float> *W,const Array *delta2){
+	void upDelta(const Matrix<float> *W,const Array<float> *delta2){
 		int j,k;
 		float sum;
 		for(j=0;j<this->deriv->n;j++){
 			sum=0;
 			for(k=0;k<delta2->n;k++){
-				sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
+				sum+=(*W)(k,j)*(*delta2)(k);
+				//sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
 				//sum+=(*(W->e(k,j)))*delta2->el[k];
 			}
-			this->delta->el[j]=this->deriv->el[j]*sum;
+			(*this->delta)(j)=(*this->deriv)(j)*sum;
 		}
 	}
-	void updateWeights(const Array *input){
+	void updateWeights(const Array<float> *input){
 		int i,j;
 		for(i=0;i<this->M->n;i++){
 			for(j=0;j<this->M->m;j++){
-				this->M->el[i*this->M->m+j]-=GAMMA*input->el[j]*this->delta->el[i];
+				(*this->M)(i,j)-=GAMMA*(*input)(j)*(*this->delta)(i);
 			}
 		}
 	}
@@ -172,8 +189,8 @@ class Net{
 public:
 	Layer **L;
 	int n;
-	Array *error;
-	Array *answer;
+	Array<float> *error;
+	Array<float> *answer;
 	Net(int n=0){
 		this->n=n;
 		L=(Layer **)malloc(n*sizeof(Layer *));
@@ -187,16 +204,16 @@ public:
 	void insertLayer(int i,int n,int m){
 		L[i]=new Layer(n,m);
 		if(i==(this->n-1)){
-			error=new Array(n);
-			answer=new Array(n);
+			error=new Array<float>(n);
+			answer=new Array<float>(n);
 		}
 	}
-	void forward(const Array *x){
+	void forward(const Array<float> *x){
 		//int i;
 		L[0]->forward(x);
 		L[1]->forward(L[0]->out);
 /*
-		Array *t=x;
+		Array<float> *t=x;
 		for(i=0;i<this->n;i++){
 			t=L[i]->forward(t);
 	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
@@ -204,7 +221,7 @@ public:
 */
 		this->answer=L[1]->out;
 	}
-	void backward(const Array *input){
+	void backward(const Array<float> *input){
 		//int i;
 		L[1]->outputDelta(this->error);
 		L[0]->upDelta(L[1]->M,L[1]->delta);
@@ -232,23 +249,23 @@ public:
 			L[i]->M->print();
 		}
 	}
-	Array *train(const Array *x,const Array *y){
+	Array<float> *train(const Array<float> *x,const Array<float> *y){
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
 		return(this->error);
 	}
-	void upError(const Array *yTarget){
+	void upError(const Array<float> *yTarget){
 		int i;
 		for(i=0;i<yTarget->n;i++){
-			this->error->el[i]=(this->answer->el[i]-yTarget->el[i]);
+			(*this->error)(i)=(*this->answer)(i)-(*yTarget)(i);
 		}
 	}
 };
 
 #endif
 /*
-float nnTotalError(const Array *y0,const Array *y){
+float nnTotalError(const Array<float> *y0,const Array<float> *y){
 	int i;
 	int n=y0->n;
 	float ret=0;
