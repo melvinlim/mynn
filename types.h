@@ -32,6 +32,11 @@ public:
 	}
 	~Matrix(){
 	}
+	void resize(int n,int m){
+		this->n=n;
+		this->m=m;
+		el.resize(n*m);
+	}
 	T &operator()(unsigned int i,unsigned int j){
 		if(i>=this->n||j>=this->m){
 			throw 0;
@@ -110,6 +115,18 @@ public:
 		}
 		return(el[i]);
 	}
+	T &operator[](unsigned int i){
+		if(i>=this->n){
+			throw 0;
+		}
+		return(el[i]);
+	}
+	const T &operator[](unsigned int i) const{
+		if(i>=this->n){
+			throw 0;
+		}
+		return(el[i]);
+	}
 	Array<T> &operator+=(const Array<T> &rhs){
 		printf("in operator+=\n");
 		for(int i=0;i<rhs.n;i++){
@@ -159,7 +176,7 @@ public:
 		out.resize(n);
 		deriv.resize(n);
 		delta.resize(n);
-		M=Matrix<double>(n,m);
+		M.resize(n,m);
 	}
 	~Layer(){
 	}
