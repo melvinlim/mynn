@@ -6,7 +6,7 @@ import cudaModules
 import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
-MIDDLELAYER=7
+MIDDLELAYER=70
 EPOCHS=1000
 GAMMA=0.01
 PRINTFREQ=100
@@ -26,7 +26,8 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.deltaKernel=module.get_function("deltaKernel")
 
-		kernel_code=cudaModules.weightTemplate%{'NCOLS':self.A.shape[1]}
+		kernel_code=cudaModules.weightTemplate%{
+			'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.weightKernel=module.get_function("weightKernel")
 
@@ -58,7 +59,7 @@ class Layer:
 			drv.InOut(self.A),
 			drv.In(x),
 			drv.In(self.delta),
-			block=(self.A.shape[0],1,1),
+			block=(self.A.shape[0],self.A.shape[1],1),
 			grid=(1,1))
 #		for i in range(self.A.shape[0]):
 #			for j in range(self.A.shape[1]):
