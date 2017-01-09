@@ -44,7 +44,6 @@ public:
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				//this->el[i*this->m+j]=
 				(*this)(i,j)=
 				(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 			}
@@ -54,7 +53,6 @@ public:
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				//printf("[%i,%i]%.09f ",i,j,this->el[i*this->m+j]);
 				printf("[%i,%i]%.09f ",i,j,(*this)(i,j));
 			}
 			printf("\n");
@@ -67,12 +65,10 @@ template<typename T>
 class Array{
 public:
 	int n;
-	//float *el;
 	std::vector<T> el;
 	Array(int n){
 		int i;
 		this->n=n;
-		//el=new float[n];
 		el.resize(n);
 		for(i=0;i<n;i++){
 			el[i]=0;
@@ -81,7 +77,6 @@ public:
 	Array(float *x,int n){
 		int i;
 		this->n=n;
-		//this->el=new float[n];
 		this->el.resize(n);
 		if(x){
 			for(i=0;i<n;i++){
@@ -162,9 +157,11 @@ public:
 	void upDelta(const Matrix<float> *W,const Array<float> *delta2){
 		int j,k;
 		float sum;
-		for(j=0;j<this->deriv->n;j++){
+		//for(j=0;j<this->deriv->n;j++){
+		for(j=0;j<W->m;j++){
 			sum=0;
-			for(k=0;k<delta2->n;k++){
+			//for(k=0;k<delta2->n;k++){
+			for(k=0;k<W->n;k++){
 				sum+=(*W)(k,j)*(*delta2)(k);
 				//sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
 				//sum+=(*(W->e(k,j)))*delta2->el[k];
