@@ -28,6 +28,10 @@ public:
 	~Matrix(){
 	}
 	float *e(int i,int j){
+		if(((i+1)*(j+1))>(this->n*this->m)){
+			printf("dimension error\n");
+			exit(1);
+		}
 		return(this->el+(i*this->m+j));
 	}
 	void rand(){
@@ -126,26 +130,27 @@ public:
 	void outputDelta(const Array *error){
 		int j;
 		for(j=0;j<error->n;j++){
-			delta->el[j]=deriv->el[j]*error->el[j];
+			this->delta->el[j]=this->deriv->el[j]*error->el[j];
 			//delta->el[j]=error->el[j];
 		}
 	}
 	void upDelta(const Matrix *W,const Array *delta2){
 		int j,k;
 		float sum;
-		for(j=0;j<deriv->n;j++){
+		for(j=0;j<this->deriv->n;j++){
 			sum=0;
 			for(k=0;k<delta2->n;k++){
-				sum+=W->el[k*delta2->n+j]*delta2->el[k];
+				sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
+				//sum+=(*(W->e(k,j)))*delta2->el[k];
 			}
-			delta->el[j]=deriv->el[j]*sum;
+			this->delta->el[j]=this->deriv->el[j]*sum;
 		}
 	}
 	void updateWeights(const Array *input){
 		int i,j;
-		for(j=0;j<M->n;j++){
-			for(i=0;i<M->m;i++){
-				M->el[j*M->m+i]-=GAMMA*input->el[i]*delta->el[j];
+		for(i=0;i<this->M->n;i++){
+			for(j=0;j<this->M->m;j++){
+				this->M->el[i*this->M->m+j]-=GAMMA*input->el[j]*delta->el[i];
 			}
 		}
 	}
