@@ -9,8 +9,6 @@
 //#define BLOCK_SIZE 16
 #define BLOCK_SIZE 2
 
-#define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
-
 #include "types.h"
 
 class Layer{
@@ -19,6 +17,8 @@ public:
 	Array<double> out;
 	Array<double> deriv;
 	Array<double> delta;
+	Layer(){
+	}
 	Layer(int n,int m){
 		out.resize(n);
 		deriv.resize(n);
@@ -80,64 +80,60 @@ public:
 
 class Net{
 public:
-	Layer **L;
+	vector<Layer> L;
 	int n;
 	Array<double> error;
 	Array<double> answer;
 	Net(int n=0){
 		this->n=n;
-		L=(Layer **)malloc(n*sizeof(Layer *));
+		this->L.resize(n);
 	}
 	~Net(){
-		int i;
-		for(i=0;i<n;i++){
-			free(L[i]);
-		}
 	}
 	void insertLayer(int i,int n,int m){
-		L[i]=new Layer(n,m);
+		L[i]=Layer(n,m);
 		error.resize(n);
 		answer.resize(n);
 	}
 	void forward(const Array<double> &x){
 		//int i;
-		L[0]->forward(x);
-		L[1]->forward(L[0]->out);
+		L[0].forward(x);
+		L[1].forward(L[0].out);
 /*
 		Array<double> *t=x;
 		for(i=0;i<this->n;i++){
-			t=L[i]->forward(t);
-	//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
+			t=L[i].forward(t);
+	//		MatMul(*N->L[i].M,*N->L[i].in,*N->L[i].out,*N->L[i].deriv);
 		}
 */
-		this->answer=L[1]->out;
+		this->answer=L[1].out;
 	}
 	void backward(const Array<double> &input){
 		//int i;
-		L[1]->outputDelta(this->error);
-		L[0]->upDelta(L[1]->M,L[1]->delta);
+		L[1].outputDelta(this->error);
+		L[0].upDelta(L[1].M,L[1].delta);
 /*
-		L[LAYERS-1]->outputDelta(error);
+		L[LAYERS-1].outputDelta(error);
 		for(i=LAYERS-2;i>=0;i--){
-			L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
+			L[i].upDelta(L[i+1].M,L[i+1].delta);
 		}
 		for(i=LAYERS-1;i>=1;i--){
-			L[i]->updateWeights(L[i-1]->out);
+			L[i].updateWeights(L[i-1].out);
 		}
 */
-		L[1]->updateWeights(L[0]->out);
-		L[0]->updateWeights(input);
+		L[1].updateWeights(L[0].out);
+		L[0].updateWeights(input);
 	}
 	void rand(){
 		int i;
 		for(i=0;i<this->n;i++){
-			this->L[i]->rand();
+			this->L[i].rand();
 		}
 	}
 	void print(){
 		int i;
 		for(i=0;i<this->n;i++){
-			L[i]->M.print();
+			L[i].M.print();
 		}
 	}
 	Array<double> train(const Array<double> &x,const Array<double> &y){
@@ -150,7 +146,7 @@ public:
 		int i;
 		for(i=0;i<yTarget.n;i++){
 //			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
-			(this->error)(i)=(L[1]->out)(i)-(yTarget)(i);
+			(this->error)(i)=(L[1].out)(i)-(yTarget)(i);
 		}
 	}
 };
