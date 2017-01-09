@@ -1,5 +1,5 @@
-#ifndef TYPES
-#define TYPES
+#ifndef _TYPES
+#define _TYPES
 
 #define EPOCHS 1000
 #define LAYERS 2
@@ -118,7 +118,8 @@ public:
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=M->el[j*M->m+i]*x->el[i];
+				a+=(*(M->e(j,i)))*x->el[i];
+				//a+=M->el[j*M->m+i]*x->el[i];
 				//a+=M->e(j,i)*x->el[i];
 			}
 			tmp=tanh(a);

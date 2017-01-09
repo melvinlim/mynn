@@ -7,8 +7,6 @@
 #include <string.h>
 
 #include "types.h"
-//#include "manip.cu"
-//#include "matrixmul.cu"
 
 #define NINPUTS (2)
 #define NOUTPUTS (2)
@@ -67,8 +65,6 @@ int main(){
 	pAns2=new Array(ans2,NOUTPUTS);
 	pAns3=new Array(ans3,NOUTPUTS);
 	pAns4=new Array(ans4,NOUTPUTS);
-
-	net->train(p1,pAns1);
 
 	Array **pInputs=(Array **)malloc(4*sizeof(Array *));
 	pInputs[0]=p1;
