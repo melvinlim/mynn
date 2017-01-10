@@ -8,7 +8,7 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-MIDDLELAYER=102500
+MIDDLELAYER=10250
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
@@ -24,7 +24,9 @@ class Layer:
 		self.delta=np.array(n*[0]).astype(np.float64)
 		self.deriv=np.array(n*[0]).astype(np.float64)
 
-		kernel_code=cudaModules.forwardTemplate%{'NCOLS':self.A.shape[1]}
+		kernel_code=cudaModules.forwardTemplate%{
+			'NROWS':self.A.shape[0],
+			'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.forwardKernel=module.get_function("forwardKernel")
 
@@ -39,14 +41,15 @@ class Layer:
 		self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
-		if GPU:
+		if True:
+			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.forwardKernel(
 				drv.In(self.A),
 				drv.In(x),
 				drv.Out(self.out),
 				drv.Out(self.deriv),
-				block=(self.A.shape[0],1,1),
-				grid=(1,1))
+				block=(TPB1D,1,1),
+				grid=(gridX,1))
 		else:
 			self.out=np.tanh(np.dot(self.A,x))
 			self.deriv=1.0-(self.out*self.out)
@@ -73,7 +76,7 @@ class Layer:
 			self.delta=self.deriv*s
 		return self.delta
 	def updateWeights(self,x):
-		if True:
+		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
 			self.weightKernel(
