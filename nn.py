@@ -51,13 +51,22 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		self.deltaKernel(
-			drv.In(self.A),
-			drv.InOut(self.delta),
-			drv.In(self.out),
-			drv.In(self.deriv),
-			block=(self.A.shape[1],1,1),
-			grid=(1,1))
+		if GPU:
+			self.deltaKernel(
+				drv.In(self.A),
+				drv.InOut(self.delta),
+				drv.In(self.out),
+				drv.In(self.deriv),
+				block=(self.A.shape[1],1,1),
+				grid=(1,1))
+		else:
+			arr=[]
+			for j in range(len(self.delta)):
+				s=0
+				for k in range(len(y)):
+					s += A[k][j]*y[k]
+				arr.append(s)
+			self.delta=self.deriv*s
 		return self.delta
 	def updateWeights(self,x):
 		if GPU:
