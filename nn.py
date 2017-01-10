@@ -8,11 +8,20 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-MIDDLELAYER=102500
+INPUTDIM=2
+OUTPUTDIM=2
+MIDDLELAYER=1025
+MIDDLELAYER1=1025
+MIDDLELAYER2=102
+LAYERS=3
+#OUTPUTDIM=[MIDDLELAYER,OUTPUTDIM]
+#INPUTDIM=[INPUTDIM,MIDDLELAYER]
+OUTPUTDIM=[MIDDLELAYER1,MIDDLELAYER2,OUTPUTDIM]
+INPUTDIM=[INPUTDIM,MIDDLELAYER1,MIDDLELAYER2]
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
-GPU=True
+GPU=False
 TPB1D=512
 TPB2D=32
 t0=time.clock()
@@ -93,7 +102,10 @@ class Layer:
 				for j in range(self.A.shape[1]):
 					self.A[i][j] -= self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
-NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
+#NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
+NN=[]
+for i in range(LAYERS):
+	NN.append(Layer(OUTPUTDIM[i],INPUTDIM[i]))
 inp1=np.array([-1,-1]).astype(np.float64)
 inp2=np.array([-1,+1]).astype(np.float64)
 inp3=np.array([+1,-1]).astype(np.float64)
@@ -105,30 +117,39 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 np.set_printoptions(precision=4)
-for i in range(EPOCHS):
+for epoch in range(EPOCHS):
 	r=np.random.randint(0,4)
 #	theInput=np.append(inp[r],[1])
 	theInput=inp[r]
-	tmp=NN[0].insert(theInput)
-	tmp=NN[1].insert(tmp)
+	tmp=theInput
+	for i in range(LAYERS):
+		tmp=NN[i].insert(tmp)
 	error=tmp-out[r]
-	if (i%PRINTFREQ==0):
+	if (epoch%PRINTFREQ==0):
 		print('error:'),
 		print(error)
 		print('output:'),
 		print(tmp)
 		print('target:'),
 		print(out[r])
-	tmp=NN[1].updateDelta0(error)
-	tmp=NN[0].updateDelta(NN[1].A,tmp)
+	tmp=NN[LAYERS-1].updateDelta0(error)
+	i=LAYERS-1
+	while (i>0):
+		tmp=NN[i-1].updateDelta(NN[i].A,tmp)
+		i -= 1
 	#print(tmp)
-	NN[1].updateWeights(NN[0].out)
+	i=LAYERS-1
+	while (i>0):
+		NN[i].updateWeights(NN[i-1].out)
+		i -= 1
 	NN[0].updateWeights(theInput)
 for r in range(4):
+	r=np.random.randint(0,4)
 #	theInput=np.append(inp[r],[1])
 	theInput=inp[r]
-	tmp=NN[0].insert(theInput)
-	tmp=NN[1].insert(tmp)
+	tmp=theInput
+	for i in range(LAYERS):
+		tmp=NN[i].insert(tmp)
 	error=tmp-out[r]
 	print('error:'),
 	print(error)
@@ -136,10 +157,16 @@ for r in range(4):
 	print(tmp)
 	print('target:'),
 	print(out[r])
-	tmp=NN[1].updateDelta0(error)
-	tmp=NN[0].updateDelta(NN[1].A,tmp)
+	tmp=NN[LAYERS-1].updateDelta0(error)
+	i=LAYERS-1
+	while (i>0):
+		tmp=NN[i-1].updateDelta(NN[i].A,tmp)
+		i -= 1
 	#print(tmp)
-	NN[1].updateWeights(NN[0].out)
+	i=LAYERS-1
+	while (i>0):
+		NN[i].updateWeights(NN[i-1].out)
+		i -= 1
 	NN[0].updateWeights(theInput)
 tf=time.clock()
 print('elapsed time: '+str(tf-t0)+'s')
