@@ -27,8 +27,10 @@ __global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
 """
 weightTemplate="""
 __global__ void weightKernel(double *A,double *x,double *delta){
-	const int row = threadIdx.x;
-	const int col = threadIdx.y;
-	A[row*%(NCOLS)s+col] -= x[col]*delta[row];
+	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
+		A[row*%(NCOLS)s+col] -= x[col]*delta[row];
+	}
 }
 """
