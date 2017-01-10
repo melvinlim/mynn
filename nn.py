@@ -1,22 +1,16 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-import time
 import numpy as np
 import cudaModules
 import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-#LAYERDIM=[2,1025,2]
-LAYERDIM=[2,500,10,2]
-EPOCHS=100
 GAMMA=0.01
-PRINTFREQ=100
 GPU=True
 TPB1D=512
 TPB2D=32
-t0=time.clock()
 class Layer:
 	def __init__(self,n,m):
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -129,35 +123,3 @@ class Network:
 			i -= 1
 		self.layer[0].updateWeights(theInput)
 		return [output,error]
-inp1=np.array([-1,-1]).astype(np.float64)
-inp2=np.array([-1,+1]).astype(np.float64)
-inp3=np.array([+1,-1]).astype(np.float64)
-inp4=np.array([+1,+1]).astype(np.float64)
-inp=[inp1,inp2,inp3,inp4]
-out1=np.array([-1,-1]).astype(np.float64)
-out2=np.array([-1,+1]).astype(np.float64)
-out3=np.array([+1,-1]).astype(np.float64)
-out4=np.array([+1,+1]).astype(np.float64)
-out=[out1,out2,out3,out4]
-np.set_printoptions(precision=4)
-NN=Network(LAYERDIM)
-for epoch in range(EPOCHS):
-	r=np.random.randint(0,4)
-	[output,error]=NN.train(inp[r],out[r])
-	if (epoch%PRINTFREQ==0):
-		print('error:'),
-		print(error)
-		print('output:'),
-		print(output)
-		print('target:'),
-		print(out[r])
-for r in range(4):
-	[output,error]=NN.train(inp[r],out[r])
-	print('error:'),
-	print(error)
-	print('output:'),
-	print(output)
-	print('target:'),
-	print(out[r])
-tf=time.clock()
-print('elapsed time: '+str(tf-t0)+'s')
