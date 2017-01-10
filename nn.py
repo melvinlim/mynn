@@ -8,11 +8,11 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-MIDDLELAYER=10250
+MIDDLELAYER=102500
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
-GPU=False
+GPU=True
 TPB1D=512
 TPB2D=32
 t0=time.clock()
@@ -41,7 +41,7 @@ class Layer:
 		self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
-		if True:
+		if GPU:
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.forwardKernel(
 				drv.In(self.A),
@@ -59,13 +59,14 @@ class Layer:
 		return self.delta
 	def updateDelta(self,A,y):
 		if GPU:
+			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
 			self.deltaKernel(
 				drv.In(self.A),
 				drv.InOut(self.delta),
 				drv.In(self.out),
 				drv.In(self.deriv),
-				block=(self.A.shape[1],1,1),
-				grid=(1,1))
+				block=(TPB1D,1,1),
+				grid=(gridX,1))
 		else:
 			arr=[]
 			for j in range(len(self.delta)):
@@ -76,7 +77,7 @@ class Layer:
 			self.delta=self.deriv*s
 		return self.delta
 	def updateWeights(self,x):
-		if True:
+		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
 			self.weightKernel(

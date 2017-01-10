@@ -20,11 +20,14 @@ deltaTemplate="""
 __global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
 	int i;
 	double Cval=0;
-	const int col = threadIdx.x;
-	for(i=0;i<%(NCOLS)s;i++){
-		Cval+=A[i*%(NCOLS)s+col]*y[i];
+	const int col = blockIdx.x * blockDim.x + threadIdx.x;
+	
+	if(col<%(NCOLS)s){
+		for(i=0;i<%(NCOLS)s;i++){
+			Cval+=A[i*%(NCOLS)s+col]*y[i];
+		}
+		x[col]=deriv[col]*Cval;
 	}
-	x[col]=deriv[col]*Cval;
 }
 """
 weightTemplate="""
