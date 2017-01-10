@@ -4,7 +4,7 @@ __global__ void forwardKernel(double *A,double *x,double *y,double *deriv){
 	double Cval=0;
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
 	//int col = blockIdx.x * blockDim.x + threadIdx.x;
-	const int row = blockIdx.x * blockDim.x + threadIdx.x;
+	const int row = blockIdx.y * blockDim.y + threadIdx.y;
 
 	if(row<%(NROWS)s){
 		for(i=0;i<%(NCOLS)s;i++){

@@ -42,14 +42,14 @@ class Layer:
 
 	def insert(self,x):
 		if True:
-			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
+			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.forwardKernel(
 				drv.In(self.A),
 				drv.In(x),
 				drv.Out(self.out),
 				drv.Out(self.deriv),
-				block=(TPB1D,1,1),
-				grid=(gridX,1))
+				block=(1,TPB1D,1),
+				grid=(1,gridY))
 		else:
 			self.out=np.tanh(np.dot(self.A,x))
 			self.deriv=1.0-(self.out*self.out)
@@ -76,9 +76,9 @@ class Layer:
 			self.delta=self.deriv*s
 		return self.delta
 	def updateWeights(self,x):
-		if GPU:
-			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
-			gridY=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
+		if True:
+			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
 			self.weightKernel(
 				drv.InOut(self.A),
 				drv.In(x),
