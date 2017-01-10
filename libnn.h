@@ -5,10 +5,6 @@
 #define LAYERS 2
 #define GAMMA (0.1)
 
-// Thread block size
-//#define BLOCK_SIZE 16
-#define BLOCK_SIZE 2
-
 #include "types.h"
 
 class Layer{
@@ -102,6 +98,13 @@ public:
 */
 		this->answer=L[1].out;
 	}
+	void upError(const Array<double> &yTarget){
+		int i;
+		for(i=0;i<yTarget.n;i++){
+//			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
+			(this->error)(i)=(L[1].out)(i)-(yTarget)(i);
+		}
+	}
 	void backward(const Array<double> &input){
 		//int i;
 		L[1].outputDelta(this->error);
@@ -135,13 +138,6 @@ public:
 		this->upError(y);
 		this->backward(x);
 		return(this->error);
-	}
-	void upError(const Array<double> &yTarget){
-		int i;
-		for(i=0;i<yTarget.n;i++){
-//			(this->error)(i)=(this->answer)(i)-(yTarget)(i);
-			(this->error)(i)=(L[1].out)(i)-(yTarget)(i);
-		}
 	}
 };
 
