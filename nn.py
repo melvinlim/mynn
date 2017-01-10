@@ -12,7 +12,7 @@ INPUTDIM=2
 OUTPUTDIM=2
 MIDDLELAYER=1025
 MIDDLELAYER1=1025
-MIDDLELAYER2=102
+MIDDLELAYER2=10
 LAYERS=3
 #OUTPUTDIM=[MIDDLELAYER,OUTPUTDIM]
 #INPUTDIM=[INPUTDIM,MIDDLELAYER]
@@ -21,7 +21,7 @@ INPUTDIM=[INPUTDIM,MIDDLELAYER1,MIDDLELAYER2]
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
-GPU=False
+GPU=True
 TPB1D=512
 TPB2D=32
 t0=time.clock()
@@ -39,7 +39,9 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.forwardKernel=module.get_function("forwardKernel")
 
-		kernel_code=cudaModules.deltaTemplate%{'NCOLS':self.A.shape[1]}
+		kernel_code=cudaModules.deltaTemplate%{
+			'NROWS':self.A.shape[0],
+			'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.deltaKernel=module.get_function("deltaKernel")
 

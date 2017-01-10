@@ -23,7 +23,7 @@ __global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
 	const int col = blockIdx.x * blockDim.x + threadIdx.x;
 	
 	if(col<%(NCOLS)s){
-		for(i=0;i<%(NCOLS)s;i++){
+		for(i=0;i<%(NROWS)s;i++){
 			Cval+=A[i*%(NCOLS)s+col]*y[i];
 		}
 		x[col]=deriv[col]*Cval;
