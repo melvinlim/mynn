@@ -1,6 +1,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
+import time
 import numpy as np
 import cudaModules
 import pycuda.autoinit
@@ -10,6 +11,8 @@ MIDDLELAYER=70
 EPOCHS=1000
 GAMMA=0.01
 PRINTFREQ=100
+GPU=False
+t0=time.clock()
 class Layer:
 	def __init__(self,n,m):
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -32,15 +35,17 @@ class Layer:
 		self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
-		#self.out=np.tanh(np.dot(self.A,x))
-		#self.deriv=1.0-(self.out*self.out)
-		self.forwardKernel(
-			drv.In(self.A),
-			drv.In(x),
-			drv.Out(self.out),
-			drv.Out(self.deriv),
-			block=(self.A.shape[0],1,1),
-			grid=(1,1))
+		if GPU:
+			self.forwardKernel(
+				drv.In(self.A),
+				drv.In(x),
+				drv.Out(self.out),
+				drv.Out(self.deriv),
+				block=(self.A.shape[0],1,1),
+				grid=(1,1))
+		else:
+			self.out=np.tanh(np.dot(self.A,x))
+			self.deriv=1.0-(self.out*self.out)
 		return self.out
 	def updateDelta0(self,y):
 		self.delta=self.deriv*y
@@ -55,15 +60,17 @@ class Layer:
 			grid=(1,1))
 		return self.delta
 	def updateWeights(self,x):
-		self.weightKernel(
-			drv.InOut(self.A),
-			drv.In(x),
-			drv.In(self.delta),
-			block=(self.A.shape[0],self.A.shape[1],1),
-			grid=(1,1))
-#		for i in range(self.A.shape[0]):
-#			for j in range(self.A.shape[1]):
-#				self.A[i][j] -= self.delta[i]*x[j]
+		if GPU:
+			self.weightKernel(
+				drv.InOut(self.A),
+				drv.In(x),
+				drv.In(self.delta),
+				block=(self.A.shape[0],self.A.shape[1],1),
+				grid=(1,1))
+		else:
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					self.A[i][j] -= self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 inp1=np.array([-1,-1]).astype(np.float64)
@@ -113,4 +120,5 @@ for r in range(4):
 	#print(tmp)
 	NN[1].updateWeights(NN[0].out)
 	NN[0].updateWeights(theInput)
-
+tf=time.clock()
+print('elapsed time: '+str(tf-t0)+'s')
