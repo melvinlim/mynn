@@ -7,12 +7,13 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-GAMMA=0.01
 GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,n,m):
+	def __init__(self,n,m,gamma):
+		self.gamma=gamma
+
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
 		self.A.astype(np.float64)
 		self.out=np.array(n*[0]).astype(np.float64)
@@ -32,6 +33,7 @@ class Layer:
 		self.deltaKernel=module.get_function("deltaKernel")
 
 		kernel_code=cudaModules.weightTemplate%{
+			'GAMMA':self.gamma,
 			'NROWS':self.A.shape[0],
 			'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
@@ -88,11 +90,11 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.delta[i]*x[j]
+					self.A[i][j] -= self.gamma*self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 #NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 class Network:
-	def __init__(self,layerdims):
+	def __init__(self,layerdims,gamma):
 		self.layer=[]
 		ninputs=layerdims[0]
 		noutputs=layerdims[-1]
@@ -104,7 +106,7 @@ class Network:
 			inputdims.append(i)
 		outputdims.append(noutputs)
 		for i in range(self.n):
-			self.layer.append(Layer(outputdims[i],inputdims[i]))
+			self.layer.append(Layer(outputdims[i],inputdims[i],gamma))
 	def train(self,theInput,target):
 		tmp=theInput
 		for i in range(self.n):

@@ -5,10 +5,10 @@ import time
 import numpy as np
 import nn
 
-LAYERDIM=[2,1025,2]
-#LAYERDIM=[2,500,10,2]
-EPOCHS=100
-GAMMA=0.01
+#LAYERDIM=[2,1025,2]
+LAYERDIM=[2,500,10,2]
+EPOCHS=1000
+GAMMA=0.1
 PRINTFREQ=100
 GPU=True
 t0=time.clock()
@@ -27,7 +27,7 @@ out=[out1,out2,out3,out4]
 
 np.set_printoptions(precision=4)
 
-NN=nn.Network(LAYERDIM)
+NN=nn.Network(LAYERDIM,GAMMA)
 for epoch in range(EPOCHS):
 	r=np.random.randint(0,4)
 	[output,error]=NN.train(inp[r],out[r])

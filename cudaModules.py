@@ -35,7 +35,7 @@ __global__ void weightKernel(double *A,double *x,double *delta){
 	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
 	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
 	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
-		A[row*%(NCOLS)s+col] -= x[col]*delta[row];
+		A[row*%(NCOLS)s+col] -= %(GAMMA)s*x[col]*delta[row];
 	}
 }
 """
