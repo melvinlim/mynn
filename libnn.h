@@ -3,7 +3,7 @@
 
 #define EPOCHS 1000
 #define LAYERS 2
-#define GAMMA (0.01)
+#define GAMMA (0.1)
 
 // Thread block size
 //#define BLOCK_SIZE 16
@@ -34,8 +34,6 @@ public:
 			a=0;
 			for(i=0;i<M.m;i++){
 				a+=(M)(j,i)*(x)(i);
-				//a+=M->el[j*M->m+i]*x->el[i];
-				//a+=M->e(j,i)*x->el[i];
 			}
 			tmp=tanh(a);
 			(out)(j)=tmp;
@@ -47,20 +45,15 @@ public:
 		int j;
 		for(j=0;j<error.n;j++){
 			(this->delta)(j)=(this->deriv)(j)*(error)(j);
-			//delta->el[j]=error->el[j];
 		}
 	}
 	void upDelta(const Matrix<double> &W,const Array<double> &delta2){
 		int j,k;
 		double sum;
-		//for(j=0;j<this->deriv->n;j++){
 		for(j=0;j<W.m;j++){
 			sum=0;
-			//for(k=0;k<delta2->n;k++){
 			for(k=0;k<W.n;k++){
 				sum+=(W)(k,j)*(delta2)(k);
-				//sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
-				//sum+=(*(W->e(k,j)))*delta2->el[k];
 			}
 			(this->delta)(j)=(this->deriv)(j)*sum;
 		}
@@ -86,12 +79,13 @@ public:
 	Array<double> answer;
 	Net(int n=0){
 		this->n=n;
-		this->L.resize(n);
+		//this->L.resize(n);
 	}
 	~Net(){
 	}
 	void insertLayer(int i,int n,int m){
-		L[i]=Layer(n,m);
+		//L[i]=Layer(n,m);
+		L.push_back(Layer(n,m));
 		error.resize(n);
 		answer.resize(n);
 	}
@@ -140,8 +134,6 @@ public:
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
-L[1].out.print();
-y.print();
 		return(this->error);
 	}
 	void upError(const Array<double> &yTarget){

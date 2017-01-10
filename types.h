@@ -41,6 +41,11 @@ public:
 		}
 		return(el[(i*(this->m))+j]);
 	}
+	Matrix<T> &operator=(const Matrix<T> &rhs){
+		this->el=rhs.el;
+		this->n=rhs.n;
+		return *this;
+	}
 	void rand(){
 		int i,j;
 		for(i=0;i<this->n;i++){
@@ -120,14 +125,15 @@ public:
 		return(el[i]);
 	}
 	Array<T> &operator+=(const Array<T> &rhs){
-		printf("in operator+=\n");
+		if(rhs.n!=this->n){
+			throw("trying to add arrays with different dimensions.\n");
+		}
 		for(int i=0;i<rhs.n;i++){
 			this->el[i]+=rhs.el[i];
 		}
 		return *this;
 	}
 	friend Array<T> operator+(Array<T> lhs,const Array<T> &rhs){
-		printf("in operator+\n");
 		lhs+=rhs;
 		return lhs;
 	}

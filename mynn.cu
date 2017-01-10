@@ -70,7 +70,11 @@ int main(){
 	arr2.print();
 	arr1=arr1+arr2;
 	arr1.print();
-	//return 0;
+	arr1[0]+=5;
+	arr1[5]+=15;
+	arr1(2)=arr1[3]*4;
+	arr1.print();
+//	return 0;
 
 	vector<Array<double> > pIn,pOut;
 	pIn.resize(4);
@@ -91,7 +95,7 @@ int main(){
 	for(i=0;i<EPOCHS;i++){
 		tmpvar=rand()%4;
 		net->train(pIn[tmpvar],pOut[tmpvar]);
-//		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
+		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
 	}
 }
 
