@@ -8,17 +8,8 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-NINPUTS=2
-NOUTPUTS=2
-#MIDDLELAYERS=[1025]
-MIDDLELAYERS=[500,10]
-LAYERS=len(MIDDLELAYERS)+1
-OUTPUTDIM=[]
-INPUTDIM=[NINPUTS]
-for i in MIDDLELAYERS:
-	OUTPUTDIM.append(i)
-	INPUTDIM.append(i)
-OUTPUTDIM.append(NOUTPUTS)
+#LAYERDIM=[2,1025,2]
+LAYERDIM=[2,500,10,2]
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
@@ -107,24 +98,32 @@ class Layer:
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 #NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 class Network:
-	def __init__(self,n):
+	def __init__(self,layerdims):
 		self.layer=[]
-		self.n=n
-		for i in range(n):
-			self.layer.append(Layer(OUTPUTDIM[i],INPUTDIM[i]))
+		ninputs=layerdims[0]
+		noutputs=layerdims[-1]
+		self.n=len(layerdims)-1
+		outputdims=[]
+		inputdims=[ninputs]
+		for i in layerdims[1:-1]:
+			outputdims.append(i)
+			inputdims.append(i)
+		outputdims.append(noutputs)
+		for i in range(self.n):
+			self.layer.append(Layer(outputdims[i],inputdims[i]))
 	def train(self,theInput,target):
 		tmp=theInput
 		for i in range(self.n):
 			tmp=self.layer[i].insert(tmp)
 		output=tmp
 		error=tmp-target
-		tmp=self.layer[LAYERS-1].updateDelta0(error)
-		i=LAYERS-1
+		tmp=self.layer[self.n-1].updateDelta0(error)
+		i=self.n-1
 		while (i>0):
 			tmp=self.layer[i-1].updateDelta(self.layer[i].A,tmp)
 			i -= 1
 		#print(tmp)
-		i=LAYERS-1
+		i=self.n-1
 		while (i>0):
 			self.layer[i].updateWeights(self.layer[i-1].out)
 			i -= 1
@@ -141,7 +140,7 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 np.set_printoptions(precision=4)
-NN=Network(LAYERS)
+NN=Network(LAYERDIM)
 for epoch in range(EPOCHS):
 	r=np.random.randint(0,4)
 	[output,error]=NN.train(inp[r],out[r])
