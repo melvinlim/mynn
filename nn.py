@@ -11,13 +11,13 @@ import math
 INPUTDIM=2
 OUTPUTDIM=2
 MIDDLELAYER=1025
-MIDDLELAYER1=1025
+MIDDLELAYER1=500
 MIDDLELAYER2=10
-LAYERS=3
-#OUTPUTDIM=[MIDDLELAYER,OUTPUTDIM]
-#INPUTDIM=[INPUTDIM,MIDDLELAYER]
-OUTPUTDIM=[MIDDLELAYER1,MIDDLELAYER2,OUTPUTDIM]
-INPUTDIM=[INPUTDIM,MIDDLELAYER1,MIDDLELAYER2]
+LAYERS=2
+OUTPUTDIM=[MIDDLELAYER,OUTPUTDIM]
+INPUTDIM=[INPUTDIM,MIDDLELAYER]
+#OUTPUTDIM=[MIDDLELAYER1,MIDDLELAYER2,OUTPUTDIM]
+#INPUTDIM=[INPUTDIM,MIDDLELAYER1,MIDDLELAYER2]
 EPOCHS=100
 GAMMA=0.01
 PRINTFREQ=100
@@ -105,9 +105,30 @@ class Layer:
 					self.A[i][j] -= self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 #NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
-NN=[]
-for i in range(LAYERS):
-	NN.append(Layer(OUTPUTDIM[i],INPUTDIM[i]))
+class Network:
+	def __init__(self,n):
+		self.layer=[]
+		self.n=n
+		for i in range(n):
+			self.layer.append(Layer(OUTPUTDIM[i],INPUTDIM[i]))
+	def train(self,theInput,target):
+		tmp=theInput
+		for i in range(self.n):
+			tmp=self.layer[i].insert(tmp)
+		output=tmp
+		error=tmp-target
+		tmp=self.layer[LAYERS-1].updateDelta0(error)
+		i=LAYERS-1
+		while (i>0):
+			tmp=self.layer[i-1].updateDelta(self.layer[i].A,tmp)
+			i -= 1
+		#print(tmp)
+		i=LAYERS-1
+		while (i>0):
+			self.layer[i].updateWeights(self.layer[i-1].out)
+			i -= 1
+		self.layer[0].updateWeights(theInput)
+		return [output,error]
 inp1=np.array([-1,-1]).astype(np.float64)
 inp2=np.array([-1,+1]).astype(np.float64)
 inp3=np.array([+1,-1]).astype(np.float64)
@@ -119,56 +140,24 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 np.set_printoptions(precision=4)
+NN=Network(LAYERS)
 for epoch in range(EPOCHS):
 	r=np.random.randint(0,4)
-#	theInput=np.append(inp[r],[1])
-	theInput=inp[r]
-	tmp=theInput
-	for i in range(LAYERS):
-		tmp=NN[i].insert(tmp)
-	error=tmp-out[r]
+	[output,error]=NN.train(inp[r],out[r])
 	if (epoch%PRINTFREQ==0):
 		print('error:'),
 		print(error)
 		print('output:'),
-		print(tmp)
+		print(output)
 		print('target:'),
 		print(out[r])
-	tmp=NN[LAYERS-1].updateDelta0(error)
-	i=LAYERS-1
-	while (i>0):
-		tmp=NN[i-1].updateDelta(NN[i].A,tmp)
-		i -= 1
-	#print(tmp)
-	i=LAYERS-1
-	while (i>0):
-		NN[i].updateWeights(NN[i-1].out)
-		i -= 1
-	NN[0].updateWeights(theInput)
 for r in range(4):
-	r=np.random.randint(0,4)
-#	theInput=np.append(inp[r],[1])
-	theInput=inp[r]
-	tmp=theInput
-	for i in range(LAYERS):
-		tmp=NN[i].insert(tmp)
-	error=tmp-out[r]
+	[output,error]=NN.train(inp[r],out[r])
 	print('error:'),
 	print(error)
 	print('output:'),
-	print(tmp)
+	print(output)
 	print('target:'),
 	print(out[r])
-	tmp=NN[LAYERS-1].updateDelta0(error)
-	i=LAYERS-1
-	while (i>0):
-		tmp=NN[i-1].updateDelta(NN[i].A,tmp)
-		i -= 1
-	#print(tmp)
-	i=LAYERS-1
-	while (i>0):
-		NN[i].updateWeights(NN[i-1].out)
-		i -= 1
-	NN[0].updateWeights(theInput)
 tf=time.clock()
 print('elapsed time: '+str(tf-t0)+'s')
