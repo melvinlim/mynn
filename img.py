@@ -4,14 +4,19 @@ import threading
 import gobject
 import gtk.gdk
 
+XDIM=320
+YDIM=145
+
 class MyThread(threading.Thread):
-	def __init__(self, image):
+	def __init__(self,image,a,b):
 		print("init thread")
 		super(MyThread, self).__init__()
 		self.image = image
 		self.quit = False
 		self.i=0
 		self.j=0
+		self.a=a
+		self.b=b
 		self.updatePixelBuf()
 
 	def updatePixelBuf(self):
@@ -27,9 +32,9 @@ class MyThread(threading.Thread):
 	def setCropped(self,x,y):
 		gtk.gdk.threads_enter()
 		try:
-			tmp=self.pb.subpixbuf(x,y,200,200)
+			self.subpb=self.pb.subpixbuf(x,y,self.a,self.b)
 			self.image.clear()
-			self.image.set_from_pixbuf(tmp)
+			self.image.set_from_pixbuf(self.subpb)
 		finally:
 			gtk.gdk.threads_leave()
 
@@ -58,10 +63,10 @@ class MyThread(threading.Thread):
 			#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
 			gobject.idle_add(self.setCropped,self.j,self.i)
 			self.j += 1
-			if self.j>=(1920-200):
+			if self.j>=(1920-self.a):
 				self.j = 0
-				self.i += 200
-				if self.i>=(1080-200):
+				self.i += self.b
+				if self.i>=(1080-self.b):
 					self.i = 0
 			#gobject.idle_add(self.set_from_pixbuf)
 			time.sleep(0.001)
@@ -93,7 +98,7 @@ window.show_all()
 
 #image.set_from_file('san_francisco.jpg')
 
-t=MyThread(image)
+t=MyThread(image,XDIM,YDIM)
 t.start()
 gtk.main()
 t.quit=True
