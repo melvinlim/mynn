@@ -3,6 +3,8 @@ import time
 import threading
 import gobject
 import gtk.gdk
+import os,subprocess
+#from os import system
 
 XDIM=320
 YDIM=145
@@ -18,6 +20,17 @@ class MyThread(threading.Thread):
 		self.a=a
 		self.b=b
 		self.updatePixelBuf()
+
+	def moveWindow(self,title,x,y):
+		cmdList=['xdotool','search',title,'windowmove',str(x),str(y)]
+		with open(os.devnull, 'wb') as devnull:
+			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
+#		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y)+'>/dev/null')
+#		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y))
+#		system('xdotool search "'+title+'" windowactivate --sync mousemove --window %1 500 10')
+#		system('xdotool mousedown 1')
+#		system('xdotool mousemove_relative --sync '+str(x)+' '+str(y))
+#		system('xdotool mouseup 1')
 
 	def updatePixelBuf(self):
 		gtk.gdk.threads_enter()
@@ -69,6 +82,8 @@ class MyThread(threading.Thread):
 				if self.i>=(1080-self.b):
 					self.i = 0
 			#gobject.idle_add(self.set_from_pixbuf)
+			#self.moveWindow('Wikipedia, the free encyclopedia - Mozilla Firefox',self.j,0)
+			self.moveWindow('Wikipedia',self.j,0)
 			time.sleep(0.001)
 
 def event(widget,event):
