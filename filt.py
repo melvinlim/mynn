@@ -62,18 +62,24 @@ class Filter:
 			self.output=(inp-self.a-shift)/(scale)*2.0
 		return self.output
 
+import time
 def test2D(x,y,a,b,GPU):
 	testFilt=Filter(x,y,1,a,b,False)
 	x=np.random.randint(a,b,(y,x))
+	t0=time.clock()
 	y=testFilt.insert(x)
+	t1=time.clock()
 	print(x)
 	print(y)
 	print('min ='+str(np.min(y)))
 	print('max ='+str(np.max(y)))
 	print('std ='+str(np.std(y)))
 	print('mean='+str(np.mean(y)))
+	print('time='+str(t1-t0)+'s')
 
 test2D(4,6,0,255,True)
 test2D(4,6,0,255,False)
 test2D(8,4,123,456,False)
 test2D(8,4,123,456,True)
+test2D(5234,5678,100,2893,True)
+test2D(5234,5678,100,2893,False)
