@@ -5,9 +5,11 @@ import gobject
 import gtk.gdk
 import os,subprocess
 #from os import system
+import csv
+from threading import BoundedSemaphore
 
 XDIM=320
-YDIM=145
+YDIM=135
 
 class MyThread(threading.Thread):
 	def __init__(self,image,a,b):
@@ -20,6 +22,10 @@ class MyThread(threading.Thread):
 		self.a=a
 		self.b=b
 		self.updatePixelBuf()
+		#cmdList=['firefox','https://en.wikipedia.org/wiki/Main_Page']
+		#with open(os.devnull, 'wb') as devnull:
+		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
+		self.busySem=BoundedSemaphore(value=1)
 
 	def moveWindow(self,title,x,y):
 		cmdList=['xdotool','search',title,'windowmove',str(x),str(y)]
@@ -39,10 +45,13 @@ class MyThread(threading.Thread):
 			self.sz = self.rootWindow.get_size()
 			self.pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,self.sz[0],self.sz[1])
 			self.pb = self.pb.get_from_drawable(self.rootWindow,self.rootWindow.get_colormap(),0,0,0,0,self.sz[0],self.sz[1])
+			#pb.scale(pb,0,0,200,200,0,0,1,1,gtk.gdk.INTERP_NEAREST)
+			#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
 		finally:
 			gtk.gdk.threads_leave()
 			
 	def setCropped(self,x,y):
+		self.busySem.acquire()
 		gtk.gdk.threads_enter()
 		try:
 			self.subpb=self.pb.subpixbuf(x,y,self.a,self.b)
@@ -50,6 +59,7 @@ class MyThread(threading.Thread):
 			self.image.set_from_pixbuf(self.subpb)
 		finally:
 			gtk.gdk.threads_leave()
+		self.busySem.release()
 
 	def update_image(self,img):
 		gtk.gdk.threads_enter()
@@ -69,21 +79,45 @@ class MyThread(threading.Thread):
 			gtk.gdk.threads_leave()
 		return False
 
+	def getCropped(self,x,y,filename):
+		self.busySem.acquire()
+		gtk.gdk.threads_enter()
+		try:
+			if self.subpb:
+				self.array=self.subpb.get_pixels_array()#.flatten()
+				with open(filename,'w') as csvFile:
+					csvWriter=csv.writer(csvFile,delimiter=',')
+					csvWriter.writerow(self.array)
+			else:
+				print('failed:'+str(x)+','+str(y))
+		finally:
+			gtk.gdk.threads_leave()
+		self.busySem.release()
+
+	def generateExamples(self):
+		for self.j in range(0,1920,XDIM):
+			for self.i in range(0,1080,YDIM):
+				gobject.idle_add(self.setCropped,self.j,self.i)
+				filename='y'+str(self.j)+'-'+str(self.i)+'.csv'
+				gobject.idle_add(self.getCropped,self.j,self.i,filename)
+				time.sleep(2)
+
+	def testLoop(self):
+		gobject.idle_add(self.setCropped,self.j,self.i)
+		self.j += 1
+		if self.j>=(1920-self.a):
+			self.j = 0
+			self.i += self.b
+			if self.i>=(1080-self.b):
+				self.i = 0
+		self.moveWindow('Wikipedia',self.j,0)
+		#self.moveWindow('Wikipedia, the free encyclopedia - Mozilla Firefox',self.j,0)
+
 	def run(self):
 		while not self.quit:
-			#pb = pb.get_from_drawable(self.rootWindow,self.rootWindow.get_colormap(),0,0,0,0,200,200)
-			#pb.scale(pb,0,0,200,200,0,0,1,1,gtk.gdk.INTERP_NEAREST)
-			#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
-			gobject.idle_add(self.setCropped,self.j,self.i)
-			self.j += 1
-			if self.j>=(1920-self.a):
-				self.j = 0
-				self.i += self.b
-				if self.i>=(1080-self.b):
-					self.i = 0
-			#gobject.idle_add(self.set_from_pixbuf)
-			#self.moveWindow('Wikipedia, the free encyclopedia - Mozilla Firefox',self.j,0)
-			self.moveWindow('Wikipedia',self.j,0)
+			self.generateExamples()
+			self.quit=1
+			#self.testLoop()
 			time.sleep(0.001)
 
 def event(widget,event):
