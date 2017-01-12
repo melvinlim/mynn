@@ -169,6 +169,10 @@ def expose(widget,event):
 gobject.threads_init()
 
 window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+try:
+	window.set_icon_from_file('icon.png')
+except:
+	print('could not find icon.png.  using question mark icon.')
 window.set_border_width(10)
 window.move(1024,0)
 #window.connect("delete_event", self.close_application)
