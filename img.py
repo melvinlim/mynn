@@ -7,6 +7,7 @@ import os,subprocess
 #from os import system
 import csv
 from threading import BoundedSemaphore
+import random
 
 XDIM=320
 YDIM=135
@@ -21,11 +22,20 @@ class MyThread(threading.Thread):
 		self.j=0
 		self.a=a
 		self.b=b
+		self.minimize('Terminal')
+		time.sleep(0.5)
 		self.updatePixelBuf()
 		#cmdList=['firefox','https://en.wikipedia.org/wiki/Main_Page']
 		#with open(os.devnull, 'wb') as devnull:
 		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
 		self.busySem=BoundedSemaphore(value=1)
+
+	def xdotool(self,cmdList):
+		with open(os.devnull, 'wb') as devnull:
+			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
+
+	def minimize(self,title):
+		self.xdotool(['xdotool','search',title,'windowminimize','%@'])
 
 	def moveWindow(self,title,x,y):
 		cmdList=['xdotool','search',title,'windowmove',str(x),str(y)]
@@ -84,7 +94,8 @@ class MyThread(threading.Thread):
 		gtk.gdk.threads_enter()
 		try:
 			if self.subpb:
-				self.array=self.subpb.get_pixels_array()#.flatten()
+				#self.array=self.subpb.get_pixels_array()#.flatten()
+				self.array=self.subpb.get_pixels_array().flatten()
 				with open(filename,'w') as csvFile:
 					csvWriter=csv.writer(csvFile,delimiter=',')
 					csvWriter.writerow(self.array)
@@ -95,12 +106,34 @@ class MyThread(threading.Thread):
 		self.busySem.release()
 
 	def generateExamples(self):
-		for self.j in range(0,1920,XDIM):
-			for self.i in range(0,1080,YDIM):
-				gobject.idle_add(self.setCropped,self.j,self.i)
-				filename='y'+str(self.j)+'-'+str(self.i)+'.csv'
-				gobject.idle_add(self.getCropped,self.j,self.i,filename)
-				time.sleep(2)
+		yoffset=25
+		n=0
+		for j in range(0,1920,XDIM):
+			for i in range(0,1080,YDIM):
+				for k in range(5):
+					m=random.randint(0,XDIM/5)
+					l=random.randint(0,YDIM/5)
+					xtarg=j+m
+					ytarg=i+l+yoffset
+					if xtarg>XDIM:
+						xtarg=j-m
+					if ytarg>YDIM:
+						ytarg=i-l-yoffset
+					gobject.idle_add(self.setCropped,xtarg,ytarg)
+					filename='data/'+'neg'+str(n)+'.csv'
+					gobject.idle_add(self.getCropped,xtarg,ytarg,filename)
+					n+=1
+					time.sleep(0.5)
+
+	def readAndDisplay(self,filename):
+		results=[]
+		try:
+			with open(filename,'r') as csvFile:
+				csvReader=csv.reader(csvFile,delimiter=',')
+				for row in csvReader:
+					print(row)
+		except:
+			print('failed to open '+filename)
 
 	def testLoop(self):
 		gobject.idle_add(self.setCropped,self.j,self.i)
@@ -115,6 +148,8 @@ class MyThread(threading.Thread):
 
 	def run(self):
 		while not self.quit:
+			#for i in range(10):
+			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
 			self.generateExamples()
 			self.quit=1
 			#self.testLoop()
