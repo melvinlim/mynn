@@ -22,13 +22,11 @@ class MyThread(threading.Thread):
 		self.j=0
 		self.a=a
 		self.b=b
-		self.minimize('Terminal')
-		time.sleep(0.5)
+		self.busySem=BoundedSemaphore(value=1)
 		self.updatePixelBuf()
 		#cmdList=['firefox','https://en.wikipedia.org/wiki/Main_Page']
 		#with open(os.devnull, 'wb') as devnull:
 		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
-		self.busySem=BoundedSemaphore(value=1)
 
 	def xdotool(self,cmdList):
 		with open(os.devnull, 'wb') as devnull:
@@ -38,17 +36,15 @@ class MyThread(threading.Thread):
 		self.xdotool(['xdotool','search',title,'windowminimize','%@'])
 
 	def moveWindow(self,title,x,y):
-		cmdList=['xdotool','search',title,'windowmove',str(x),str(y)]
+		self.busySem.acquire()
+		cmdList=['xdotool','search',title,'windowmove','%@',str(x),str(y)]
 		with open(os.devnull, 'wb') as devnull:
 			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
-#		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y)+'>/dev/null')
 #		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y))
-#		system('xdotool search "'+title+'" windowactivate --sync mousemove --window %1 500 10')
-#		system('xdotool mousedown 1')
-#		system('xdotool mousemove_relative --sync '+str(x)+' '+str(y))
-#		system('xdotool mouseup 1')
+		self.busySem.release()
 
 	def updatePixelBuf(self):
+		self.busySem.acquire()
 		gtk.gdk.threads_enter()
 		try:
 			self.rootWindow = gtk.gdk.get_default_root_window()
@@ -59,6 +55,7 @@ class MyThread(threading.Thread):
 			#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
 		finally:
 			gtk.gdk.threads_leave()
+		self.busySem.release()
 			
 	def setCropped(self,x,y):
 		self.busySem.acquire()
@@ -106,6 +103,38 @@ class MyThread(threading.Thread):
 		self.busySem.release()
 
 	def generateExamples(self):
+		self.generatePositive(.5)
+		self.minimize('Terminal')
+		time.sleep(0.5)
+		self.generateNegative(.5)
+	
+	def generatePositive(self,delay=0.5):
+		yoffset=0
+		n=0
+		for j in range(0,1920,XDIM):
+			for i in range(0,1080,YDIM):
+				for k in range(5):
+					m=random.randint(0,XDIM/5)
+					l=random.randint(0,YDIM/5)
+					xtarg=j+m
+					ytarg=i+l+yoffset
+					if xtarg>XDIM:
+						xtarg=j-m
+					if ytarg>YDIM:
+						ytarg=i-l-yoffset
+					m=random.randint(0,XDIM/5)
+					l=random.randint(0,YDIM/5)
+					wx=j+m
+					wy=i+l+yoffset
+					gobject.idle_add(self.moveWindow,'Terminal',wx,wy)
+					gobject.idle_add(self.updatePixelBuf)
+					time.sleep(delay)
+					gobject.idle_add(self.setCropped,xtarg,ytarg)
+					filename='data/'+'pos'+str(n)+'.csv'
+					gobject.idle_add(self.getCropped,xtarg,ytarg,filename)
+					n+=1
+
+	def generateNegative(self,delay=0.5):
 		yoffset=25
 		n=0
 		for j in range(0,1920,XDIM):
@@ -123,7 +152,7 @@ class MyThread(threading.Thread):
 					filename='data/'+'neg'+str(n)+'.csv'
 					gobject.idle_add(self.getCropped,xtarg,ytarg,filename)
 					n+=1
-					time.sleep(0.5)
+					time.sleep(delay)
 
 	def readAndDisplay(self,filename):
 		results=[]
