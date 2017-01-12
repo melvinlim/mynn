@@ -86,16 +86,22 @@ class MyThread(threading.Thread):
 			gtk.gdk.threads_leave()
 		return False
 
+	def writeCSV(filename):
+		try:
+			with open(filename,'w') as csvFile:
+				csvWriter=csv.writer(csvFile,delimiter=',')
+				csvWriter.writerow(self.array)
+		except:
+			print('unable to write to '+filename)
+
 	def getCropped(self,x,y,filename):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
 		try:
 			if self.subpb:
+				self.subpb.save(filename,'png')
 				#self.array=self.subpb.get_pixels_array()#.flatten()
-				self.array=self.subpb.get_pixels_array().flatten()
-				with open(filename,'w') as csvFile:
-					csvWriter=csv.writer(csvFile,delimiter=',')
-					csvWriter.writerow(self.array)
+				#self.array=self.subpb.get_pixels_array().flatten()
 			else:
 				print('failed:'+str(x)+','+str(y))
 		finally:
@@ -130,7 +136,7 @@ class MyThread(threading.Thread):
 					gobject.idle_add(self.updatePixelBuf)
 					time.sleep(delay)
 					gobject.idle_add(self.setCropped,xtarg,ytarg)
-					filename='data/'+'pos'+str(n)+'.csv'
+					filename='data/'+'pos'+str(n)+'.png'
 					gobject.idle_add(self.getCropped,xtarg,ytarg,filename)
 					n+=1
 
@@ -149,7 +155,7 @@ class MyThread(threading.Thread):
 					if ytarg>YDIM:
 						ytarg=i-l-yoffset
 					gobject.idle_add(self.setCropped,xtarg,ytarg)
-					filename='data/'+'neg'+str(n)+'.csv'
+					filename='data/'+'neg'+str(n)+'.png'
 					gobject.idle_add(self.getCropped,xtarg,ytarg,filename)
 					n+=1
 					time.sleep(delay)
