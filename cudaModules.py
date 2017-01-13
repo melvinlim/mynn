@@ -39,3 +39,21 @@ __global__ void weightKernel(double *A,double *x,double *delta){
 	}
 }
 """
+batchAccumTemplate="""
+__global__ void batchAccumKernel(double *A,double *x,double *delta){
+	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
+		A[row*%(NCOLS)s+col] += %(GAMMA)s*x[col]*delta[row];
+	}
+}
+"""
+batchUpdateTemplate="""
+__global__ void batchUpdateKernel(double *A,double *dA){
+	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
+		A[row*%(NCOLS)s+col] -= dA[row*%(NCOLS)s+col];
+	}
+}
+"""

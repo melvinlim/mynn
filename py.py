@@ -8,13 +8,16 @@ from csvWrap import *
 from filt import *
 
 INPUTS=129600
+#INPUTS=2
+
+BATCHSIZE=4
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
-LAYERDIM=[INPUTS,124,2]
+LAYERDIM=[INPUTS,300,2]
 EPOCHS=1000
-GAMMA=0.1
-PRINTFREQ=1
+GAMMA=0.0001
+PRINTFREQ=10
 GPU=True
 t0=time.clock()
 
@@ -30,8 +33,8 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 
-NPOS=24
-NNEG=24
+NPOS=4
+NNEG=4
 
 inp=[]
 out=[]
@@ -55,21 +58,29 @@ for i in range(NNEG):
 	out.append([+1,-1])
 
 #raise Exception
+#inp=[inp1,inp2,inp3,inp4]
+#out=[out1,out2,out3,out4]
 nExamples=len(inp)
 
 np.set_printoptions(precision=4)
 
 NN=nn.Network(LAYERDIM,GAMMA)
 for epoch in range(EPOCHS):
-	r=np.random.randint(0,nExamples)
-	[output,error]=NN.train(inp[r],out[r])
+	bInp=[]
+	bOut=[]
+	for i in range(BATCHSIZE):
+		r=np.random.randint(0,nExamples)
+		bInp.append(inp[r])
+		bOut.append(out[r])
+	[output,error]=NN.batchTrain(bInp,bOut)
 	if (epoch%PRINTFREQ==0):
-		print('error:'),
-		print(error)
-		print('output:'),
-		print(output)
-		print('target:'),
-		print(out[r])
+		for i in range(BATCHSIZE):
+			print('error:'),
+			print(error[i])
+			print('output:'),
+			print(output[i])
+			print('target:'),
+			print(bOut[i])
 for r in range(nExamples):
 	[output,error]=NN.train(inp[r],out[r])
 	print('error:'),

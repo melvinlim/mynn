@@ -16,6 +16,7 @@ class Layer:
 
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
 		self.A.astype(np.float64)
+		self.dA=np.array(n*m*[0]).reshape(n,m).astype(np.float64)
 		self.out=np.array(n*[0]).astype(np.float64)
 		self.delta=np.array(n*[0]).astype(np.float64)
 		self.deriv=np.array(n*[0]).astype(np.float64)
@@ -38,6 +39,20 @@ class Layer:
 			'NCOLS':self.A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.weightKernel=module.get_function("weightKernel")
+
+		kernel_code=cudaModules.batchAccumTemplate%{
+			'GAMMA':self.gamma,
+			'NROWS':self.dA.shape[0],
+			'NCOLS':self.dA.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.batchAccumKernel=module.get_function("batchAccumKernel")
+
+		kernel_code=cudaModules.batchUpdateTemplate%{
+			'GAMMA':self.gamma,
+			'NROWS':self.A.shape[0],
+			'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 
 	def insert(self,x):
 		if GPU:
@@ -75,6 +90,33 @@ class Layer:
 				arr.append(s)
 			self.delta=self.deriv*s
 		return self.delta
+	def batchAccum(self,x):
+		if GPU:
+			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+			self.batchAccumKernel(
+				drv.InOut(self.dA),
+				drv.In(x),
+				drv.In(self.delta),
+				block=(TPB2D,TPB2D,1),
+				grid=(gridX,gridY))
+		else:
+			for i in range(self.dA.shape[0]):
+				for j in range(self.dA.shape[1]):
+					self.dA[i][j] += self.gamma*self.delta[i]*x[j]
+	def batchUpdate(self):
+		if GPU:
+			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+			self.batchUpdateKernel(
+				drv.InOut(self.A),
+				drv.In(self.dA),
+				block=(TPB2D,TPB2D,1),
+				grid=(gridX,gridY))
+		else:
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					self.A[i][j] -= self.dA[i][j]
 	def updateWeights(self,x):
 		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
@@ -124,4 +166,35 @@ class Network:
 			self.layer[i].updateWeights(self.layer[i-1].out)
 			i -= 1
 		self.layer[0].updateWeights(theInput)
+		return [output,error]
+	def batchUpdate(self,theInput,target):
+		tmp=theInput
+		for i in range(self.n):
+			tmp=self.layer[i].insert(tmp)
+		output=tmp
+		error=tmp-target
+		tmp=self.layer[self.n-1].updateDelta0(error)
+		i=self.n-1
+		while (i>0):
+			tmp=self.layer[i-1].updateDelta(self.layer[i].A,tmp)
+			i -= 1
+		i=self.n-1
+		while (i>0):
+			self.layer[i].batchAccum(self.layer[i-1].out)
+			i -= 1
+		self.layer[0].batchAccum(theInput)
+		return [output,error]
+	def batchTrain(self,inputList,targetList):
+		batchsize=len(inputList)
+		error=[]
+		output=[]
+		for i in range(batchsize):
+			[o,e]=self.batchUpdate(inputList[i],targetList[i])
+			error.append(e)
+			output.append(o)
+		i=self.n-1
+		while (i>0):
+			self.layer[i].batchUpdate()
+			i -= 1
+		self.layer[0].batchUpdate()
 		return [output,error]
