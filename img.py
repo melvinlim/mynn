@@ -14,8 +14,12 @@ XDIM=320
 YDIM=135
 
 class GTKThread(threading.Thread):
-	def startCB(self,widget):
+	def testLoopCB(self,widget):
 		self.task='testLoop'
+	def pngToArrayCB(self,widget):
+		self.task='pngToArray'
+	def readAndDisplayCB(self,widget):
+		self.task='readAndDisplay'
 	def enterCrit(self):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
@@ -41,9 +45,15 @@ class GTKThread(threading.Thread):
 		self.box1.pack_start(self.image)
 		self.quitButton=gtk.Button('Quit')
 		self.quitButton.connect('clicked',self.gtkQuitCB)
-		self.startButton=gtk.Button('Start')
-		self.startButton.connect('clicked',self.startCB)
-		self.box1.pack_start(self.startButton,True,True,0)
+		self.testLoopButton=gtk.Button('testLoop')
+		self.testLoopButton.connect('clicked',self.testLoopCB)
+		self.pngToArrayButton=gtk.Button('pngToArray')
+		self.pngToArrayButton.connect('clicked',self.pngToArrayCB)
+		self.readAndDisplayButton=gtk.Button('readAndDisplay')
+		self.readAndDisplayButton.connect('clicked',self.readAndDisplayCB)
+		self.box1.pack_start(self.testLoopButton,True,True,0)
+		self.box1.pack_start(self.pngToArrayButton,True,True,0)
+		self.box1.pack_start(self.readAndDisplayButton,True,True,0)
 		self.box1.pack_start(self.quitButton,True,True,0)
 		self.mainWindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.task=0
@@ -203,6 +213,10 @@ class GTKThread(threading.Thread):
 					n+=1
 					time.sleep(delay)
 
+	def pngToArray(self,filename):
+		pb=gtk.gdk.pixbuf_new_from_file(filename)
+		print(pb.get_pixels_array())#.flatten())
+
 	def readAndDisplay(self,filename):
 		results=[]
 		try:
@@ -228,10 +242,18 @@ class GTKThread(threading.Thread):
 		while not self.stop:
 			if(self.task=='testLoop'):
 				self.testLoop()
+			elif(self.task=='pngToArray'):
+				for i in range(10):
+					self.pngToArray('data/'+'neg'+str(self.i)+'.png')
+				self.task=0
+			elif(self.task=='readAndDisplay'):
+				self.i+=1
+				if self.i>=10:
+					self.i=0
+					self.task=0
+				self.readAndDisplay('data/'+'neg'+str(self.i)+'.csv')
 			elif(self.task=='quitTask'):
 				self.gtkQuit()
-			#for i in range(10):
-			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
 			#self.generateExamples()
 			#self.gtkQuit()
 			#self.testLoop()
