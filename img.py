@@ -134,11 +134,12 @@ class GTKThread(threading.Thread):
 		self.exitCrit()
 		return False
 
-	def writeCSV(filename):
+	def writeCSV(self,filename):
 		try:
 			with open(filename,'w') as csvFile:
 				csvWriter=csv.writer(csvFile,delimiter=',')
 				csvWriter.writerow(self.array)
+				print('wrote '+filename)
 		except:
 			print('unable to write to '+filename)
 
@@ -214,8 +215,13 @@ class GTKThread(threading.Thread):
 					time.sleep(delay)
 
 	def pngToArray(self,filename):
+		self.enterCrit()
 		pb=gtk.gdk.pixbuf_new_from_file(filename)
-		print(pb.get_pixels_array())#.flatten())
+		#print(pb.get_pixels_array())#.flatten())
+		self.array=pb.get_pixels_array().flatten()
+		print('read '+filename)
+		self.writeCSV(filename.strip(filename[-4:])+'.csv')
+		self.exitCrit()
 
 	def readAndDisplay(self,filename):
 		results=[]
@@ -243,8 +249,10 @@ class GTKThread(threading.Thread):
 			if(self.task=='testLoop'):
 				self.testLoop()
 			elif(self.task=='pngToArray'):
-				for i in range(10):
-					self.pngToArray('data/'+'neg'+str(self.i)+'.png')
+				for self.i in range(128):
+					self.pngToArray('verified/'+'neg'+str(self.i)+'.png')
+				for self.i in range(240):
+					self.pngToArray('verified/'+'pos'+str(self.i)+'.png')
 				self.task=0
 			elif(self.task=='readAndDisplay'):
 				self.i+=1
