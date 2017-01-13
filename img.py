@@ -8,14 +8,22 @@ import os,subprocess
 import csv
 from threading import BoundedSemaphore
 import random
+import signal
 
 XDIM=320
 YDIM=135
 
-class MyThread(threading.Thread):
+def handler(signum,frame):
+	print('received signal #',signum)
+	gtkQuit()
+	raise IOError('signal error')
+
+signal.signal(signal.SIGQUIT,handler)
+
+class GTKThread(threading.Thread):
 	def __init__(self,image,a,b):
 		print("init thread")
-		super(MyThread, self).__init__()
+		super(GTKThread, self).__init__()
 		self.image = image
 		self.quit = False
 		self.i=0
@@ -29,19 +37,20 @@ class MyThread(threading.Thread):
 		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
 
 	def xdotool(self,cmdList):
+		self.busySem.acquire()
 		with open(os.devnull, 'wb') as devnull:
 			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
+		self.busySem.release()
 
 	def minimize(self,title):
 		self.xdotool(['xdotool','search',title,'windowminimize','%@'])
 
+	def select(self,title):
+		self.xdotool(['xdotool','search',title,'windowmap','%@'])
+
 	def moveWindow(self,title,x,y):
-		self.busySem.acquire()
-		cmdList=['xdotool','search',title,'windowmove','%@',str(x),str(y)]
-		with open(os.devnull, 'wb') as devnull:
-			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
+		self.xdotool(['xdotool','search',title,'windowmove','%@',str(x),str(y)])
 #		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y))
-		self.busySem.release()
 
 	def updatePixelBuf(self):
 		self.busySem.acquire()
@@ -69,21 +78,25 @@ class MyThread(threading.Thread):
 		self.busySem.release()
 
 	def update_image(self,img):
+		self.busySem.acquire()
 		gtk.gdk.threads_enter()
 		try:
 			self.image.clear()
 			self.image.set_from_file(img)
 		finally:
 			gtk.gdk.threads_leave()
+		self.busySem.release()
 		return False
 
 	def set_from_pixbuf(self):
+		self.busySem.acquire()
 		gtk.gdk.threads_enter()
 		try:
 			self.image.clear()
 			self.image.set_from_pixbuf(self.pb)
 		finally:
 			gtk.gdk.threads_leave()
+		self.busySem.release()
 		return False
 
 	def writeCSV(filename):
@@ -109,10 +122,12 @@ class MyThread(threading.Thread):
 		self.busySem.release()
 
 	def generateExamples(self):
-		self.generatePositive(.5)
 		self.minimize('Terminal')
-		time.sleep(0.5)
-		self.generateNegative(.5)
+		time.sleep(1)
+		self.updatePixelBuf()
+		self.generateNegative(0.10)
+		self.select('Terminal')
+		self.generatePositive(0.10)
 	
 	def generatePositive(self,delay=0.5):
 		yoffset=0
@@ -145,6 +160,8 @@ class MyThread(threading.Thread):
 		n=0
 		for j in range(0,1920,XDIM):
 			for i in range(0,1080,YDIM):
+				if j>0:
+					gobject.idle_add(self.moveWindow,'img.py',0,0)
 				for k in range(5):
 					m=random.randint(0,XDIM/5)
 					l=random.randint(0,YDIM/5)
@@ -202,26 +219,39 @@ def expose(widget,event):
 	image.set_from_file('san_francisco.jpg')
 
 gobject.threads_init()
+mainloop = gobject.MainLoop()
+image = gtk.Image()
+gtkThread=GTKThread(image,XDIM,YDIM)
 
 window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 try:
 	window.set_icon_from_file('icon.png')
 except:
 	print('could not find icon.png.  using question mark icon.')
+
+def gtkQuit():
+	global mainloop,t
+	mainloop.quit()
+	gtkThread.quit=True
+
 window.set_border_width(10)
 window.move(1024,0)
 #window.connect("delete_event", self.close_application)
 #window.connect("event",event)
 #window.connect("expose_event",expose)
 #window.connect("window_state_event",window_state_changed)
-window.connect("destroy",lambda w: gtk.main_quit())
-image = gtk.Image()
+#window.connect("destroy",lambda w: gtk.main_quit())
+window.connect("destroy",lambda w: gtkQuit())
 window.add(image)
 window.show_all()
 
 #image.set_from_file('san_francisco.jpg')
 
-t=MyThread(image,XDIM,YDIM)
-t.start()
-gtk.main()
-t.quit=True
+gtkThread.start()
+#gtk.main()
+try:
+	mainloop.run()
+except KeyboardInterrupt:
+	gtkThread.quit=True
+	mainloop.quit()
+gtkThread.quit=True
