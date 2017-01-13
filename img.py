@@ -15,23 +15,46 @@ YDIM=135
 
 def handler(signum,frame):
 	print('received signal #',signum)
-	gtkQuit()
+	gtk.main_quit()
 	raise IOError('signal error')
 
 signal.signal(signal.SIGQUIT,handler)
 
-class GTKThread(threading.Thread):
-	def __init__(self,image,a,b):
-		print("init thread")
-		super(GTKThread, self).__init__()
-		self.image = image
-		self.quit = False
+class GTKWindow():
+	def quit(self,widget):
+		gtk.main_quit()
+	def __init__(self,a,b):
+		self.image=gtk.Image()
+		self.box1=gtk.VBox(False,0)
+		self.box1.pack_start(self.image)
+		self.quitButton=gtk.Button('Quit')
+		self.quitButton.connect('clicked',self.quit)
+		self.startButton=gtk.Button('Start')
+		self.startButton.connect('clicked',self.start)
+		self.box1.pack_start(self.startButton,True,True,0)
+		self.box1.pack_start(self.quitButton,True,True,0)
+		self.mainWindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
+		try:
+			self.mainWindow.set_icon_from_file('icon.png')
+		except:
+			print('could not find icon.png.  using question mark icon.')
+
+		self.mainWindow.set_border_width(10)
+		self.mainWindow.move(1024,0)
+		#self.mainWindow.connect("event",event)
+		#self.mainWindow.connect("expose_event",expose)
+		#self.mainWindow.connect("window_state_event",window_state_changed)
+		self.mainWindow.connect("destroy",lambda w: gtk.main_quit())
+		self.mainWindow.connect("delete_event",lambda a,b: gtk.main_quit())
+		self.mainWindow.add(self.box1)
+		self.mainWindow.show_all()
 		self.i=0
 		self.j=0
 		self.a=a
 		self.b=b
 		self.busySem=BoundedSemaphore(value=1)
 		self.updatePixelBuf()
+		self.setCropped(0,0)
 		#cmdList=['firefox','https://en.wikipedia.org/wiki/Main_Page']
 		#with open(os.devnull, 'wb') as devnull:
 		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
@@ -198,12 +221,14 @@ class GTKThread(threading.Thread):
 		self.moveWindow('Wikipedia',self.j,0)
 		#self.moveWindow('Wikipedia, the free encyclopedia - Mozilla Firefox',self.j,0)
 
-	def run(self):
-		while not self.quit:
+	def start(self,widget):
+			print('start clicked')
+			return
+#		while not self.quit:
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
 			self.generateExamples()
-			self.quit=1
+			#self.quit=1
 			#self.testLoop()
 			time.sleep(0.001)
 
@@ -218,40 +243,11 @@ def expose(widget,event):
 	image=widget.get_child()
 	image.set_from_file('san_francisco.jpg')
 
-gobject.threads_init()
-mainloop = gobject.MainLoop()
-image = gtk.Image()
-gtkThread=GTKThread(image,XDIM,YDIM)
-
-window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-try:
-	window.set_icon_from_file('icon.png')
-except:
-	print('could not find icon.png.  using question mark icon.')
-
-def gtkQuit():
-	global mainloop,t
-	mainloop.quit()
-	gtkThread.quit=True
-
-window.set_border_width(10)
-window.move(1024,0)
-#window.connect("delete_event", self.close_application)
-#window.connect("event",event)
-#window.connect("expose_event",expose)
-#window.connect("window_state_event",window_state_changed)
-#window.connect("destroy",lambda w: gtk.main_quit())
-window.connect("destroy",lambda w: gtkQuit())
-window.add(image)
-window.show_all()
-
 #image.set_from_file('san_francisco.jpg')
 
-gtkThread.start()
-#gtk.main()
+gtkWindow=GTKWindow(XDIM,YDIM)
+
 try:
-	mainloop.run()
+	gtk.main()
 except KeyboardInterrupt:
-	gtkThread.quit=True
-	mainloop.quit()
-gtkThread.quit=True
+	gtk.main_quit()
