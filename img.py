@@ -4,7 +4,7 @@ import threading
 import gobject
 import gtk.gdk
 import os,subprocess
-#from os import system
+from os import system
 import csv
 from threading import BoundedSemaphore
 import random
@@ -20,7 +20,9 @@ class GTKThread(threading.Thread):
 	def exitCrit(self):
 		gtk.gdk.threads_leave()
 		self.busySem.release()
-	def gtkQuit(self,widget):
+	def gtkQuitCB(self,widget):
+		self.gtkQuit()
+	def gtkQuit(self):
 		self.stop=True
 		self.mainloop.quit()
 	def handler(self,signum,frame):
@@ -36,7 +38,7 @@ class GTKThread(threading.Thread):
 		self.box1=gtk.VBox(False,0)
 		self.box1.pack_start(self.image)
 		self.quitButton=gtk.Button('Quit')
-		self.quitButton.connect('clicked',self.gtkQuit)
+		self.quitButton.connect('clicked',self.gtkQuitCB)
 		self.startButton=gtk.Button('Start')
 		self.startButton.connect('clicked',self.start)
 		self.box1.pack_start(self.startButton,True,True,0)
@@ -52,8 +54,8 @@ class GTKThread(threading.Thread):
 		#self.mainWindow.connect("event",event)
 		#self.mainWindow.connect("expose_event",expose)
 		#self.mainWindow.connect("window_state_event",window_state_changed)
-		self.mainWindow.connect("destroy",lambda w: self.gtkQuit())
-		self.mainWindow.connect("delete_event",lambda a,b: self.gtkQuit())
+		self.mainWindow.connect("destroy",lambda w: self.gtkQuitCB())
+		self.mainWindow.connect("delete_event",lambda a,b: self.gtkQuitCB())
 		self.mainWindow.add(self.box1)
 		self.mainWindow.show_all()
 		self.i=0
@@ -78,14 +80,14 @@ class GTKThread(threading.Thread):
 		self.exitCrit()
 
 	def minimize(self,title):
-		self.xdotool(['xdotool','search',title,'windowminimize','%@'])
+		self.xdotool(['xdotool','search','--class',title,'windowminimize','%@'])
 
 	def select(self,title):
-		self.xdotool(['xdotool','search',title,'windowmap','%@'])
+		self.xdotool(['xdotool','search','--class',title,'windowmap','--sync','%@'])
 
 	def moveWindow(self,title,x,y):
-		self.xdotool(['xdotool','search',title,'windowmove','%@',str(x),str(y)])
-#		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y))
+		#self.xdotool(['xdotool','search',title,'windowmove','%@',str(x),str(y)])
+		system('xdotool search --name "'+title+'" windowmove %@ '+str(x)+' '+str(y))
 
 	def updatePixelBuf(self):
 		self.enterCrit()
@@ -138,14 +140,14 @@ class GTKThread(threading.Thread):
 		self.exitCrit()
 
 	def generateExamples(self):
-#		self.minimize('Terminal')
+		self.minimize('Terminal')
 		time.sleep(1)
-		self.updatePixelBuf()
+		gobject.idle_add(self.updatePixelBuf)
 		print("generating negative examples")
 		self.generateNegative(0.10)
-		self.select('Terminal')
-		print("generating positive examples")
-		self.generatePositive(0.10)
+		#gobject.idle_add(self.select,'Terminal')
+		#print("generating positive examples")
+		#self.generatePositive(0.10)
 	
 	def generatePositive(self,delay=0.5):
 		yoffset=0
@@ -166,6 +168,7 @@ class GTKThread(threading.Thread):
 					wx=j+m
 					wy=i+l+yoffset
 					gobject.idle_add(self.moveWindow,'Terminal',wx,wy)
+					time.sleep(0.5)
 					gobject.idle_add(self.updatePixelBuf)
 					time.sleep(delay)
 					gobject.idle_add(self.setCropped,xtarg,ytarg)
@@ -180,6 +183,8 @@ class GTKThread(threading.Thread):
 			for i in range(0,1080,YDIM):
 				if j>0:
 					gobject.idle_add(self.moveWindow,'img.py',0,0)
+					gobject.idle_add(self.updatePixelBuf)
+					time.sleep(delay)
 				for k in range(5):
 					m=random.randint(0,XDIM/5)
 					l=random.randint(0,YDIM/5)
@@ -216,13 +221,12 @@ class GTKThread(threading.Thread):
 		self.moveWindow('Terminal',self.j,0)
 
 	def run(self):
-#		while True:
 		while not self.stop:
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
 			self.generateExamples()
-			self.stop=1
-			self.testLoop()
+			self.gtkQuit()
+			#self.testLoop()
 			time.sleep(0.001)
 
 def event(widget,event):
