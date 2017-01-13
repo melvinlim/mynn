@@ -14,6 +14,8 @@ XDIM=320
 YDIM=135
 
 class GTKThread(threading.Thread):
+	def startCB(self,widget):
+		self.task='testLoop'
 	def enterCrit(self):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
@@ -40,10 +42,11 @@ class GTKThread(threading.Thread):
 		self.quitButton=gtk.Button('Quit')
 		self.quitButton.connect('clicked',self.gtkQuitCB)
 		self.startButton=gtk.Button('Start')
-		self.startButton.connect('clicked',self.start)
+		self.startButton.connect('clicked',self.startCB)
 		self.box1.pack_start(self.startButton,True,True,0)
 		self.box1.pack_start(self.quitButton,True,True,0)
 		self.mainWindow = gtk.Window(gtk.WINDOW_TOPLEVEL)
+		self.task=0
 		try:
 			self.mainWindow.set_icon_from_file('icon.png')
 		except:
@@ -86,8 +89,8 @@ class GTKThread(threading.Thread):
 		self.xdotool(['xdotool','search','--class',title,'windowmap','--sync','%@'])
 
 	def moveWindow(self,title,x,y):
-		#self.xdotool(['xdotool','search',title,'windowmove','%@',str(x),str(y)])
-		system('xdotool search --name "'+title+'" windowmove %@ '+str(x)+' '+str(y))
+		self.xdotool(['xdotool','search',title,'windowmove','%@',str(x),str(y)])
+		#system('xdotool search --name "'+title+'" windowmove %@ '+str(x)+' '+str(y))
 
 	def updatePixelBuf(self):
 		self.enterCrit()
@@ -140,14 +143,14 @@ class GTKThread(threading.Thread):
 		self.exitCrit()
 
 	def generateExamples(self):
-		self.minimize('Terminal')
-		time.sleep(1)
-		gobject.idle_add(self.updatePixelBuf)
-		print("generating negative examples")
-		self.generateNegative(0.10)
+		#self.minimize('Terminal')
+		#time.sleep(1)
+		#gobject.idle_add(self.updatePixelBuf)
+		#print("generating negative examples")
+		#self.generateNegative(0.10)
 		#gobject.idle_add(self.select,'Terminal')
-		#print("generating positive examples")
-		#self.generatePositive(0.10)
+		print("generating positive examples")
+		self.generatePositive(0.10)
 	
 	def generatePositive(self,delay=0.5):
 		yoffset=0
@@ -212,20 +215,25 @@ class GTKThread(threading.Thread):
 
 	def testLoop(self):
 		gobject.idle_add(self.setCropped,self.j,self.i)
-		self.j += 1
+		self.j += 100
 		if self.j>=(1920-self.a):
 			self.j = 0
-			self.i += self.b
+			self.i += 100
 			if self.i>=(1080-self.b):
+				self.task=0
 				self.i = 0
-		self.moveWindow('Terminal',self.j,0)
+		self.moveWindow('Terminal',self.j,self.i)
 
 	def run(self):
 		while not self.stop:
+			if(self.task=='testLoop'):
+				self.testLoop()
+			elif(self.task=='quitTask'):
+				self.gtkQuit()
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
-			self.generateExamples()
-			self.gtkQuit()
+			#self.generateExamples()
+			#self.gtkQuit()
 			#self.testLoop()
 			time.sleep(0.001)
 
