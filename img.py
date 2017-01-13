@@ -5,10 +5,10 @@ import gobject
 import gtk.gdk
 import os,subprocess
 from os import system
-import csv
 from threading import BoundedSemaphore
 import random
 import signal
+from csvWrap import *
 
 XDIM=320
 YDIM=135
@@ -134,15 +134,6 @@ class GTKThread(threading.Thread):
 		self.exitCrit()
 		return False
 
-	def writeCSV(self,filename):
-		try:
-			with open(filename,'w') as csvFile:
-				csvWriter=csv.writer(csvFile,delimiter=',')
-				csvWriter.writerow(self.array)
-				print('wrote '+filename)
-		except:
-			print('unable to write to '+filename)
-
 	def getCropped(self,x,y,filename):
 		self.enterCrit()
 		if self.subpb:
@@ -220,18 +211,11 @@ class GTKThread(threading.Thread):
 		#print(pb.get_pixels_array())#.flatten())
 		self.array=pb.get_pixels_array().flatten()
 		print('read '+filename)
-		self.writeCSV(filename.strip(filename[-4:])+'.csv')
+		writeCSV(filename.strip(filename[-4:])+'.csv',self.array)
 		self.exitCrit()
 
 	def readAndDisplay(self,filename):
-		results=[]
-		try:
-			with open(filename,'r') as csvFile:
-				csvReader=csv.reader(csvFile,delimiter=',')
-				for row in csvReader:
-					print(row)
-		except:
-			print('failed to open '+filename)
+		readCSV(filename)
 
 	def testLoop(self):
 		gobject.idle_add(self.setCropped,self.j,self.i)
@@ -249,7 +233,7 @@ class GTKThread(threading.Thread):
 			if(self.task=='testLoop'):
 				self.testLoop()
 			elif(self.task=='pngToArray'):
-				for self.i in range(128):
+				for self.i in range(240):
 					self.pngToArray('verified/'+'neg'+str(self.i)+'.png')
 				for self.i in range(240):
 					self.pngToArray('verified/'+'pos'+str(self.i)+'.png')
