@@ -14,6 +14,12 @@ XDIM=320
 YDIM=135
 
 class GTKThread(threading.Thread):
+	def enterCrit(self):
+		self.busySem.acquire()
+		gtk.gdk.threads_enter()
+	def exitCrit(self):
+		gtk.gdk.threads_leave()
+		self.busySem.release()
 	def gtkQuit(self,widget):
 		self.stop=True
 		self.mainloop.quit()
@@ -66,10 +72,10 @@ class GTKThread(threading.Thread):
 			self.mainloop.quit()
 
 	def xdotool(self,cmdList):
-		self.busySem.acquire()
+		self.enterCrit()
 		with open(os.devnull, 'wb') as devnull:
 			subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
-		self.busySem.release()
+		self.exitCrit()
 
 	def minimize(self,title):
 		self.xdotool(['xdotool','search',title,'windowminimize','%@'])
@@ -82,43 +88,35 @@ class GTKThread(threading.Thread):
 #		system('xdotool search "'+title+'" windowmove '+str(x)+' '+str(y))
 
 	def updatePixelBuf(self):
-		self.busySem.acquire()
-		gtk.gdk.threads_enter()
+		self.enterCrit()
 		self.rootWindow = gtk.gdk.get_default_root_window()
 		self.sz = self.rootWindow.get_size()
 		self.pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,self.sz[0],self.sz[1])
 		self.pb = self.pb.get_from_drawable(self.rootWindow,self.rootWindow.get_colormap(),0,0,0,0,self.sz[0],self.sz[1])
 		#pb.scale(pb,0,0,200,200,0,0,1,1,gtk.gdk.INTERP_NEAREST)
 		#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
-		gtk.gdk.threads_leave()
-		self.busySem.release()
+		self.exitCrit()
 			
 	def setCropped(self,x,y):
-		self.busySem.acquire()
-		gtk.gdk.threads_enter()
+		self.enterCrit()
 		self.subpb=self.pb.subpixbuf(x,y,self.a,self.b)
 		self.image.clear()
 		self.image.set_from_pixbuf(self.subpb)
 		self.image.queue_draw()
-		gtk.gdk.threads_leave()
-		self.busySem.release()
+		self.exitCrit()
 
 	def update_image(self,img):
-		self.busySem.acquire()
-		gtk.gdk.threads_enter()
+		self.enterCrit()
 		self.image.clear()
 		self.image.set_from_file(img)
-		gtk.gdk.threads_leave()
-		self.busySem.release()
+		self.exitCrit()
 		return False
 
 	def set_from_pixbuf(self):
-		self.busySem.acquire()
-		gtk.gdk.threads_enter()
+		self.enterCrit()
 		self.image.clear()
 		self.image.set_from_pixbuf(self.pb)
-		gtk.gdk.threads_leave()
-		self.busySem.release()
+		self.exitCrit()
 		return False
 
 	def writeCSV(filename):
@@ -130,16 +128,14 @@ class GTKThread(threading.Thread):
 			print('unable to write to '+filename)
 
 	def getCropped(self,x,y,filename):
-		self.busySem.acquire()
-		gtk.gdk.threads_enter()
+		self.enterCrit()
 		if self.subpb:
 			self.subpb.save(filename,'png')
 			#self.array=self.subpb.get_pixels_array()#.flatten()
 			#self.array=self.subpb.get_pixels_array().flatten()
 		else:
 			print('failed:'+str(x)+','+str(y))
-		gtk.gdk.threads_leave()
-		self.busySem.release()
+		self.exitCrit()
 
 	def generateExamples(self):
 #		self.minimize('Terminal')
@@ -222,16 +218,11 @@ class GTKThread(threading.Thread):
 	def run(self):
 #		while True:
 		while not self.stop:
-			print(self.i)
-			self.j+=1
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
-#			self.generateExamples()
-			#self.stop=1
-			#self.testLoop()
-			gtk.gdk.threads_enter()
-			self.mainWindow.move(self.i,0)
-			gtk.gdk.threads_leave()
+			self.generateExamples()
+			self.stop=1
+			self.testLoop()
 			time.sleep(0.001)
 
 def event(widget,event):
