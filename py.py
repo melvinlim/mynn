@@ -25,11 +25,13 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 
+nExamples=len(inp)
+
 np.set_printoptions(precision=4)
 
 NN=nn.Network(LAYERDIM,GAMMA)
 for epoch in range(EPOCHS):
-	r=np.random.randint(0,4)
+	r=np.random.randint(0,nExamples)
 	[output,error]=NN.train(inp[r],out[r])
 	if (epoch%PRINTFREQ==0):
 		print('error:'),
@@ -38,7 +40,7 @@ for epoch in range(EPOCHS):
 		print(output)
 		print('target:'),
 		print(out[r])
-for r in range(4):
+for r in range(nExamples):
 	[output,error]=NN.train(inp[r],out[r])
 	print('error:'),
 	print(error)
