@@ -13,20 +13,24 @@ import signal
 XDIM=320
 YDIM=135
 
-class GTKWindow():
+class GTKThread(threading.Thread):
+	def gtkQuit(self,widget):
+		self.stop=True
+		self.mainloop.quit()
 	def handler(self,signum,frame):
 		print('received signal #',signum)
-		gtk.main_quit()
+		self.gtkQuit()
 		#raise IOError('signal error')
-	def quit(self,widget):
-		gtk.main_quit()
 	def __init__(self,a,b):
+		print("init thread")
+		super(GTKThread,self).__init__()
+		self.mainloop = gobject.MainLoop()
 		signal.signal(signal.SIGQUIT,self.handler)
 		self.image=gtk.Image()
 		self.box1=gtk.VBox(False,0)
 		self.box1.pack_start(self.image)
 		self.quitButton=gtk.Button('Quit')
-		self.quitButton.connect('clicked',self.quit)
+		self.quitButton.connect('clicked',self.gtkQuit)
 		self.startButton=gtk.Button('Start')
 		self.startButton.connect('clicked',self.start)
 		self.box1.pack_start(self.startButton,True,True,0)
@@ -42,8 +46,8 @@ class GTKWindow():
 		#self.mainWindow.connect("event",event)
 		#self.mainWindow.connect("expose_event",expose)
 		#self.mainWindow.connect("window_state_event",window_state_changed)
-		self.mainWindow.connect("destroy",lambda w: gtk.main_quit())
-		self.mainWindow.connect("delete_event",lambda a,b: gtk.main_quit())
+		self.mainWindow.connect("destroy",lambda w: self.gtkQuit())
+		self.mainWindow.connect("delete_event",lambda a,b: self.gtkQuit())
 		self.mainWindow.add(self.box1)
 		self.mainWindow.show_all()
 		self.i=0
@@ -53,6 +57,13 @@ class GTKWindow():
 		self.busySem=BoundedSemaphore(value=1)
 		self.updatePixelBuf()
 		self.setCropped(0,0)
+		self.stop=False
+		self.start()
+		try:
+			self.mainloop.run()
+		except KeyboardInterrupt:
+			self.stop=True
+			self.mainloop.quit()
 
 	def xdotool(self,cmdList):
 		self.busySem.acquire()
@@ -208,17 +219,19 @@ class GTKWindow():
 				self.i = 0
 		self.moveWindow('Terminal',self.j,0)
 
-	def start(self,widget):
+	def run(self):
 #		while True:
-			self.i+=1
-#		while not self.quit:
+		while not self.stop:
+			print(self.i)
+			self.j+=1
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
 #			self.generateExamples()
-			#self.quit=1
+			#self.stop=1
 			#self.testLoop()
-			self.mainWindow.move(self.j,0)
-			time.sleep(1)
+			gtk.gdk.threads_enter()
+			self.mainWindow.move(self.i,0)
+			gtk.gdk.threads_leave()
 			time.sleep(0.001)
 
 def event(widget,event):
@@ -232,8 +245,7 @@ def expose(widget,event):
 	image=widget.get_child()
 	image.set_from_file('san_francisco.jpg')
 
-#image.set_from_file('san_francisco.jpg')
+gobject.threads_init()
+gtkThread=GTKThread(XDIM,YDIM)
 
-gtkWindow=GTKWindow(XDIM,YDIM)
-
-gtk.main()
+gtkThread.stop=True
