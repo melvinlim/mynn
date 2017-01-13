@@ -13,17 +13,15 @@ import signal
 XDIM=320
 YDIM=135
 
-def handler(signum,frame):
-	print('received signal #',signum)
-	gtk.main_quit()
-	raise IOError('signal error')
-
-signal.signal(signal.SIGQUIT,handler)
-
 class GTKWindow():
+	def handler(self,signum,frame):
+		print('received signal #',signum)
+		gtk.main_quit()
+		#raise IOError('signal error')
 	def quit(self,widget):
 		gtk.main_quit()
 	def __init__(self,a,b):
+		signal.signal(signal.SIGQUIT,self.handler)
 		self.image=gtk.Image()
 		self.box1=gtk.VBox(False,0)
 		self.box1.pack_start(self.image)
@@ -55,9 +53,6 @@ class GTKWindow():
 		self.busySem=BoundedSemaphore(value=1)
 		self.updatePixelBuf()
 		self.setCropped(0,0)
-		#cmdList=['firefox','https://en.wikipedia.org/wiki/Main_Page']
-		#with open(os.devnull, 'wb') as devnull:
-		#	subprocess.check_call(cmdList,stdout=devnull,stderr=subprocess.STDOUT)
 
 	def xdotool(self,cmdList):
 		self.busySem.acquire()
@@ -78,47 +73,40 @@ class GTKWindow():
 	def updatePixelBuf(self):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
-		try:
-			self.rootWindow = gtk.gdk.get_default_root_window()
-			self.sz = self.rootWindow.get_size()
-			self.pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,self.sz[0],self.sz[1])
-			self.pb = self.pb.get_from_drawable(self.rootWindow,self.rootWindow.get_colormap(),0,0,0,0,self.sz[0],self.sz[1])
-			#pb.scale(pb,0,0,200,200,0,0,1,1,gtk.gdk.INTERP_NEAREST)
-			#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
-		finally:
-			gtk.gdk.threads_leave()
+		self.rootWindow = gtk.gdk.get_default_root_window()
+		self.sz = self.rootWindow.get_size()
+		self.pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,self.sz[0],self.sz[1])
+		self.pb = self.pb.get_from_drawable(self.rootWindow,self.rootWindow.get_colormap(),0,0,0,0,self.sz[0],self.sz[1])
+		#pb.scale(pb,0,0,200,200,0,0,1,1,gtk.gdk.INTERP_NEAREST)
+		#pb=pb.scale_simple(200,200,gtk.gdk.INTERP_NEAREST)
+		gtk.gdk.threads_leave()
 		self.busySem.release()
 			
 	def setCropped(self,x,y):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
-		try:
-			self.subpb=self.pb.subpixbuf(x,y,self.a,self.b)
-			self.image.clear()
-			self.image.set_from_pixbuf(self.subpb)
-		finally:
-			gtk.gdk.threads_leave()
+		self.subpb=self.pb.subpixbuf(x,y,self.a,self.b)
+		self.image.clear()
+		self.image.set_from_pixbuf(self.subpb)
+		self.image.queue_draw()
+		gtk.gdk.threads_leave()
 		self.busySem.release()
 
 	def update_image(self,img):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
-		try:
-			self.image.clear()
-			self.image.set_from_file(img)
-		finally:
-			gtk.gdk.threads_leave()
+		self.image.clear()
+		self.image.set_from_file(img)
+		gtk.gdk.threads_leave()
 		self.busySem.release()
 		return False
 
 	def set_from_pixbuf(self):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
-		try:
-			self.image.clear()
-			self.image.set_from_pixbuf(self.pb)
-		finally:
-			gtk.gdk.threads_leave()
+		self.image.clear()
+		self.image.set_from_pixbuf(self.pb)
+		gtk.gdk.threads_leave()
 		self.busySem.release()
 		return False
 
@@ -133,23 +121,23 @@ class GTKWindow():
 	def getCropped(self,x,y,filename):
 		self.busySem.acquire()
 		gtk.gdk.threads_enter()
-		try:
-			if self.subpb:
-				self.subpb.save(filename,'png')
-				#self.array=self.subpb.get_pixels_array()#.flatten()
-				#self.array=self.subpb.get_pixels_array().flatten()
-			else:
-				print('failed:'+str(x)+','+str(y))
-		finally:
-			gtk.gdk.threads_leave()
+		if self.subpb:
+			self.subpb.save(filename,'png')
+			#self.array=self.subpb.get_pixels_array()#.flatten()
+			#self.array=self.subpb.get_pixels_array().flatten()
+		else:
+			print('failed:'+str(x)+','+str(y))
+		gtk.gdk.threads_leave()
 		self.busySem.release()
 
 	def generateExamples(self):
-		self.minimize('Terminal')
+#		self.minimize('Terminal')
 		time.sleep(1)
 		self.updatePixelBuf()
+		print("generating negative examples")
 		self.generateNegative(0.10)
 		self.select('Terminal')
+		print("generating positive examples")
 		self.generatePositive(0.10)
 	
 	def generatePositive(self,delay=0.5):
@@ -218,18 +206,19 @@ class GTKWindow():
 			self.i += self.b
 			if self.i>=(1080-self.b):
 				self.i = 0
-		self.moveWindow('Wikipedia',self.j,0)
-		#self.moveWindow('Wikipedia, the free encyclopedia - Mozilla Firefox',self.j,0)
+		self.moveWindow('Terminal',self.j,0)
 
 	def start(self,widget):
-			print('start clicked')
-			return
+#		while True:
+			self.i+=1
 #		while not self.quit:
 			#for i in range(10):
 			#	self.readAndDisplay('data/'+'neg'+str(i)+'.csv')
-			self.generateExamples()
+#			self.generateExamples()
 			#self.quit=1
 			#self.testLoop()
+			self.mainWindow.move(self.j,0)
+			time.sleep(1)
 			time.sleep(0.001)
 
 def event(widget,event):
@@ -247,7 +236,4 @@ def expose(widget,event):
 
 gtkWindow=GTKWindow(XDIM,YDIM)
 
-try:
-	gtk.main()
-except KeyboardInterrupt:
-	gtk.main_quit()
+gtk.main()
