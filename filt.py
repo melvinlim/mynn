@@ -8,7 +8,7 @@ import pycuda.compiler as compiler
 import math
 TPB1D=512
 TPB2D=32
-normalize1dTemplate="""
+normalize1DTemplate="""
 __global__ void normalize1dKernel(double *input,double *output){
 	const int row = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -49,24 +49,27 @@ class Filter:
 		self.b=b
 		self.GPU=GPU
 
-		kernel_code=normalize1dTemplate%{
-			'YDIM':self.y,
-			'MIN':self.a,
-			'MAX':self.b
-		}
-		kernel_code=normalize2DTemplate%{
-			'XDIM':self.x,
-			'YDIM':self.y,
-			'MIN':self.a,
-			'MAX':self.b
-		}
-		module=compiler.SourceModule(kernel_code)
-		self.normalize2DKernel=module.get_function("normalize2DKernel")
+		if GPU:
+			kernel_code=normalize1DTemplate%{
+				'YDIM':self.y,
+				'MIN':self.a,
+				'MAX':self.b
+			}
+			module=compiler.SourceModule(kernel_code)
+			self.normalize1DKernel=module.get_function("normalize1DKernel")
+			kernel_code=normalize2DTemplate%{
+				'XDIM':self.x,
+				'YDIM':self.y,
+				'MIN':self.a,
+				'MAX':self.b
+			}
+			module=compiler.SourceModule(kernel_code)
+			self.normalize2DKernel=module.get_function("normalize2DKernel")
 
 	def insert1D(self,inp):
 		if self.GPU:
 			gridY=int(math.ceil(float(self.y)/float(TPB1D)))
-			self.normalize2DKernel(
+			self.normalize1DKernel(
 				drv.In(inp),
 				drv.Out(self.output),
 				block=(1,TPB1D,1),

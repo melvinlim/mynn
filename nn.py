@@ -11,7 +11,7 @@ GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,n,m,gamma):
+	def __init__(self,n,m,gamma,batch=True):
 		self.gamma=gamma
 
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -33,26 +33,27 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.deltaKernel=module.get_function("deltaKernel")
 
-		kernel_code=cudaModules.weightTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.A.shape[0],
-			'NCOLS':self.A.shape[1]}
-		module=compiler.SourceModule(kernel_code)
-		self.weightKernel=module.get_function("weightKernel")
+		if batch:
+			kernel_code=cudaModules.batchAccumTemplate%{
+				'GAMMA':self.gamma,
+				'NROWS':self.dA.shape[0],
+				'NCOLS':self.dA.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.batchAccumKernel=module.get_function("batchAccumKernel")
 
-		kernel_code=cudaModules.batchAccumTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.dA.shape[0],
-			'NCOLS':self.dA.shape[1]}
-		module=compiler.SourceModule(kernel_code)
-		self.batchAccumKernel=module.get_function("batchAccumKernel")
-
-		kernel_code=cudaModules.batchUpdateTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.A.shape[0],
-			'NCOLS':self.A.shape[1]}
-		module=compiler.SourceModule(kernel_code)
-		self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+			kernel_code=cudaModules.batchUpdateTemplate%{
+				'GAMMA':self.gamma,
+				'NROWS':self.A.shape[0],
+				'NCOLS':self.A.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+		else:
+			kernel_code=cudaModules.weightTemplate%{
+				'GAMMA':self.gamma,
+				'NROWS':self.A.shape[0],
+				'NCOLS':self.A.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
 		if GPU:
