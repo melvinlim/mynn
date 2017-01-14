@@ -57,3 +57,19 @@ __global__ void batchUpdateKernel(double *A,double *dA){
 	}
 }
 """
+batchUpdateDMTemplate="""
+__global__ void batchUpdateDMKernel(double *A,double *dA){
+	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
+		double x;
+		x=dA[row*%(NCOLS)s+col];
+		if(x>1)
+			A[row*%(NCOLS)s+col] -= 1;
+		else if(x<(-1))
+			A[row*%(NCOLS)s+col] += 1;
+		else
+			A[row*%(NCOLS)s+col] -= x;
+	}
+}
+"""

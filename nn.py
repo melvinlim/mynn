@@ -11,7 +11,7 @@ GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,n,m,gamma,batch=True):
+	def __init__(self,n,m,gamma,batch=True,dougsMomentum=True):
 		self.gamma=gamma
 
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
@@ -40,13 +40,20 @@ class Layer:
 				'NCOLS':self.dA.shape[1]}
 			module=compiler.SourceModule(kernel_code)
 			self.batchAccumKernel=module.get_function("batchAccumKernel")
-
-			kernel_code=cudaModules.batchUpdateTemplate%{
-				'GAMMA':self.gamma,
-				'NROWS':self.A.shape[0],
-				'NCOLS':self.A.shape[1]}
-			module=compiler.SourceModule(kernel_code)
-			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+			if dougsMomentum:
+				kernel_code=cudaModules.batchUpdateDMTemplate%{
+					'GAMMA':self.gamma,
+					'NROWS':self.A.shape[0],
+					'NCOLS':self.A.shape[1]}
+				module=compiler.SourceModule(kernel_code)
+				self.batchUpdateKernel=module.get_function("batchUpdateDMKernel")
+			else:
+				kernel_code=cudaModules.batchUpdateTemplate%{
+					'GAMMA':self.gamma,
+					'NROWS':self.A.shape[0],
+					'NCOLS':self.A.shape[1]}
+				module=compiler.SourceModule(kernel_code)
+				self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 		else:
 			kernel_code=cudaModules.weightTemplate%{
 				'GAMMA':self.gamma,
@@ -117,7 +124,17 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.dA[i][j]
+					if dougsMomentum:
+						x=self.dA[i][j]
+						print('scaled x='+x)
+						if x>1:
+							self.A[i][j] -= 1
+						elif x<(-1):
+							self.A[i][j] += 1
+						else:
+							self.A[i][j] -= x
+					else:
+						self.A[i][j] -= self.dA[i][j]
 	def updateWeights(self,x):
 		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
@@ -133,7 +150,17 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.gamma*self.delta[i]*x[j]
+					if dougsMomentum:
+						print('scaled x='+x)
+						x=self.gamma*self.delta[i]*x[j]
+						if x>1:
+							self.A[i][j] -= 1
+						elif x<(-1):
+							self.A[i][j] += 1
+						else:
+							self.A[i][j] -= x
+					else:
+						self.A[i][j] -= self.gamma*self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
 #NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 class Network:
