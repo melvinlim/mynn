@@ -6,6 +6,7 @@ import cudaModules
 import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
+from pycuda.autoinit import context
 import math
 from copy import *
 GPU=True
@@ -18,7 +19,7 @@ class Layer:
 
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
 		self.A.astype(np.float64)
-		self.dA=np.array(n*m*[0]).reshape(n,m).astype(np.float64)
+		self.dA=np.zeros_like(self.A)
 		self.out=np.array(n*[0]).astype(np.float64)
 		self.delta=np.array(n*[0]).astype(np.float64)
 		self.deriv=np.array(n*[0]).astype(np.float64)
@@ -64,25 +65,35 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.weightKernel=module.get_function("weightKernel")
 
+	def hAlloc(self,x):
+		ret=drv.mem_alloc(x.nbytes)
+		drv.memcpy_htod(ret,x)
+		return ret
+
 	def insert(self,x):
-		if False:
+		context.synchronize()
+		if GPU:
+			gA=self.hAlloc(self.A)
+			gx=self.hAlloc(x)
+			gout=self.hAlloc(self.out)
+			gderiv=self.hAlloc(self.deriv)
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.forwardKernel(
-				drv.In(self.A),
-				drv.In(x),
-				drv.Out(self.out),
-				drv.Out(self.deriv),
+				gA,gx,gout,gderiv,
 				block=(1,TPB1D,1),
 				grid=(1,gridY))
+			drv.memcpy_dtoh(self.out,gout)
+			drv.memcpy_dtoh(self.deriv,gderiv)
 		else:
 			self.out=np.tanh(np.dot(self.A,x))
 			self.deriv=1.0-(self.out*self.out)
+		context.synchronize()
 		return self.out
 	def updateDelta0(self,y):
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		if False:
+		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))
 			self.deltaKernel(
 				drv.In(self.A),
@@ -139,7 +150,7 @@ class Layer:
 					else:
 						self.A[i][j] -= self.dA[i][j]
 	def batchInit(self):
-		self.dA=np.zeros([self.A.shape[0],self.A.shape[1]]).astype(np.float64)
+		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):
 		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
@@ -225,7 +236,7 @@ class Network:
 		for i in range(batchsize):
 			[o,e]=self.batchUpdate(inputList[i],targetList[i])
 			error.append(e)
-			output.append(o)
+			output.append(deepcopy(o))
 		for i in range(self.n):
 			self.layer[i].batchUpdate()
 		return [output,error]

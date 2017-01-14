@@ -34,8 +34,8 @@ out3=np.array([+1,-1]).astype(np.float64)
 out4=np.array([+1,+1]).astype(np.float64)
 out=[out1,out2,out3,out4]
 
-NPOS=24
-NNEG=24
+NPOS=4
+NNEG=4
 
 inp=[]
 out=[]
@@ -86,7 +86,6 @@ for epoch in range(EPOCHS):
 				print(output[i])
 				print('target:'),
 				print(bOut[i])
-				time.sleep(2)
 	else:
 		r=np.random.randint(0,nExamples)
 		[output,error]=NN.train(inp[r],out[r])
