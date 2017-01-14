@@ -7,12 +7,13 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-GPU=True
+GPU=False
 TPB1D=512
 TPB2D=32
 class Layer:
 	def __init__(self,n,m,gamma,batch=True,dougsMomentum=True):
 		self.gamma=gamma
+		self.dougsMomentum=dougsMomentum
 
 		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
 		self.A.astype(np.float64)
@@ -124,17 +125,20 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					if dougsMomentum:
+					if self.dougsMomentum:
 						x=self.dA[i][j]
-						print('scaled x='+x)
 						if x>1:
+							print('scaled x='+str(x))
 							self.A[i][j] -= 1
 						elif x<(-1):
+							print('scaled x='+str(x))
 							self.A[i][j] += 1
 						else:
 							self.A[i][j] -= x
 					else:
 						self.A[i][j] -= self.dA[i][j]
+	def batchInit(self):
+		self.dA=np.zeros([self.A.shape[0],self.A.shape[1]]).astype(np.float64)
 	def updateWeights(self,x):
 		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
@@ -150,12 +154,13 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					if dougsMomentum:
-						print('scaled x='+x)
+					if self.dougsMomentum:
 						x=self.gamma*self.delta[i]*x[j]
 						if x>1:
+							print('scaled x='+str(x))
 							self.A[i][j] -= 1
 						elif x<(-1):
+							print('scaled x='+str(x))
 							self.A[i][j] += 1
 						else:
 							self.A[i][j] -= x
@@ -213,6 +218,8 @@ class Network:
 		self.layer[0].batchAccum(theInput)
 		return [output,error]
 	def batchTrain(self,inputList,targetList):
+		for i in range(self.n):
+			self.layer[i].batchInit()
 		batchsize=len(inputList)
 		error=[]
 		output=[]
