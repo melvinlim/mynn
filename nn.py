@@ -84,7 +84,7 @@ class Layer:
 			self.deltaKernel(
 				drv.In(self.A),
 				drv.InOut(self.delta),
-				drv.In(self.out),
+				drv.In(y),
 				drv.In(self.deriv),
 				block=(TPB1D,1,1),
 				grid=(gridX,1))
