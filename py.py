@@ -11,7 +11,7 @@ INPUTS=129600
 INPUTS=129600/3
 #INPUTS=2
 
-BATCHSIZE=12
+BATCHSIZE=1
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
@@ -72,19 +72,30 @@ NN=nn.Network(LAYERDIM,GAMMA)
 for epoch in range(EPOCHS):
 	bInp=[]
 	bOut=[]
-	for i in range(BATCHSIZE):
-		r=np.random.randint(0,nExamples)
-		bInp.append(inp[r])
-		bOut.append(out[r])
-	[output,error]=NN.batchTrain(bInp,bOut)
-	if (epoch%PRINTFREQ==0):
+	if BATCHSIZE>1:
 		for i in range(BATCHSIZE):
+			r=np.random.randint(0,nExamples)
+			bInp.append(inp[r])
+			bOut.append(out[r])
+		[output,error]=NN.batchTrain(bInp,bOut)
+		if (epoch%PRINTFREQ==0):
+			for i in range(BATCHSIZE):
+				print('error:'),
+				print(error[i])
+				print('output:'),
+				print(output[i])
+				print('target:'),
+				print(bOut[i])
+	else:
+		r=np.random.randint(0,nExamples)
+		[output,error]=NN.train(inp[r],out[r])
+		if (epoch%PRINTFREQ==0):
 			print('error:'),
-			print(error[i])
+			print(error)
 			print('output:'),
-			print(output[i])
+			print(output)
 			print('target:'),
-			print(bOut[i])
+			print(out[r])
 for r in range(nExamples):
 	[output,error]=NN.train(inp[r],out[r])
 	print('error:'),

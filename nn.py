@@ -11,7 +11,7 @@ GPU=False
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,n,m,gamma,batch=True,dougsMomentum=True):
+	def __init__(self,n,m,gamma,dougsMomentum=True):
 		self.gamma=gamma
 		self.dougsMomentum=dougsMomentum
 
@@ -34,34 +34,32 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.deltaKernel=module.get_function("deltaKernel")
 
-		if batch:
-			kernel_code=cudaModules.batchAccumTemplate%{
-				'GAMMA':self.gamma,
-				'NROWS':self.dA.shape[0],
-				'NCOLS':self.dA.shape[1]}
-			module=compiler.SourceModule(kernel_code)
-			self.batchAccumKernel=module.get_function("batchAccumKernel")
-			if dougsMomentum:
-				kernel_code=cudaModules.batchUpdateDMTemplate%{
-					'GAMMA':self.gamma,
-					'NROWS':self.A.shape[0],
-					'NCOLS':self.A.shape[1]}
-				module=compiler.SourceModule(kernel_code)
-				self.batchUpdateKernel=module.get_function("batchUpdateDMKernel")
-			else:
-				kernel_code=cudaModules.batchUpdateTemplate%{
-					'GAMMA':self.gamma,
-					'NROWS':self.A.shape[0],
-					'NCOLS':self.A.shape[1]}
-				module=compiler.SourceModule(kernel_code)
-				self.batchUpdateKernel=module.get_function("batchUpdateKernel")
-		else:
-			kernel_code=cudaModules.weightTemplate%{
+		kernel_code=cudaModules.batchAccumTemplate%{
+			'GAMMA':self.gamma,
+			'NROWS':self.dA.shape[0],
+			'NCOLS':self.dA.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.batchAccumKernel=module.get_function("batchAccumKernel")
+		if dougsMomentum:
+			kernel_code=cudaModules.batchUpdateDMTemplate%{
 				'GAMMA':self.gamma,
 				'NROWS':self.A.shape[0],
 				'NCOLS':self.A.shape[1]}
 			module=compiler.SourceModule(kernel_code)
-			self.weightKernel=module.get_function("weightKernel")
+			self.batchUpdateKernel=module.get_function("batchUpdateDMKernel")
+		else:
+			kernel_code=cudaModules.batchUpdateTemplate%{
+				'GAMMA':self.gamma,
+				'NROWS':self.A.shape[0],
+				'NCOLS':self.A.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+		kernel_code=cudaModules.weightTemplate%{
+			'GAMMA':self.gamma,
+			'NROWS':self.A.shape[0],
+			'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
 		if GPU:
@@ -126,15 +124,15 @@ class Layer:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
 					if self.dougsMomentum:
-						x=self.dA[i][j]
-						if x>1:
-							print('scaled x='+str(x))
+						adj=self.dA[i][j]
+						if adj>1:
+							print('scaled x='+str(adj))
 							self.A[i][j] -= 1
-						elif x<(-1):
-							print('scaled x='+str(x))
+						elif adj<(-1):
+							print('scaled x='+str(adj))
 							self.A[i][j] += 1
 						else:
-							self.A[i][j] -= x
+							self.A[i][j] -= adj
 					else:
 						self.A[i][j] -= self.dA[i][j]
 	def batchInit(self):
@@ -147,23 +145,21 @@ class Layer:
 				drv.InOut(self.A),
 				drv.In(x),
 				drv.In(self.delta),
-				#block=(self.A.shape[0],self.A.shape[1],1),
-				#grid=(1,1))
 				block=(TPB2D,TPB2D,1),
 				grid=(gridX,gridY))
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
 					if self.dougsMomentum:
-						x=self.gamma*self.delta[i]*x[j]
-						if x>1:
-							print('scaled x='+str(x))
+						adj=self.gamma*self.delta[i]*x[j]
+						if adj>1:
+							print('scaled adj='+str(adj))
 							self.A[i][j] -= 1
-						elif x<(-1):
-							print('scaled x='+str(x))
+						elif adj<(-1):
+							print('scaled adj='+str(adj))
 							self.A[i][j] += 1
 						else:
-							self.A[i][j] -= x
+							self.A[i][j] -= adj
 					else:
 						self.A[i][j] -= self.gamma*self.delta[i]*x[j]
 #NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
@@ -227,9 +223,6 @@ class Network:
 			[o,e]=self.batchUpdate(inputList[i],targetList[i])
 			error.append(e)
 			output.append(o)
-		i=self.n-1
-		while (i>0):
+		for i in range(self.n):
 			self.layer[i].batchUpdate()
-			i -= 1
-		self.layer[0].batchUpdate()
 		return [output,error]
