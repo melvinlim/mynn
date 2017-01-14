@@ -9,6 +9,8 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
+TESTGPU=True
+TOL=0.01
 GPU=True
 TPB1D=512
 TPB2D=32
@@ -72,7 +74,26 @@ class Layer:
 
 	def insert(self,x):
 		context.synchronize()
-		if GPU:
+		if TESTGPU:
+			gA=self.hAlloc(self.A)
+			gx=self.hAlloc(x)
+			gout=self.hAlloc(self.out)
+			gderiv=self.hAlloc(self.deriv)
+			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
+			self.forwardKernel(
+				gA,gx,gout,gderiv,
+				block=(1,TPB1D,1),
+				grid=(1,gridY))
+			t1=np.zeros_like(self.out)
+			t2=np.zeros_like(self.deriv)
+			drv.memcpy_dtoh(t1,gout)
+			drv.memcpy_dtoh(t2,gderiv)
+			self.out=np.tanh(np.dot(self.A,x))
+			self.deriv=1.0-(self.out*self.out)
+			for i in range(len(self.out)):
+				assert np.fabs(t1[i]-self.out[i])<TOL
+				assert np.fabs(t2[i]-self.deriv[i])<TOL
+		elif GPU:
 			gA=self.hAlloc(self.A)
 			gx=self.hAlloc(x)
 			gout=self.hAlloc(self.out)
@@ -93,7 +114,26 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		if GPU:
+		if TESTGPU:
+			t1=deepcopy(self.delta)
+			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
+			self.deltaKernel(
+				drv.In(self.A),
+				drv.Out(t1),
+				drv.In(y),
+				drv.In(self.deriv),
+				block=(TPB1D,1,1),
+				grid=(gridX,1))
+			arr=[]
+			for j in range(len(self.delta)):
+				s=0
+				for k in range(len(y)):
+					s += A[k][j]*y[k]
+				arr.append(s)
+			self.delta=self.deriv*s
+			for i in range(len(t1)):
+				assert np.fabs(self.delta[i]-t1[i])<TOL
+		elif GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))
 			self.deltaKernel(
 				drv.In(self.A),
