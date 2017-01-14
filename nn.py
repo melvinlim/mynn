@@ -7,7 +7,8 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import pycuda.compiler as compiler
 import math
-GPU=False
+from copy import *
+GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
@@ -40,6 +41,7 @@ class Layer:
 			'NCOLS':self.dA.shape[1]}
 		module=compiler.SourceModule(kernel_code)
 		self.batchAccumKernel=module.get_function("batchAccumKernel")
+
 		if dougsMomentum:
 			kernel_code=cudaModules.batchUpdateDMTemplate%{
 				'GAMMA':self.gamma,
@@ -54,6 +56,7 @@ class Layer:
 				'NCOLS':self.A.shape[1]}
 			module=compiler.SourceModule(kernel_code)
 			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+
 		kernel_code=cudaModules.weightTemplate%{
 			'GAMMA':self.gamma,
 			'NROWS':self.A.shape[0],
@@ -62,7 +65,7 @@ class Layer:
 		self.weightKernel=module.get_function("weightKernel")
 
 	def insert(self,x):
-		if GPU:
+		if False:
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.forwardKernel(
 				drv.In(self.A),
@@ -79,8 +82,8 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
-		if GPU:
-			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
+		if False:
+			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))
 			self.deltaKernel(
 				drv.In(self.A),
 				drv.InOut(self.delta),
@@ -182,7 +185,7 @@ class Network:
 		tmp=theInput
 		for i in range(self.n):
 			tmp=self.layer[i].insert(tmp)
-		output=tmp
+		output=deepcopy(tmp)
 		error=tmp-target
 		tmp=self.layer[self.n-1].updateDelta0(error)
 		i=self.n-1

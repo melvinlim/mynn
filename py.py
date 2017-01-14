@@ -9,15 +9,15 @@ from filt import *
 
 INPUTS=129600
 INPUTS=129600/3
-#INPUTS=2
+INPUTS=2
 
-BATCHSIZE=1
+BATCHSIZE=4
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
 LAYERDIM=[INPUTS,40,2]
 EPOCHS=1000
-GAMMA=0.0001
+GAMMA=0.01
 PRINTFREQ=10
 GPU=True
 t0=time.clock()
@@ -62,8 +62,8 @@ for i in range(NNEG):
 	out.append([+1,-1])
 
 #raise Exception
-#inp=[inp1,inp2,inp3,inp4]
-#out=[out1,out2,out3,out4]
+inp=[inp1,inp2,inp3,inp4]
+out=[out1,out2,out3,out4]
 nExamples=len(inp)
 
 np.set_printoptions(precision=4)
@@ -86,6 +86,7 @@ for epoch in range(EPOCHS):
 				print(output[i])
 				print('target:'),
 				print(bOut[i])
+				time.sleep(2)
 	else:
 		r=np.random.randint(0,nExamples)
 		[output,error]=NN.train(inp[r],out[r])
