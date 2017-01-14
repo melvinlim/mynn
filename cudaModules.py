@@ -17,7 +17,7 @@ __global__ void forwardKernel(double *A,double *x,double *y,double *deriv){
 }
 """
 deltaTemplate="""
-__global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
+__global__ void deltaKernel(double *A,double *delta,double *y,double *deriv){
 	int i;
 	double Cval=0;
 	const int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -26,7 +26,7 @@ __global__ void deltaKernel(double *A,double *x,double *y,double *deriv){
 		for(i=0;i<%(NROWS)s;i++){
 			Cval+=A[i*%(NCOLS)s+col]*y[i];
 		}
-		x[col]=deriv[col]*Cval;
+		delta[col]=deriv[col]*Cval;
 	}
 }
 """

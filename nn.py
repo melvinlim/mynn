@@ -114,8 +114,11 @@ class Layer:
 		self.delta=self.deriv*y
 		return self.delta
 	def updateDelta(self,A,y):
+		assert(y.size==A.shape[0])
+		assert(self.deriv.size==A.shape[1])
+		assert(self.delta.size==A.shape[1])
 		if TESTGPU:
-			t1=deepcopy(self.delta)
+			t1=np.zeros_like(self.delta)
 			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.deltaKernel(
 				drv.In(self.A),
@@ -130,7 +133,7 @@ class Layer:
 				for k in range(len(y)):
 					s += A[k][j]*y[k]
 				arr.append(s)
-			self.delta=self.deriv*s
+				self.delta[j]=self.deriv[j]*s
 			for i in range(len(t1)):
 				assert np.fabs(self.delta[i]-t1[i])<TOL
 		elif GPU:
