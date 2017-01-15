@@ -15,16 +15,16 @@ GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,n,m,nNext,mNext,gamma,dougsMomentum=True):
+	def __init__(self,m,n,nNext,mNext,gamma,dougsMomentum=True):
 		self.gamma=gamma
 		self.dougsMomentum=dougsMomentum
 
-		self.A=np.random.randint(-10000,10000,(n,m))/100000.0
+		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
 		self.A.astype(np.float64)
 		self.dA=np.zeros_like(self.A)
-		self.out=np.array(n*[0]).astype(np.float64)
-		self.delta=np.array(n*[0]).astype(np.float64)
-		self.deriv=np.array(n*[0]).astype(np.float64)
+		self.out=np.array(m*[0]).astype(np.float64)
+		self.delta=np.zeros_like(self.out)
+		self.deriv=np.zeros_like(self.out)
 
 		kernel_code=cudaModules.forwardTemplate%{
 			'NROWS':self.A.shape[0],
@@ -34,8 +34,8 @@ class Layer:
 
 		if nNext>0:
 			kernel_code=cudaModules.deltaTemplate%{
-				'NROWS':nNext,
-				'NCOLS':mNext}
+				'NROWS':mNext,
+				'NCOLS':nNext}
 			module=compiler.SourceModule(kernel_code)
 			self.deltaKernel=module.get_function("deltaKernel")
 
@@ -143,7 +143,7 @@ class Layer:
 				self.delta[j]=self.deriv[j]*s
 #			for i in range(len(t1)):
 #				assert np.fabs(self.delta[i]-t1[i])<TOL
-#			self.delta=t1
+			self.delta=t1
 		elif GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))
 			self.deltaKernel(
