@@ -127,9 +127,22 @@ public:
 		}
 	}
 	Array<double> train(const Array<double> &x,const Array<double> &y){
+		int i;
+		L[0].forward(x);
+		L[1].forward(L[0].out);
+		for(i=0;i<y.n;i++){
+			(this->error)(i)=(L[1].out)(i)-(y)(i);
+		}
+		L[1].outputDelta(this->error);
+		L[0].upDelta(L[1].M,L[1].delta);
+		L[1].updateWeights(L[0].out);
+		L[0].updateWeights(x);
+/*
 		this->forward(x);
 		this->upError(y);
 		this->backward(x);
+*/
+		this->answer=L[1].out;
 		return(this->error);
 	}
 };

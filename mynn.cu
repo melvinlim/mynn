@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include <vector>
 
@@ -49,7 +50,7 @@ double ans4[NOUTPUTS]={-1,+1};
 //const double ans3[NOUTPUTS]={+1,-1};
 //const double ans4[NOUTPUTS]={+1,-1};
 int main(){
-	int i;
+	int i,j;
 	srand(time(0));
 	Net *net=0;
 	net=new Net(LAYERS);
@@ -59,12 +60,22 @@ int main(){
 
 	net->rand();
 
+	Matrix<double> mat1=Matrix<double>(10,4);
+
 	Array<double> arr1=Array<double>(10);
 	Array<double> arr2=Array<double>();
 	arr2.resize(10);
 	for(i=0;i<10;i++){
 		arr1(i)=i;
 		arr2(i)=i+2;
+		for(j=0;j<4;j++){
+			mat1(i,j)=(i+1)*(j+2);
+		}
+	}
+	for(i=0;i<10;i++){
+		for(j=0;j<4;j++){
+			assert(mat1(i,j)==(i+1)*(j+2));
+		}
 	}
 	arr1.print();
 	arr2.print();
@@ -93,7 +104,7 @@ int main(){
 		x.print();
 	int tmpvar;
 	for(i=0;i<EPOCHS;i++){
-		tmpvar=rand()%4;
+		tmpvar=i%4;
 		net->train(pIn[tmpvar],pOut[tmpvar]);
 		PRINTINFO(pIn[tmpvar],net->answer,pOut[tmpvar],net->error);
 	}

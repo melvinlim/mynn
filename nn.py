@@ -130,7 +130,7 @@ class Layer:
 			self.deltaKernel=module.get_function("deltaKernel")
 
 			self.deltaKernel(
-				drv.In(self.A),
+				drv.In(A),
 				drv.Out(t1),
 				drv.In(y),
 				drv.In(self.deriv),
@@ -141,8 +141,8 @@ class Layer:
 				for k in range(len(y)):
 					s += A[k][j]*y[k]
 				self.delta[j]=self.deriv[j]*s
-#			for i in range(len(t1)):
-#				assert np.fabs(self.delta[i]-t1[i])<TOL
+			for i in range(len(t1)):
+				assert np.fabs(self.delta[i]-t1[i])<TOL
 			self.delta=t1
 		elif GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))

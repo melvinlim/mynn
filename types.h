@@ -1,7 +1,7 @@
 #ifndef _TYPES
 #define _TYPES
 
-#define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
+#define RANDSCALING 1	//scale random weights to be from -0.1 to +0.1
 
 template<typename T>
 class Matrix{
