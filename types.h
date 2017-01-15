@@ -6,40 +6,40 @@
 template<typename T>
 class Matrix{
 public:
-	int n;
 	int m;
+	int n;
 	std::vector<T> el;
 	Matrix(){
-		this->n=0;
 		this->m=0;
+		this->n=0;
 	}
-	Matrix(int n,int m){
+	Matrix(int m,int n){
 		int i;
-		this->n=n;
 		this->m=m;
-		el.resize(n*m);
-		for(i=0;i<n*m;i++){
+		this->n=n;
+		el.resize(m*n);
+		for(i=0;i<m*n;i++){
 			el[i]=0;
 		}
 	}
 	~Matrix(){
 	}
-	void resize(int n,int m){
-		this->n=n;
+	void resize(int m,int n){
 		this->m=m;
-		el.resize(n*m);
+		this->n=n;
+		el.resize(m*n);
 	}
 	T &operator()(unsigned int i,unsigned int j){
-		if(i>=this->n||j>=this->m){
+		if(i>=this->m||j>=this->n){
 			throw 0;
 		}
-		return(el[(i*(this->m))+j]);
+		return(el[(i*(this->n))+j]);
 	}
 	const T &operator()(unsigned int i,unsigned int j) const{
-		if(i>=this->n||j>=this->m){
+		if(i>=this->m||j>=this->n){
 			throw 0;
 		}
-		return(el[(i*(this->m))+j]);
+		return(el[(i*(this->n))+j]);
 	}
 	Matrix<T> &operator=(const Matrix<T> &rhs){
 		this->el=rhs.el;
@@ -48,8 +48,8 @@ public:
 	}
 	void rand(){
 		int i,j;
-		for(i=0;i<this->n;i++){
-			for(j=0;j<this->m;j++){
+		for(i=0;i<this->m;i++){
+			for(j=0;j<this->n;j++){
 				(*this)(i,j)=
 				(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)RANDSCALING);
 			}
@@ -57,8 +57,8 @@ public:
 	}
 	void print() const{
 		int i,j;
-		for(i=0;i<this->n;i++){
-			for(j=0;j<this->m;j++){
+		for(i=0;i<this->m;i++){
+			for(j=0;j<this->n;j++){
 				printf("[%i,%i]%.09f ",i,j,(*this)(i,j));
 			}
 			printf("\n");

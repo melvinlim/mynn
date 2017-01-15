@@ -15,20 +15,20 @@ public:
 	Array<double> delta;
 	Layer(){
 	}
-	Layer(int n,int m){
-		out.resize(n);
-		deriv.resize(n);
-		delta.resize(n);
-		M.resize(n,m);
+	Layer(int m,int n){
+		out.resize(m);
+		deriv.resize(m);
+		delta.resize(m);
+		M.resize(m,n);
 	}
 	~Layer(){
 	}
 	Array<double> forward(const Array<double> &x){
 		int i,j;
 		double a,tmp;
-		for(j=0;j<M.n;j++){
+		for(j=0;j<M.m;j++){
 			a=0;
-			for(i=0;i<M.m;i++){
+			for(i=0;i<M.n;i++){
 				a+=(M)(j,i)*(x)(i);
 			}
 			tmp=tanh(a);
@@ -46,9 +46,9 @@ public:
 	void upDelta(const Matrix<double> &W,const Array<double> &delta2){
 		int j,k;
 		double sum;
-		for(j=0;j<W.m;j++){
+		for(j=0;j<W.n;j++){
 			sum=0;
-			for(k=0;k<W.n;k++){
+			for(k=0;k<W.m;k++){
 				sum+=(W)(k,j)*(delta2)(k);
 			}
 			(this->delta)(j)=(this->deriv)(j)*sum;
@@ -56,8 +56,8 @@ public:
 	}
 	void updateWeights(const Array<double> &input){
 		int i,j;
-		for(i=0;i<this->M.n;i++){
-			for(j=0;j<this->M.m;j++){
+		for(i=0;i<this->M.m;i++){
+			for(j=0;j<this->M.n;j++){
 				(this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);
 			}
 		}
@@ -79,23 +79,16 @@ public:
 	}
 	~Net(){
 	}
-	void insertLayer(int i,int n,int m){
-		//L[i]=Layer(n,m);
-		L.push_back(Layer(n,m));
-		error.resize(n);
-		answer.resize(n);
+	void insertLayer(int i,int m,int n){
+		//L[i]=Layer(m,n);
+		L.push_back(Layer(m,n));
+		error.resize(m);
+		answer.resize(m);
 	}
 	void forward(const Array<double> &x){
 		//int i;
 		L[0].forward(x);
 		L[1].forward(L[0].out);
-/*
-		Array<double> *t=x;
-		for(i=0;i<this->n;i++){
-			t=L[i].forward(t);
-	//		MatMul(*N->L[i].M,*N->L[i].in,*N->L[i].out,*N->L[i].deriv);
-		}
-*/
 		this->answer=L[1].out;
 	}
 	void upError(const Array<double> &yTarget){
