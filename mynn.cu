@@ -19,10 +19,12 @@ using namespace std;
 #define NINPUTS (2)
 #define NOUTPUTS (2)
 
-#define L1M (7)
+#define MIDDLE (25)
+
+#define L1M (MIDDLE)
 #define L1N (NINPUTS)
 #define L2M (NOUTPUTS)
-#define L2N (7)
+#define L2N (MIDDLE)
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
 const int nDim[LAYERS]={L1N,L2N};//,L3N};

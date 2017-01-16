@@ -26,6 +26,7 @@ public:
 	Array<double> forward(const Array<double> &x){
 		int i,j;
 		double a,tmp;
+		assert(x.n==M.n);
 		for(j=0;j<M.m;j++){
 			a=0;
 			for(i=0;i<M.n;i++){
@@ -39,6 +40,7 @@ public:
 	}
 	void outputDelta(const Array<double> &error){
 		int j;
+		assert(error.n==delta.n);
 		for(j=0;j<error.n;j++){
 			(this->delta)(j)=(this->deriv)(j)*(error)(j);
 		}
@@ -46,6 +48,8 @@ public:
 	void upDelta(const Matrix<double> &W,const Array<double> &delta2){
 		int j,k;
 		double sum;
+		assert(W.n==delta.n);
+		assert(W.m==delta2.n);
 		for(j=0;j<W.n;j++){
 			sum=0;
 			for(k=0;k<W.m;k++){
@@ -56,6 +60,8 @@ public:
 	}
 	void updateWeights(const Array<double> &input){
 		int i,j;
+		assert(input.n==M.n);
+		assert(delta.n==M.m);
 		for(i=0;i<this->M.m;i++){
 			for(j=0;j<this->M.n;j++){
 				(this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);

@@ -30,20 +30,21 @@ public:
 		el.resize(m*n);
 	}
 	T &operator()(unsigned int i,unsigned int j){
-		if(i>=this->m||j>=this->n){
-			throw 0;
-		}
+		assert((i<this->m)&&(j<this->n));
 		return(el[(i*(this->n))+j]);
 	}
 	const T &operator()(unsigned int i,unsigned int j) const{
-		if(i>=this->m||j>=this->n){
-			throw 0;
-		}
+		assert((i<this->m)&&(j<this->n));
 		return(el[(i*(this->n))+j]);
 	}
 	Matrix<T> &operator=(const Matrix<T> &rhs){
-		this->el=rhs.el;
-		this->n=rhs.n;
+		int i,j;
+		this->resize(rhs.m,rhs.n);
+		for(i=0;i<rhs.m;i++){
+			for(j=0;j<rhs.n;j++){
+				this->el(i,j)=rhs.el(i,j);
+			}
+		}
 		return *this;
 	}
 	void rand(){
@@ -101,27 +102,19 @@ public:
 	~Array(){
 	}
 	T &operator()(unsigned int i){
-		if(i>=this->n){
-			throw 0;
-		}
+		assert(i<this->n);
 		return(el[i]);
 	}
 	const T &operator()(unsigned int i) const{
-		if(i>=this->n){
-			throw 0;
-		}
+		assert(i<this->n);
 		return(el[i]);
 	}
 	T &operator[](unsigned int i){
-		if(i>=this->n){
-			throw 0;
-		}
+		assert(i<this->n);
 		return(el[i]);
 	}
 	const T &operator[](unsigned int i) const{
-		if(i>=this->n){
-			throw 0;
-		}
+		assert(i<this->n);
 		return(el[i]);
 	}
 	Array<T> &operator+=(const Array<T> &rhs){
@@ -140,11 +133,12 @@ public:
 	Array<T> &operator=(const Array<T> &rhs){
 /*
 		printf("in operator=\n");
+		this->el=rhs.el;
+*/
+		this->resize(rhs.n);
 		for(int i=0;i<rhs.n;i++){
 			this->el[i]=rhs.el[i];
 		}
-*/
-		this->el=rhs.el;
 		this->n=rhs.n;
 		return *this;
 	}
