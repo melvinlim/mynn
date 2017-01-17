@@ -3,7 +3,7 @@
 
 #define EPOCHS 1000
 #define LAYERS 2
-#define GAMMA (0.1)
+#define GAMMA (0.01)
 
 #include "types.h"
 #include "kernels.cu"
@@ -73,9 +73,12 @@ public:
 		int i,j;
 		assert(input.n==M.n);
 		assert(delta.n==M.m);
+		Matrix<double> mat=this->M;
+		weightGPU(M.m,M.n,mat.el.data(),input.el.data(),this->delta.el.data());
 		for(i=0;i<this->M.m;i++){
 			for(j=0;j<this->M.n;j++){
 				(this->M)(i,j)-=GAMMA*(input)(j)*(this->delta)(i);
+				assert((this->M(i,j)-mat(i,j))<TOL);
 			}
 		}
 	}

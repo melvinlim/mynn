@@ -19,7 +19,7 @@ using namespace std;
 #define NINPUTS (2)
 #define NOUTPUTS (2)
 
-#define MIDDLE (25)
+#define MIDDLE (10)
 
 #define L1M (MIDDLE)
 #define L1N (NINPUTS)
