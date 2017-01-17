@@ -145,22 +145,20 @@ class Layer:
 				assert np.fabs(self.delta[i]-t1[i])<TOL
 			self.delta=t1
 		elif GPU:
-			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB1D)))
+			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
 			self.deltaKernel(
-				drv.In(self.A),
-				drv.InOut(self.delta),
+				drv.In(A),
+				drv.Out(self.delta),
 				drv.In(y),
 				drv.In(self.deriv),
 				block=(TPB1D,1,1),
 				grid=(gridX,1))
 		else:
-			arr=[]
 			for j in range(len(self.delta)):
 				s=0
 				for k in range(len(y)):
 					s += A[k][j]*y[k]
-				arr.append(s)
-			self.delta=self.deriv*s
+				self.delta[j]=self.deriv[j]*s
 		return self.delta
 	def batchAccum(self,x):
 		if GPU:
@@ -227,8 +225,6 @@ class Layer:
 							self.A[i][j] -= adj
 					else:
 						self.A[i][j] -= self.gamma*self.delta[i]*x[j]
-#NN=[Layer(MIDDLELAYER+1,2+1),Layer(2,MIDDLELAYER+1)]
-#NN=[Layer(MIDDLELAYER,2),Layer(2,MIDDLELAYER)]
 class Network:
 	def __init__(self,layerdims,gamma):
 		self.layer=[]
