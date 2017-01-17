@@ -58,12 +58,15 @@ public:
 		double sum;
 		assert(W.n==delta.n);
 		assert(W.m==delta2.n);
+		Array<double> d=this->delta;
+		deltaGPU(W.m,W.n,W.el.data(),d.el.data(),delta2.el.data(),this->deriv.el.data());
 		for(j=0;j<W.n;j++){
 			sum=0;
 			for(k=0;k<W.m;k++){
 				sum+=(W)(k,j)*(delta2)(k);
 			}
 			(this->delta)(j)=(this->deriv)(j)*sum;
+			assert(fabs(delta(j)-d[j])<TOL);
 		}
 	}
 	void updateWeights(const Array<double> &input){
