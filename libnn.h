@@ -6,6 +6,9 @@
 #define GAMMA (0.1)
 
 #include "types.h"
+#include "kernels.cu"
+
+#define TOL (0.001)
 
 class Layer{
 public:
@@ -27,6 +30,9 @@ public:
 		int i,j;
 		double a,tmp;
 		assert(x.n==M.n);
+		Array<double> o=this->out;
+		Array<double> d=this->deriv;
+		forwardGPU(M.m,M.n,this->M.el.data(),x.el.data(),o.el.data(),d.el.data());
 		for(j=0;j<M.m;j++){
 			a=0;
 			for(i=0;i<M.n;i++){
@@ -35,6 +41,8 @@ public:
 			tmp=tanh(a);
 			(out)(j)=tmp;
 			(deriv)(j)=1.0-(tmp*tmp);
+			assert(fabs(out(j)-o[j])<TOL);
+			assert(fabs(deriv(j)-d[j])<TOL);
 		}
 		return(this->out);
 	}
