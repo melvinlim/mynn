@@ -82,21 +82,21 @@ void deltaGPU(const int m,const int n,const double *A,double *delta,const double
     size_t size = m * n * sizeof(double);
 		double *d_A=(double *)malloc(size);
     cudaMalloc(&d_A,size);
-    cudaMemcpy(d_A,A,size,
-               cudaMemcpyHostToDevice);
+    cudaMemcpy(d_A,A,size,cudaMemcpyHostToDevice);
 
 		size_t xSz=n*sizeof(double);
 		double *d_delta=(double *)malloc(xSz);
     cudaMalloc(&d_delta,xSz);
-    cudaMemcpy(d_delta,delta,xSz,
-	    cudaMemcpyHostToDevice);
+//    cudaMemcpy(d_delta,delta,xSz,cudaMemcpyHostToDevice);
 		
 		size_t ySz=m*sizeof(double);
 		double *d_y=(double *)malloc(ySz);
     cudaMalloc(&d_y,ySz);
+    cudaMemcpy(d_y,y,ySz,cudaMemcpyHostToDevice);
 		
 		double *d_deriv=(double *)malloc(xSz);
     cudaMalloc(&d_deriv,xSz);
+    cudaMemcpy(d_deriv,deriv,xSz,cudaMemcpyHostToDevice);
 
     dim3 dimBlock(BLOCK_SIZE);
     dim3 dimGrid((int)ceil((float)n/(float)dimBlock.x));
@@ -104,11 +104,8 @@ void deltaGPU(const int m,const int n,const double *A,double *delta,const double
     //dim3 dimGrid(1);
     deltaKernel<<<dimGrid,dimBlock>>>(m,n,d_A,d_delta,d_y,d_deriv);
 
-    // Read from device memory
-    cudaMemcpy(delta,d_delta,xSz,
-    	cudaMemcpyDeviceToHost);
+    cudaMemcpy(delta,d_delta,xSz,cudaMemcpyDeviceToHost);
 
-    // Free device memory
     cudaFree(d_A);
     cudaFree(d_delta);
     cudaFree(d_y);
