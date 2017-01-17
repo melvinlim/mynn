@@ -2,7 +2,6 @@
 #define _LIBNN
 
 #define EPOCHS 1000
-#define LAYERS 2
 #define GAMMA (0.01)
 
 #include "types.h"

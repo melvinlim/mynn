@@ -92,12 +92,11 @@ public:
 		int i;
 		this->n=n;
 		this->el.resize(n);
-		if(x){
-			for(i=0;i<n;i++){
-				this->el[i]=x[i];
-			}
-//			memcpy(p->el,x,n*sizeof(double));
+		assert(x);
+		for(i=0;i<n;i++){
+			this->el[i]=x[i];
 		}
+//			memcpy(p->el,x,n*sizeof(double));
 	}
 	~Array(){
 	}

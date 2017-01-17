@@ -16,6 +16,8 @@ using namespace std;
 #include "types.h"
 #include "libnn.h"
 
+#define LAYERS (2)
+
 #define NINPUTS (2)
 #define NOUTPUTS (2)
 
