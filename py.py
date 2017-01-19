@@ -20,7 +20,7 @@ BATCHSIZE=20
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
-LAYERDIM=[INPUTS,400,OUTPUTS]
+LAYERDIM=[INPUTS,500,OUTPUTS]
 EPOCHS=1000
 GAMMA=0.001
 PRINTFREQ=10
@@ -81,9 +81,11 @@ for i in testLabel:
 	tmp=[]
 	for j in range(i):
 		tmp.append(-1)
-	tmp.append(1)
-	for j in range(10-i-1):
-		tmp.append(-1)
+#	tmp.append(1)
+#	for j in range(10-i-1):
+#		tmp.append(-1)
+	for j in range(10-i):
+		tmp.append(1)
 	out.append(np.array(tmp).astype(np.float64))
 nExamples=len(inp)
 
