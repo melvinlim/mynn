@@ -22,14 +22,14 @@ OUTPUTS=len(out[0])
 #OUTPUTS=2
 #OUTPUTS=10
 
-BATCHSIZE=20
+BATCHSIZE=10
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
-LAYERDIM=[INPUTS,500,OUTPUTS]
+LAYERDIM=[INPUTS,200,OUTPUTS]
 EPOCHS=1000
-GAMMA=0.001
-PRINTFREQ=10
+GAMMA=0.005
+PRINTFREQ=BATCHSIZE
 GPU=True
 t0=time.clock()
 
@@ -48,7 +48,7 @@ for epoch in range(EPOCHS):
 			bOut.append(out[r])
 		[output,error]=NN.batchTrain(bInp,bOut)
 		if (epoch%PRINTFREQ==0):
-			print('epoch:'+str(epoch))
+			print('----------epoch:'+str(epoch))
 			for i in range(BATCHSIZE):
 				printInfo(error[i],output[i],bOut[i])
 	else:

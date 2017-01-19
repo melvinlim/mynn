@@ -74,46 +74,43 @@ class Layer:
 		drv.memcpy_htod(ret,x)
 		return ret
 
+	def forwardGPU(self,x):
+		gA=self.hAlloc(self.A)
+		gx=self.hAlloc(x)
+		gout=self.hAlloc(self.out)
+		gderiv=self.hAlloc(self.deriv)
+		gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
+		self.forwardKernel(
+			gA,gx,gout,gderiv,
+			block=(1,TPB1D,1),
+			grid=(1,gridY))
+		t1=np.zeros_like(self.out)
+		t2=np.zeros_like(self.deriv)
+		drv.memcpy_dtoh(t1,gout)
+		drv.memcpy_dtoh(t2,gderiv)
+		return [t1,t2]
+
+	def forwardCPU(self,x):
+		out=np.tanh(np.dot(self.A,x))
+		deriv=1.0-(self.out*self.out)
+		return [out,deriv]
+
 	def insert(self,x):
 		context.synchronize()
 		if TESTGPU:
-			gA=self.hAlloc(self.A)
-			gx=self.hAlloc(x)
-			gout=self.hAlloc(self.out)
-			gderiv=self.hAlloc(self.deriv)
-			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
-			self.forwardKernel(
-				gA,gx,gout,gderiv,
-				block=(1,TPB1D,1),
-				grid=(1,gridY))
-			t1=np.zeros_like(self.out)
-			t2=np.zeros_like(self.deriv)
-			drv.memcpy_dtoh(t1,gout)
-			drv.memcpy_dtoh(t2,gderiv)
-			self.out=np.tanh(np.dot(self.A,x))
-			self.deriv=1.0-(self.out*self.out)
+			[t1,t2]=self.forwardGPU(x)
+			[self.out,self.deriv]=self.forwardCPU(x)
 			for i in range(len(self.out)):
 				assert np.fabs(t1[i]-self.out[i])<TOL
 				assert np.fabs(t2[i]-self.deriv[i])<TOL
 		elif GPU:
-			gA=self.hAlloc(self.A)
-			gx=self.hAlloc(x)
-			gout=self.hAlloc(self.out)
-			gderiv=self.hAlloc(self.deriv)
-			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
-			self.forwardKernel(
-				gA,gx,gout,gderiv,
-				block=(1,TPB1D,1),
-				grid=(1,gridY))
-			drv.memcpy_dtoh(self.out,gout)
-			drv.memcpy_dtoh(self.deriv,gderiv)
+			[self.out,self.deriv]=self.forwardGPU(x)
 		else:
-			self.out=np.tanh(np.dot(self.A,x))
-			self.deriv=1.0-(self.out*self.out)
+			[self.out,self.deriv]=self.forwardCPU(x)
 		context.synchronize()
 		return self.out
-	def updateDelta0(self,y):
-		self.delta=self.deriv*y
+	def updateDelta0(self,error):
+		self.delta=self.deriv*error
 		return self.delta
 	def updateDelta(self,A,y):
 		assert(y.size==A.shape[0])

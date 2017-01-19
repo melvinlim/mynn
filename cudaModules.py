@@ -1,5 +1,5 @@
 forwardTemplate="""
-__global__ void forwardKernel(double *A,double *x,double *y,double *deriv){
+__global__ void forwardKernel(const double *A,const double *x,double *y,double *deriv){
 	int i;
 	double Cval=0;
 	//int row = blockIdx.y * blockDim.y + threadIdx.y;
