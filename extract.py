@@ -46,7 +46,9 @@ def readLabel(filename,magicNumber,number):
 def extract():
 	tl=readLabel('t10k-labels-idx1-ubyte',[0,0,8,1],[0,0,0x27,0x10])
 	ti=readImage('t10k-images-idx3-ubyte',[0,0,8,3],[0,0,0x27,0x10],28,28)
-	l=readLabel('train-labels-idx1-ubyte',[0,0,8,1],[0,0,0xea,0x60])
-	i=readImage('train-images-idx3-ubyte',[0,0,8,3],[0,0,0xea,0x60],28,28)
+	l=0
+	i=0
+	#l=readLabel('train-labels-idx1-ubyte',[0,0,8,1],[0,0,0xea,0x60])
+	#i=readImage('train-images-idx3-ubyte',[0,0,8,3],[0,0,0xea,0x60],28,28)
 	return [ [tl,ti],[l,i] ]
 arr=extract()

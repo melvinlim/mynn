@@ -16,7 +16,7 @@ INPUTS=(28*28)
 OUTPUTS=2
 OUTPUTS=10
 
-BATCHSIZE=1
+BATCHSIZE=20
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
@@ -97,7 +97,6 @@ for epoch in range(EPOCHS):
 	if BATCHSIZE>1:
 		for i in range(BATCHSIZE):
 			r=np.random.randint(0,nExamples)
-			r=i
 			bInp.append(inp[r])
 			bOut.append(out[r])
 		[output,error]=NN.batchTrain(bInp,bOut)
