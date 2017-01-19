@@ -6,16 +6,21 @@ import numpy as np
 import nn
 from csvWrap import *
 from filt import *
+import extract
 
 INPUTS=129600
 INPUTS=129600/3
 #INPUTS=2
+INPUTS=(28*28)
+
+OUTPUTS=2
+OUTPUTS=10
 
 BATCHSIZE=1
 
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
-LAYERDIM=[INPUTS,400,2]
+LAYERDIM=[INPUTS,400,OUTPUTS]
 EPOCHS=1000
 GAMMA=0.001
 PRINTFREQ=10
@@ -61,8 +66,23 @@ for i in range(NNEG):
 	inp.append(y)
 	out.append([+1,-1])
 print out
-#inp=[inp1,inp2,inp3,inp4]
-#out=[out1,out2,out3,out4]
+inp=[inp1,inp2,inp3,inp4]
+out=[out1,out2,out3,out4]
+tmp=extract.extract()
+[[testLabel,testSet],[trainLabel,trainSet]]=tmp
+inp=[]
+out=[]
+for i in testSet:
+	inp.append(np.array(i).astype(np.float64))
+for i in testLabel:
+	tmp=[]
+	for j in range(i):
+		tmp.append(-1)
+	tmp.append(1)
+	for j in range(10-i-1):
+		tmp.append(-1)
+	out.append(np.array(tmp).astype(np.float64))
+raise Exception
 nExamples=len(inp)
 
 np.set_printoptions(precision=4)
