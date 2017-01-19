@@ -7,6 +7,7 @@ import nn
 from csvWrap import *
 from filt import *
 import extract
+from nn import printInfo
 
 INPUTS=129600
 INPUTS=129600/3
@@ -104,29 +105,21 @@ for epoch in range(EPOCHS):
 		[output,error]=NN.batchTrain(bInp,bOut)
 		if (epoch%PRINTFREQ==0):
 			for i in range(BATCHSIZE):
-				print('error:'),
-				print(error[i])
-				print('output:'),
-				print(output[i])
-				print('target:'),
-				print(bOut[i])
+				printInfo(error[i],output[i],bOut[i])
 	else:
 		r=np.random.randint(0,nExamples)
 		[output,error]=NN.train(inp[r],out[r])
 		if (epoch%PRINTFREQ==0):
-			print('error:'),
-			print(error)
-			print('output:'),
-			print(output)
-			print('target:'),
-			print(out[r])
+			printInfo(error,output,out[r])
 for r in range(nExamples):
 	[output,error]=NN.train(inp[r],out[r])
+	printInfo(error,output,out[r])
+tf=time.clock()
+print('elapsed time: '+str(tf-t0)+'s')
+def printInfo(error,output,target):
 	print('error:'),
 	print(error)
 	print('output:'),
 	print(output)
 	print('target:'),
-	print(out[r])
-tf=time.clock()
-print('elapsed time: '+str(tf-t0)+'s')
+	print(target)

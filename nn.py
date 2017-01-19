@@ -289,3 +289,10 @@ class Network:
 		for i in range(self.n):
 			self.layer[i].batchUpdate()
 		return [output,error]
+def printInfo(error,output,target):
+	print('error:'),
+	print(error)
+	print('output:'),
+	print(output)
+	print('target:'),
+	print(target)
