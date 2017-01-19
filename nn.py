@@ -112,51 +112,45 @@ class Layer:
 	def updateDelta0(self,error):
 		self.delta=self.deriv*error
 		return self.delta
+	def updateDeltaGPU(self,A,y):
+		gridX=int(math.ceil(float(A.shape[0])/float(TPB1D)))
+
+		kernel_code=cudaModules.deltaTemplate%{
+			'NROWS':A.shape[0],
+			'NCOLS':A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.deltaKernel=module.get_function("deltaKernel")
+
+		t1=np.zeros_like(self.delta)
+		self.deltaKernel(
+			drv.In(A),
+			drv.Out(t1),
+			drv.In(y),
+			drv.In(self.deriv),
+			block=(TPB1D,1,1),
+			grid=(gridX,1))
+		return t1
+	def updateDeltaCPU(self,A,y):
+		for j in range(len(self.delta)):
+			s=np.array(0).astype(np.float64)
+			for k in range(len(y)):
+				s += A[k][j]*y[k]
+			self.delta[j]=self.deriv[j]*s
+	#delta=dE/dx
 	def updateDelta(self,A,y):
 		assert(y.size==A.shape[0])
 		assert(self.deriv.size==A.shape[1])
 		assert(self.delta.size==A.shape[1])
 		if TESTGPU:
-			t1=np.zeros_like(self.delta)
-			self.delta=np.zeros_like(self.delta)
-			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
-
-			kernel_code=cudaModules.deltaTemplate%{
-				'NROWS':A.shape[0],
-				'NCOLS':A.shape[1]}
-			module=compiler.SourceModule(kernel_code)
-			self.deltaKernel=module.get_function("deltaKernel")
-
-			self.deltaKernel(
-				drv.In(A),
-				drv.Out(t1),
-				drv.In(y),
-				drv.In(self.deriv),
-				block=(TPB1D,1,1),
-				grid=(gridX,1))
-			for j in range(len(self.delta)):
-				s=np.array(0).astype(np.float64)
-				for k in range(len(y)):
-					s += A[k][j]*y[k]
-				self.delta[j]=self.deriv[j]*s
+			t1=self.updateDeltaGPU(A,y)
+			self.delta=self.updateDeltaCPU(A,y)
 			for i in range(len(t1)):
 				assert np.fabs(self.delta[i]-t1[i])<TOL
 			self.delta=t1
 		elif GPU:
-			gridX=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
-			self.deltaKernel(
-				drv.In(A),
-				drv.Out(self.delta),
-				drv.In(y),
-				drv.In(self.deriv),
-				block=(TPB1D,1,1),
-				grid=(gridX,1))
+			self.delta=self.updateDeltaGPU(A,y)
 		else:
-			for j in range(len(self.delta)):
-				s=0
-				for k in range(len(y)):
-					s += A[k][j]*y[k]
-				self.delta[j]=self.deriv[j]*s
+			self.delta=self.updateDeltaCPU(A,y)
 		return self.delta
 	def batchAccum(self,x):
 		if GPU:

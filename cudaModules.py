@@ -17,7 +17,7 @@ __global__ void forwardKernel(const double *A,const double *x,double *y,double *
 }
 """
 deltaTemplate="""
-__global__ void deltaKernel(double *A,double *delta,double *y,double *deriv){
+__global__ void deltaKernel(const double *A,double *delta,const double *y,const double *deriv){
 	int i;
 	double Cval=0;
 	const int col = blockIdx.x * blockDim.x + threadIdx.x;
