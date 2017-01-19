@@ -9,7 +9,7 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=True
+TESTGPU=False
 TOL=0.01
 GPU=True
 TPB1D=512
@@ -18,6 +18,7 @@ class Layer:
 	def __init__(self,m,n,nNext,mNext,gamma,dougsMomentum=True):
 		self.gamma=gamma
 		self.dougsMomentum=dougsMomentum
+		self.dougsMomentum=False
 
 		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
 		self.A.astype(np.float64)
