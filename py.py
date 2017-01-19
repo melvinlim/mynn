@@ -46,7 +46,8 @@ inp=[]
 out=[]
 
 #filt=Filter(1,INPUTS,1,0,255,False)
-filt=Filter(1,INPUTS,1,0,255*3,False)
+#filt=Filter(1,INPUTS,1,0,255*3,False)
+filt=Filter(1,INPUTS,1,0,255,False)
 
 for i in range(NPOS):
 	filename='verified/pos'+str(i)+'.csv'
@@ -73,7 +74,9 @@ tmp=extract.extract()
 inp=[]
 out=[]
 for i in testSet:
-	inp.append(np.array(i).astype(np.float64))
+	t=np.array(i).astype(np.float64)
+	y=filt.insert1D(t)
+	inp.append(y)
 for i in testLabel:
 	tmp=[]
 	for j in range(i):
@@ -82,7 +85,6 @@ for i in testLabel:
 	for j in range(10-i-1):
 		tmp.append(-1)
 	out.append(np.array(tmp).astype(np.float64))
-raise Exception
 nExamples=len(inp)
 
 np.set_printoptions(precision=4)
