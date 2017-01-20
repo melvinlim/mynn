@@ -9,13 +9,13 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=True
+TESTGPU=False
 TOL=0.01
 GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,m,n,nNext,mNext,gamma,dougsMomentum=True):
+	def __init__(self,m,n,mNext,nNext,gamma,dougsMomentum=True):
 		self.gamma=gamma
 		self.dougsMomentum=dougsMomentum
 		self.dougsMomentum=False

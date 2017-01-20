@@ -11,8 +11,8 @@ from nn import printInfo
 from generate import *
 
 #[inp,out]=generate('xor')
-[inp,out]=generate('csv')
-#[inp,out]=generate('mnist')
+#[inp,out]=generate('csv')
+[inp,out]=generate('mnist')
 
 INPUTS=len(inp[0])
 #INPUTS=129600
@@ -29,7 +29,7 @@ BATCHSIZE=1
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
 LAYERDIM=[INPUTS,500,OUTPUTS]
-EPOCHS=1000
+EPOCHS=10000
 GAMMA=0.005
 PRINTFREQ=BATCHSIZE
 t0=time.clock()
@@ -58,8 +58,8 @@ for epoch in range(EPOCHS):
 		if (epoch%PRINTFREQ==0):
 			print('----------epoch:'+str(epoch))
 			printInfo(error,output,out[r])
-for r in range(nExamples):
-	[output,error]=NN.train(inp[r],out[r])
-	printInfo(error,output,out[r])
+#for r in range(nExamples):
+#	[output,error]=NN.train(inp[r],out[r])
+#	printInfo(error,output,out[r])
 tf=time.clock()
 print('elapsed time: '+str(tf-t0)+'s')
