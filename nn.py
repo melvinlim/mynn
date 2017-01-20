@@ -9,7 +9,7 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=False
+TESTGPU=True
 TOL=0.01
 GPU=True
 TPB1D=512
@@ -154,8 +154,29 @@ class Layer:
 		else:
 			self.delta=self.updateDeltaCPU(A,y)
 		return self.delta
+	def batchAccumGPU(self,x):
+		gdA=self.hAlloc(self.dA)
+		gx=self.hAlloc(x)
+		gdelta=self.hAlloc(self.delta)
+		gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+		gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+		self.batchAccumKernel(
+			gdA,
+			gx,
+			gdelta,
+			block=(TPB2D,TPB2D,1),
+			grid=(gridX,gridY))
+		t1=np.zeros_like(self.dA)
+		drv.memcpy_dtoh(t1,gdA)
+		return t1
 	def batchAccum(self,x):
-		if GPU:
+		if TESTGPU:
+			t1=self.batchAccumGPU(x)
+			for i in range(self.dA.shape[0]):
+				for j in range(self.dA.shape[1]):
+					self.dA[i][j] += self.gamma*self.delta[i]*x[j]
+					assert np.fabs(t1[i][j]-self.dA[i][j])<TOL
+		elif GPU:
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
 			self.batchAccumKernel(
