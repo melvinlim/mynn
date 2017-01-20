@@ -11,7 +11,7 @@ import math
 from copy import *
 TESTGPU=False
 TOL=0.01
-GPU=True
+GPU=False
 TPB1D=512
 TPB2D=32
 class Layer:
@@ -185,6 +185,8 @@ class Layer:
 				for j in range(self.dA.shape[1]):
 					self.dA[i][j] += self.delta[i]*x[j]
 	def batchUpdate(self):
+		ADAGAMMA=0.95
+		EPSILON=0.000001
 		if GPU:
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
@@ -196,7 +198,13 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.gamma*self.dA[i][j]
+					if self.adaDelta:
+						self.grad2[i][j]=ADAGAMMA*self.grad2[i][j]+(1-ADAGAMMA)*(self.dA[i][j]**2)
+						theta=(-1)*np.sqrt(self.theta2[i][j]+EPSILON)/(np.sqrt(self.grad2[i][j]+EPSILON))*self.dA[i][j]
+						self.theta2[i][j]=ADAGAMMA*self.theta2[i][j]+(1-ADAGAMMA)*(theta**2)
+						self.A[i][j] += theta
+					else:
+						self.A[i][j] -= self.gamma*self.dA[i][j]
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):

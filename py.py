@@ -10,9 +10,9 @@ import extract
 from nn import printInfo
 from generate import *
 
-#[inp,out]=generate('xor')
+[inp,out]=generate('xor')
 #[inp,out]=generate('csv')
-[inp,out]=generate('mnist')
+#[inp,out]=generate('mnist')
 
 INPUTS=len(inp[0])
 #INPUTS=129600
