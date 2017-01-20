@@ -9,13 +9,13 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=True
+TESTGPU=False
 TOL=0.01
 GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,m,n,mNext,nNext,gamma):
+	def __init__(self,m,n,mNext,nNext,gamma,adaDelta=True):
 		self.gamma=gamma
 
 		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
@@ -24,6 +24,11 @@ class Layer:
 		self.out=np.array(m*[0]).astype(np.float64)
 		self.delta=np.zeros_like(self.out)
 		self.deriv=np.zeros_like(self.out)
+
+		if adaDelta==True:
+			self.adaDelta=True
+			self.grad2=np.zeros_like(self.A)
+			self.theta2=np.zeros_like(self.A)
 
 		kernel_code=cudaModules.forwardTemplate%{
 			'NROWS':self.A.shape[0],
@@ -163,7 +168,7 @@ class Layer:
 		t1=np.zeros_like(self.dA)
 		for i in range(self.dA.shape[0]):
 			for j in range(self.dA.shape[1]):
-				t1[i][j]=self.dA[i][j]+self.gamma*self.delta[i]*x[j]
+				t1[i][j]=self.dA[i][j]+self.delta[i]*x[j]
 		return t1
 	def batchAccum(self,x):
 		if TESTGPU:
@@ -172,12 +177,13 @@ class Layer:
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
 					assert np.fabs(t1[i][j]-t2[i][j])<TOL
+			self.dA=t1
 		elif GPU:
-			self.dA=batchAccumGPU(x)
+			self.dA=self.batchAccumGPU(x)
 		else:
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
-					self.dA[i][j] += self.gamma*self.delta[i]*x[j]
+					self.dA[i][j] += self.delta[i]*x[j]
 	def batchUpdate(self):
 		if GPU:
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
@@ -190,7 +196,7 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.dA[i][j]
+					self.A[i][j] -= self.gamma*self.dA[i][j]
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):
