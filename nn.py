@@ -169,22 +169,21 @@ class Layer:
 		t1=np.zeros_like(self.dA)
 		drv.memcpy_dtoh(t1,gdA)
 		return t1
+	def batchAccumCPU(self,x):
+		t1=np.zeros_like(self.dA)
+		for i in range(self.dA.shape[0]):
+			for j in range(self.dA.shape[1]):
+				t1[i][j]=self.dA[i][j]+self.gamma*self.delta[i]*x[j]
+		return t1
 	def batchAccum(self,x):
 		if TESTGPU:
 			t1=self.batchAccumGPU(x)
+			t2=self.batchAccumCPU(x)
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
-					self.dA[i][j] += self.gamma*self.delta[i]*x[j]
-					assert np.fabs(t1[i][j]-self.dA[i][j])<TOL
+					assert np.fabs(t1[i][j]-t2[i][j])<TOL
 		elif GPU:
-			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
-			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
-			self.batchAccumKernel(
-				drv.InOut(self.dA),
-				drv.In(x),
-				drv.In(self.delta),
-				block=(TPB2D,TPB2D,1),
-				grid=(gridX,gridY))
+			self.dA=batchAccumGPU(x)
 		else:
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
