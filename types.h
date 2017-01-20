@@ -42,7 +42,8 @@ public:
 		this->resize(rhs.m,rhs.n);
 		for(i=0;i<rhs.m;i++){
 			for(j=0;j<rhs.n;j++){
-				this->el(i,j)=rhs.el(i,j);
+				this->el(i,j)=rhs(i,j);
+				//this->el(i,j)=rhs.el(i,j);
 			}
 		}
 		return *this;
