@@ -20,9 +20,10 @@ def generate(target='xor'):
 		return [inp,out]
 
 	elif target=='csv':
-
-		NPOS=4
-		NNEG=4
+		#NEXAMPLES=30
+		NEXAMPLES=4
+		NPOS=NEXAMPLES
+		NNEG=NEXAMPLES
 
 		inp=[]
 		out=[]
@@ -39,7 +40,8 @@ def generate(target='xor'):
 			t=t.reshape(-1,len(t)/3,3).sum(axis=2)[0]
 			y=filt.insert1D(t)
 			inp.append(y)
-			out.append([-1,+1])
+			t=np.array([-1,+1]).astype(np.float64)
+			out.append(t)
 
 		for i in range(NNEG):
 			filename='verified/neg'+str(i)+'.csv'
@@ -48,8 +50,8 @@ def generate(target='xor'):
 			t=t.reshape(-1,len(t)/3,3).sum(axis=2)[0]
 			y=filt.insert1D(t)
 			inp.append(y)
-			out.append([+1,-1])
-		print out
+			t=np.array([+1,-1]).astype(np.float64)
+			out.append(t)
 		return [inp,out]
 
 	elif target=='mnist':

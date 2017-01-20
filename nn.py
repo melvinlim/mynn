@@ -9,7 +9,7 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=False
+TESTGPU=True
 TOL=0.01
 GPU=True
 TPB1D=512
@@ -92,7 +92,7 @@ class Layer:
 
 	def forwardCPU(self,x):
 		out=np.tanh(np.dot(self.A,x))
-		deriv=1.0-(self.out*self.out)
+		deriv=1.0-(out*out)
 		return [out,deriv]
 
 	def insert(self,x):
@@ -131,11 +131,13 @@ class Layer:
 			grid=(gridX,1))
 		return t1
 	def updateDeltaCPU(self,A,y):
-		for j in range(len(self.delta)):
+		delta=np.zeros_like(self.delta)
+		for j in range(len(delta)):
 			s=np.array(0).astype(np.float64)
 			for k in range(len(y)):
 				s += A[k][j]*y[k]
-			self.delta[j]=self.deriv[j]*s
+			delta[j]=self.deriv[j]*s
+		return delta
 	#delta=dE/dx
 	def updateDelta(self,A,y):
 		assert(y.size==A.shape[0])
@@ -287,3 +289,4 @@ def printInfo(error,output,target):
 	print(output)
 	print('target:'),
 	print(target)
+	print('-')
