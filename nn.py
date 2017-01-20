@@ -15,10 +15,8 @@ GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
-	def __init__(self,m,n,mNext,nNext,gamma,dougsMomentum=True):
+	def __init__(self,m,n,mNext,nNext,gamma):
 		self.gamma=gamma
-		self.dougsMomentum=dougsMomentum
-		self.dougsMomentum=False
 
 		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
 		self.A.astype(np.float64)
@@ -47,20 +45,12 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.batchAccumKernel=module.get_function("batchAccumKernel")
 
-		if dougsMomentum:
-			kernel_code=cudaModules.batchUpdateDMTemplate%{
-				'GAMMA':self.gamma,
-				'NROWS':self.A.shape[0],
-				'NCOLS':self.A.shape[1]}
-			module=compiler.SourceModule(kernel_code)
-			self.batchUpdateKernel=module.get_function("batchUpdateDMKernel")
-		else:
-			kernel_code=cudaModules.batchUpdateTemplate%{
-				'GAMMA':self.gamma,
-				'NROWS':self.A.shape[0],
-				'NCOLS':self.A.shape[1]}
-			module=compiler.SourceModule(kernel_code)
-			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+		kernel_code=cudaModules.batchUpdateTemplate%{
+			'GAMMA':self.gamma,
+			'NROWS':self.A.shape[0],
+			'NCOLS':self.A.shape[1]}
+		module=compiler.SourceModule(kernel_code)
+		self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 
 		kernel_code=cudaModules.weightTemplate%{
 			'GAMMA':self.gamma,
@@ -200,18 +190,7 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					if self.dougsMomentum:
-						adj=self.dA[i][j]
-						if adj>1:
-							print('scaled x='+str(adj))
-							self.A[i][j] -= 1
-						elif adj<(-1):
-							print('scaled x='+str(adj))
-							self.A[i][j] += 1
-						else:
-							self.A[i][j] -= adj
-					else:
-						self.A[i][j] -= self.dA[i][j]
+					self.A[i][j] -= self.dA[i][j]
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):
@@ -227,18 +206,7 @@ class Layer:
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					if self.dougsMomentum:
-						adj=self.gamma*self.delta[i]*x[j]
-						if adj>1:
-							print('scaled adj='+str(adj))
-							self.A[i][j] -= 1
-						elif adj<(-1):
-							print('scaled adj='+str(adj))
-							self.A[i][j] += 1
-						else:
-							self.A[i][j] -= adj
-					else:
-						self.A[i][j] -= self.gamma*self.delta[i]*x[j]
+					self.A[i][j] -= self.gamma*self.delta[i]*x[j]
 class Network:
 	def __init__(self,layerdims,gamma):
 		self.layer=[]
