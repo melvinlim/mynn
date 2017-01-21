@@ -9,9 +9,9 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=False
+TESTGPU=True
 TOL=0.01
-GPU=False
+GPU=True
 TPB1D=512
 TPB2D=32
 class Layer:
@@ -24,9 +24,10 @@ class Layer:
 		self.out=np.array(m*[0]).astype(np.float64)
 		self.delta=np.zeros_like(self.out)
 		self.deriv=np.zeros_like(self.out)
+		adaDelta=False
+		self.adaDelta=adaDelta
 
 		if adaDelta==True:
-			self.adaDelta=True
 			self.grad2=np.zeros_like(self.A)
 			self.theta2=np.zeros_like(self.A)
 
@@ -184,10 +185,47 @@ class Layer:
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
 					self.dA[i][j] += self.delta[i]*x[j]
+	def batchUpdateGPU(self):
+		ans=np.zeros_like(self.A)
+		if self.adaDelta:
+			pass
+		else:
+			gA=self.hAlloc(self.A)
+			gdA=self.hAlloc(self.dA)
+			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+			self.batchUpdateKernel(
+				gA,
+				gdA,
+				block=(TPB2D,TPB2D,1),
+				grid=(gridX,gridY))
+			drv.memcpy_dtoh(ans,gA)
+		return ans
+	def batchUpdateCPU(self):
+		ans=np.zeros_like(self.A)
+		if self.adaDelta:
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					self.grad2[i][j]=ADAGAMMA*self.grad2[i][j]+(1-ADAGAMMA)*(self.dA[i][j]**2)
+					theta=(-1)*np.sqrt(self.theta2[i][j]+EPSILON)/(np.sqrt(self.grad2[i][j]+EPSILON))*self.dA[i][j]
+					self.theta2[i][j]=ADAGAMMA*self.theta2[i][j]+(1-ADAGAMMA)*(theta**2)
+					ans[i][j] = self.A[i][j] + theta
+		else:
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					ans[i][j] = self.A[i][j] - self.gamma*self.dA[i][j]
+		return ans
 	def batchUpdate(self):
 		ADAGAMMA=0.95
 		EPSILON=0.000001
-		if GPU:
+		if TESTGPU:
+			t1=self.batchUpdateGPU()
+			t2=self.batchUpdateCPU()
+			for i in range(self.dA.shape[0]):
+				for j in range(self.dA.shape[1]):
+					assert np.fabs(t1[i][j]-t2[i][j])<TOL
+			self.A=t1
+		elif GPU:
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
 			self.batchUpdateKernel(
@@ -196,15 +234,7 @@ class Layer:
 				block=(TPB2D,TPB2D,1),
 				grid=(gridX,gridY))
 		else:
-			for i in range(self.A.shape[0]):
-				for j in range(self.A.shape[1]):
-					if self.adaDelta:
-						self.grad2[i][j]=ADAGAMMA*self.grad2[i][j]+(1-ADAGAMMA)*(self.dA[i][j]**2)
-						theta=(-1)*np.sqrt(self.theta2[i][j]+EPSILON)/(np.sqrt(self.grad2[i][j]+EPSILON))*self.dA[i][j]
-						self.theta2[i][j]=ADAGAMMA*self.theta2[i][j]+(1-ADAGAMMA)*(theta**2)
-						self.A[i][j] += theta
-					else:
-						self.A[i][j] -= self.gamma*self.dA[i][j]
+			self.A=batchUpdateCPU()
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):
