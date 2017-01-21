@@ -24,7 +24,9 @@ class Layer:
 		self.out=np.array(m*[0]).astype(np.float64)
 		self.delta=np.zeros_like(self.out)
 		self.deriv=np.zeros_like(self.out)
-		adaDelta=False
+
+		self.ADAGAMMA=0.95
+		self.EPSILON=0.000001
 		self.adaDelta=adaDelta
 
 		if adaDelta==True:
@@ -51,12 +53,21 @@ class Layer:
 		module=compiler.SourceModule(kernel_code)
 		self.batchAccumKernel=module.get_function("batchAccumKernel")
 
-		kernel_code=cudaModules.batchUpdateTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.A.shape[0],
-			'NCOLS':self.A.shape[1]}
-		module=compiler.SourceModule(kernel_code)
-		self.batchUpdateKernel=module.get_function("batchUpdateKernel")
+		if adaDelta==True:
+			kernel_code=cudaModules.batchUpdateADTemplate%{
+				'GAMMA':self.ADAGAMMA,
+				'EPSILON':self.EPSILON,
+				'NROWS':self.A.shape[0],
+				'NCOLS':self.A.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.batchUpdateKernel=module.get_function("batchUpdateADKernel")
+		else:
+			kernel_code=cudaModules.batchUpdateTemplate%{
+				'GAMMA':self.gamma,
+				'NROWS':self.A.shape[0],
+				'NCOLS':self.A.shape[1]}
+			module=compiler.SourceModule(kernel_code)
+			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 
 		kernel_code=cudaModules.weightTemplate%{
 			'GAMMA':self.gamma,
@@ -186,9 +197,30 @@ class Layer:
 				for j in range(self.dA.shape[1]):
 					self.dA[i][j] += self.delta[i]*x[j]
 	def batchUpdateGPU(self):
+		ret=[]
 		ans=np.zeros_like(self.A)
+		g2=np.zeros_like(self.grad2)
+		t2=np.zeros_like(self.theta2)
 		if self.adaDelta:
-			pass
+			gA=self.hAlloc(self.A)
+			gdA=self.hAlloc(self.dA)
+			ggrad2=self.hAlloc(self.grad2)
+			gtheta2=self.hAlloc(self.theta2)
+			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+			self.batchUpdateKernel(
+				gA,
+				gdA,
+				ggrad2,
+				gtheta2,
+				block=(TPB2D,TPB2D,1),
+				grid=(gridX,gridY))
+			drv.memcpy_dtoh(ans,gA)
+			drv.memcpy_dtoh(g2,ggrad2)
+			drv.memcpy_dtoh(t2,gtheta2)
+			ret.append(ans)
+			ret.append(g2)
+			ret.append(t2)
 		else:
 			gA=self.hAlloc(self.A)
 			gdA=self.hAlloc(self.dA)
@@ -200,15 +232,16 @@ class Layer:
 				block=(TPB2D,TPB2D,1),
 				grid=(gridX,gridY))
 			drv.memcpy_dtoh(ans,gA)
-		return ans
+			ret.append(ans)
+		return ret
 	def batchUpdateCPU(self):
 		ans=np.zeros_like(self.A)
 		if self.adaDelta:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.grad2[i][j]=ADAGAMMA*self.grad2[i][j]+(1-ADAGAMMA)*(self.dA[i][j]**2)
-					theta=(-1)*np.sqrt(self.theta2[i][j]+EPSILON)/(np.sqrt(self.grad2[i][j]+EPSILON))*self.dA[i][j]
-					self.theta2[i][j]=ADAGAMMA*self.theta2[i][j]+(1-ADAGAMMA)*(theta**2)
+					self.grad2[i][j]=self.ADAGAMMA*self.grad2[i][j]+(1-self.ADAGAMMA)*(self.dA[i][j]**2)
+					theta=(-1)*np.sqrt(self.theta2[i][j]+self.EPSILON)/(np.sqrt(self.grad2[i][j]+self.EPSILON))*self.dA[i][j]
+					self.theta2[i][j]=self.ADAGAMMA*self.theta2[i][j]+(1-self.ADAGAMMA)*(theta**2)
 					ans[i][j] = self.A[i][j] + theta
 		else:
 			for i in range(self.A.shape[0]):
@@ -216,23 +249,15 @@ class Layer:
 					ans[i][j] = self.A[i][j] - self.gamma*self.dA[i][j]
 		return ans
 	def batchUpdate(self):
-		ADAGAMMA=0.95
-		EPSILON=0.000001
 		if TESTGPU:
-			t1=self.batchUpdateGPU()
+			[t1,x,y]=self.batchUpdateGPU()
 			t2=self.batchUpdateCPU()
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
 					assert np.fabs(t1[i][j]-t2[i][j])<TOL
 			self.A=t1
 		elif GPU:
-			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
-			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
-			self.batchUpdateKernel(
-				drv.InOut(self.A),
-				drv.In(self.dA),
-				block=(TPB2D,TPB2D,1),
-				grid=(gridX,gridY))
+			self.A=self.batchUpdateGPU()
 		else:
 			self.A=batchUpdateCPU()
 	def batchInit(self):

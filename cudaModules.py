@@ -57,3 +57,17 @@ __global__ void batchUpdateKernel(double *A,double *dA){
 	}
 }
 """
+batchUpdateADTemplate="""
+__global__ void batchUpdateADKernel(double *A,const double *dA,double *grad2,double *theta2){
+	const unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int ind = row*%(NCOLS)s+col;
+	double theta;
+	if((row<%(NROWS)s)&&(col<%(NCOLS)s)){
+		grad2[ind]=%(GAMMA)s*grad2[ind]+(1-%(GAMMA)s)*(dA[ind]*dA[ind]);
+		theta=(-1)*sqrt(theta2[ind]+%(EPSILON)s)/(sqrt(grad2[ind]+%(EPSILON)s))*dA[ind];
+		theta2[ind]=%(GAMMA)s*theta2[ind]+(1-%(GAMMA)s)*(theta*theta);
+		A[ind] += theta;
+	}
+}
+"""
