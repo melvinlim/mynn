@@ -9,7 +9,7 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=True
+TESTGPU=False
 TOL=0.01
 GPU=True
 TPB1D=512
@@ -257,7 +257,7 @@ class Layer:
 					assert np.fabs(t1[i][j]-t2[i][j])<TOL
 			self.A=t1
 		elif GPU:
-			self.A=self.batchUpdateGPU()
+			[self.A,x,y]=self.batchUpdateGPU()
 		else:
 			self.A=batchUpdateCPU()
 	def batchInit(self):
