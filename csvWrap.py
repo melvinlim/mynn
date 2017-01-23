@@ -1,11 +1,15 @@
 import csv
 def writeCSV(filename,array,verbose=True):
 	try:
-		with open(filename,'w') as csvFile:
-			csvWriter=csv.writer(csvFile,delimiter=',')
-			csvWriter.writerow(array)
-			if verbose:
-				print('wrote '+filename)
+		csvFile=open(filename,'w')
+	except:
+		print('unable to open '+filename)
+		return
+	try:
+		csvWriter=csv.writer(csvFile,delimiter=',')
+		csvWriter.writerow(array)
+		if verbose:
+			print('wrote '+filename)
 	except:
 		print('unable to write to '+filename)
 

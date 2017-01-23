@@ -259,7 +259,7 @@ class Layer:
 		elif GPU:
 			[self.A,x,y]=self.batchUpdateGPU()
 		else:
-			self.A=batchUpdateCPU()
+			self.A=self.batchUpdateCPU()
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateWeights(self,x):
@@ -339,6 +339,10 @@ class Network:
 		for i in range(self.n):
 			self.layer[i].batchUpdate()
 		return [output,error]
+	def save(self,filename):
+		from csvWrap import writeCSV
+		writeCSV(filename,[1,2,3,4])
+		
 def printInfo(error,output,target):
 	print('error:'),
 	print(error)

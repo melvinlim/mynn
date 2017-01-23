@@ -10,35 +10,37 @@ import extract
 from nn import printInfo
 from generate import *
 
-[inp,out]=generate('xor')
-#[inp,out]=generate('csv')
-#[inp,out]=generate('mnist')
+task='xor'
+#task='csv'
+#task='mnist'
+[inp,out]=generate(task)
 
 INPUTS=len(inp[0])
-#INPUTS=129600
-#INPUTS=129600/3
-#INPUTS=2
-#INPUTS=(28*28)
-
 OUTPUTS=len(out[0])
-#OUTPUTS=2
-#OUTPUTS=10
 
 BATCHSIZE=10
 #raise Exception
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
 LAYERDIM=[INPUTS,500,OUTPUTS]
-EPOCHS=10000
+EPOCHS=100
 GAMMA=0.005
 PRINTFREQ=BATCHSIZE
-t0=time.clock()
 
 nExamples=len(inp)
 
 np.set_printoptions(precision=4)
 
 NN=nn.Network(LAYERDIM,GAMMA)
+filename=task+'.csv'
+try:
+	open(filename,'r')
+	x=raw_input('found '+filename+'.  load network?  ([y]/n)')
+except:
+	x=raw_input(filename+' not found.  start?  ([y]/n)')
+	if(x=='n'):
+		exit()
+t0=time.clock()
 for epoch in range(EPOCHS):
 	bInp=[]
 	bOut=[]
@@ -63,3 +65,6 @@ for epoch in range(EPOCHS):
 #	printInfo(error,output,out[r])
 tf=time.clock()
 print('elapsed time: '+str(tf-t0)+'s')
+x=raw_input('save network?  (y/[n])')
+if(x=='y'):
+	NN.save(filename)
