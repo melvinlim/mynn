@@ -36,9 +36,12 @@ filename=task+'.csv'
 try:
 	open(filename,'r')
 	x=raw_input('found '+filename+'.  load network?  ([y]/n)')
+	if(x=='' or x=='y'):
+		print('loading '+filename+'...')
+		NN=nn.loadNetwork(filename)
 except:
 	x=raw_input(filename+' not found.  start?  ([y]/n)')
-	if(x=='n'):
+	if(x=='' or x=='n'):
 		exit()
 t0=time.clock()
 for epoch in range(EPOCHS):

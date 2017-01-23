@@ -9,33 +9,17 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=False
+TESTGPU=True
 TOL=0.01
 GPU=True
 TPB1D=512
 TPB2D=32
-class Layer:
-	def __init__(self,m,n,mNext,nNext,gamma,adaDelta=True):
-		self.gamma=gamma
-
-		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
-		self.A.astype(np.float64)
-		self.dA=np.zeros_like(self.A)
-		self.out=np.array(m*[0]).astype(np.float64)
-		self.delta=np.zeros_like(self.out)
-		self.deriv=np.zeros_like(self.out)
-
-		self.ADAGAMMA=0.95
-		self.EPSILON=0.000001
-		self.adaDelta=adaDelta
-
-		if adaDelta==True:
-			self.grad2=np.zeros_like(self.A)
-			self.theta2=np.zeros_like(self.A)
+class cudaKernels:
+	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta):
 
 		kernel_code=cudaModules.forwardTemplate%{
-			'NROWS':self.A.shape[0],
-			'NCOLS':self.A.shape[1]}
+			'NROWS':m,
+			'NCOLS':n}
 		module=compiler.SourceModule(kernel_code)
 		self.forwardKernel=module.get_function("forwardKernel")
 
@@ -47,34 +31,60 @@ class Layer:
 			self.deltaKernel=module.get_function("deltaKernel")
 
 		kernel_code=cudaModules.batchAccumTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.dA.shape[0],
-			'NCOLS':self.dA.shape[1]}
+			'GAMMA':gamma,
+			'NROWS':m,
+			'NCOLS':n}
 		module=compiler.SourceModule(kernel_code)
 		self.batchAccumKernel=module.get_function("batchAccumKernel")
 
 		if adaDelta==True:
 			kernel_code=cudaModules.batchUpdateADTemplate%{
-				'GAMMA':self.ADAGAMMA,
-				'EPSILON':self.EPSILON,
-				'NROWS':self.A.shape[0],
-				'NCOLS':self.A.shape[1]}
+				'GAMMA':ADAGAMMA,
+				'EPSILON':EPSILON,
+				'NROWS':m,
+				'NCOLS':n}
 			module=compiler.SourceModule(kernel_code)
 			self.batchUpdateKernel=module.get_function("batchUpdateADKernel")
 		else:
 			kernel_code=cudaModules.batchUpdateTemplate%{
-				'GAMMA':self.gamma,
-				'NROWS':self.A.shape[0],
-				'NCOLS':self.A.shape[1]}
+				'GAMMA':gamma,
+				'NROWS':m,
+				'NCOLS':n}
 			module=compiler.SourceModule(kernel_code)
 			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 
 		kernel_code=cudaModules.weightTemplate%{
-			'GAMMA':self.gamma,
-			'NROWS':self.A.shape[0],
-			'NCOLS':self.A.shape[1]}
+			'GAMMA':gamma,
+			'NROWS':m,
+			'NCOLS':n}
 		module=compiler.SourceModule(kernel_code)
 		self.weightKernel=module.get_function("weightKernel")
+class Layer:
+	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA=0.95,EPSILON=0.000001,adaDelta=True):
+		self.gamma=gamma
+
+		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
+		self.A.astype(np.float64)
+		self.dA=np.zeros_like(self.A)
+		self.out=np.array(m*[0]).astype(np.float64)
+		self.delta=np.zeros_like(self.out)
+		self.deriv=np.zeros_like(self.out)
+		self.mNext=mNext
+		self.nNext=nNext
+
+		self.ADAGAMMA=ADAGAMMA
+		self.EPSILON=EPSILON
+		self.adaDelta=adaDelta
+
+		if adaDelta==True:
+			self.grad2=np.zeros_like(self.A)
+			self.theta2=np.zeros_like(self.A)
+
+		self.initKernels()
+#		self.kernels=cudaKernels(m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta)
+
+	def initKernels(self):
+		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 
 	def hAlloc(self,x):
 		ret=drv.mem_alloc(x.nbytes)
@@ -87,7 +97,7 @@ class Layer:
 		gout=self.hAlloc(self.out)
 		gderiv=self.hAlloc(self.deriv)
 		gridY=int(math.ceil(float(self.A.shape[0])/float(TPB1D)))
-		self.forwardKernel(
+		self.kernels.forwardKernel(
 			gA,gx,gout,gderiv,
 			block=(1,TPB1D,1),
 			grid=(1,gridY))
@@ -126,10 +136,10 @@ class Layer:
 			'NROWS':A.shape[0],
 			'NCOLS':A.shape[1]}
 		module=compiler.SourceModule(kernel_code)
-		self.deltaKernel=module.get_function("deltaKernel")
+		self.kernels.deltaKernel=module.get_function("deltaKernel")
 
 		t1=np.zeros_like(self.delta)
-		self.deltaKernel(
+		self.kernels.deltaKernel(
 			drv.In(A),
 			drv.Out(t1),
 			drv.In(y),
@@ -167,7 +177,7 @@ class Layer:
 		gdelta=self.hAlloc(self.delta)
 		gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 		gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
-		self.batchAccumKernel(
+		self.kernels.batchAccumKernel(
 			gdA,
 			gx,
 			gdelta,
@@ -208,7 +218,7 @@ class Layer:
 			gtheta2=self.hAlloc(self.theta2)
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
-			self.batchUpdateKernel(
+			self.kernels.batchUpdateKernel(
 				gA,
 				gdA,
 				ggrad2,
@@ -226,7 +236,7 @@ class Layer:
 			gdA=self.hAlloc(self.dA)
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
-			self.batchUpdateKernel(
+			self.kernels.batchUpdateKernel(
 				gA,
 				gdA,
 				block=(TPB2D,TPB2D,1),
@@ -266,7 +276,7 @@ class Layer:
 		if GPU:
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
-			self.weightKernel(
+			self.kernels.weightKernel(
 				drv.InOut(self.A),
 				drv.In(x),
 				drv.In(self.delta),
@@ -340,9 +350,21 @@ class Network:
 			self.layer[i].batchUpdate()
 		return [output,error]
 	def save(self,filename):
-		from csvWrap import writeCSV
-		writeCSV(filename,[1,2,3,4])
-		
+		import pickle
+		for i in range(self.n):
+			self.layer[i].kernels=0
+		fp=open(filename,'w')
+		pickle.dump(self,fp)
+def loadNetwork(filename):
+	import pickle
+	try:
+		fp=open(filename,'r')
+	except:
+		print('failed to open '+filename)
+	net=pickle.load(fp)
+	for i in range(net.n):
+		net.layer[i].initKernels()
+	return net
 def printInfo(error,output,target):
 	print('error:'),
 	print(error)
