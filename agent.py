@@ -50,7 +50,7 @@ lowVec=env.observation_space.low
 env.seed(0)
 agent = RandomAgent(env.action_space)
 
-episode_count = 100
+episode_count = 10
 reward = 0
 done = False
 
@@ -98,8 +98,13 @@ for episode in range(episode_count):
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
-		obs, reward, done, _ = env.step(action)
-		memories.append(env.step(action)+(action,))
+		if(episode>5):
+			output=NN.predict(obs)
+			action=np.argmax(output)
+		#obs, reward, done, _ = env.step(action)
+		results = env.step(action)
+		obs,reward,done,_=results
+		memories.append(results+(action,))
 		rewardSum+=reward
 		stepSum+=1
 		if reward!=0:
@@ -109,10 +114,16 @@ for episode in range(episode_count):
 				#output is a numpy array.
 				output-=LEARNINGRATE*reward/2.0
 				output[memory[4]]+=LEARNINGRATE*reward
+				for i in range(len(output)):
+					if output[i]<-1:
+						output[i]=-1.0
+					elif output[i]>1:
+						output[i]=1.0
 				bOut.append(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
 			#if (epoch%PRINTFREQ==0):
-			if True:
+			#if True:
+			if False:
 				print('----------ep:'+str(episode))
 				for i in range(len(bInp)):
 					printInfo(error[i],output[i],bOut[i])
