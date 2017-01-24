@@ -98,13 +98,15 @@ for episode in range(episode_count):
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
+		memory=(obs,reward,done,_,action)
 		if(episode>5):
 			output=NN.predict(obs)
 			action=np.argmax(output)
 		#obs, reward, done, _ = env.step(action)
+		print('action='+str(action))
 		results = env.step(action)
 		obs,reward,done,_=results
-		memories.append(results+(action,))
+		memories.append(memory)
 		rewardSum+=reward
 		stepSum+=1
 		if reward!=0:
@@ -120,7 +122,11 @@ for episode in range(episode_count):
 					elif output[i]>1:
 						output[i]=1.0
 				bOut.append(output)
-			[output,error]=NN.batchTrain(bInp,bOut)
+			meanError=4
+			while meanError>1:
+				[output,error]=NN.batchTrain(bInp,bOut)
+				meanError=np.mean(np.fabs(error))
+				#print('meanError:'+str(meanError))
 			#if (epoch%PRINTFREQ==0):
 			#if True:
 			if False:
