@@ -63,9 +63,11 @@ for epoch in range(EPOCHS):
 		if (epoch%PRINTFREQ==0):
 			print('----------epoch:'+str(epoch))
 			printInfo(error,output,out[r])
-#for r in range(nExamples):
-#	[output,error]=NN.train(inp[r],out[r])
-#	printInfo(error,output,out[r])
+print('results:')
+for r in range(nExamples):
+	output=NN.predict(inp[r])
+	error=out[r]-output
+	printInfo(error,output,out[r])
 tf=time.clock()
 print('elapsed time: '+str(tf-t0)+'s')
 x=raw_input('save network?  (y/[n])')

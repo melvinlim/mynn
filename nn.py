@@ -301,6 +301,12 @@ class Network:
 		for i in range(self.n-1):
 			self.layer.append(Layer(outputdims[i],inputdims[i],outputdims[i+1],inputdims[i+1],gamma))
 		self.layer.append(Layer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+	def predict(self,theInput):
+		tmp=theInput
+		for i in range(self.n):
+			tmp=self.layer[i].insert(tmp)
+		output=deepcopy(tmp)
+		return output
 	def train(self,theInput,target):
 		tmp=theInput
 		for i in range(self.n):
