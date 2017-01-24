@@ -27,13 +27,13 @@ print('choose env:')
 try:
 	x=int(raw_input())
 except:
-	print('input error.  setting environment 0.'
+	print('input error.  setting environment 0.')
 	x=0
 print('loading '+envs[x])
 env_id=envs[x]
 env = gym.make(env_id)
 
-task='gym'+str(x)+'.csv'
+task='gym'+str(x)
 
 print('env.action_space:'),
 print(env.action_space)
@@ -68,8 +68,6 @@ EPOCHS=100
 GAMMA=0.005
 PRINTFREQ=BATCHSIZE
 
-nExamples=len(inp)
-
 np.set_printoptions(precision=4)
 
 NN=nn.Network(LAYERDIM,GAMMA)
@@ -82,37 +80,45 @@ try:
 		NN=nn.loadNetwork(filename)
 except:
 	x=raw_input(filename+' not found.  start?  ([y]/n)')
-	if(x=='' or x=='n'):
+	if(x=='n'):
 		exit()
 t0=time.clock()
 
-for i in range(episode_count):
+LEARNINGRATE=(0.1)
+
+for episode in range(episode_count):
 	obs = env.reset()
 	rewardSum=0
 	stepSum=0
 	bInp=[]
 	bOut=[]
-	memory=[]
+	memories=[]
 	while True:
 		if RENDER:
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
 		obs, reward, done, _ = env.step(action)
-		memory.append(env.step(action))
+		memories.append(env.step(action)+(action,))
 		rewardSum+=reward
 		stepSum+=1
 		if reward!=0:
-			for i in memory:
-				bInp.append(i[0])
+			for memory in memories:
+				bInp.append(memory[0])
+				output=NN.predict(memory[0])
+				#output is a numpy array.
+				output-=LEARNINGRATE*reward/2.0
+				output[memory[4]]+=LEARNINGRATE*reward
+				bOut.append(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
-			if (epoch%PRINTFREQ==0):
-				print('----------epoch:'+str(epoch))
-				for i in range(BATCHSIZE):
+			#if (epoch%PRINTFREQ==0):
+			if True:
+				print('----------ep:'+str(episode))
+				for i in range(len(bInp)):
 					printInfo(error[i],output[i],bOut[i])
 		if done:
 			if(VERBOSE):
-				print('ep:'+str(i)+',total steps:'+str(stepSum)+',total reward:'+str(rewardSum))
+				print('ep:'+str(episode)+',total steps:'+str(stepSum)+',total reward:'+str(rewardSum))
 			break
 
 env.close()

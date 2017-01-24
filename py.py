@@ -41,7 +41,7 @@ try:
 		NN=nn.loadNetwork(filename)
 except:
 	x=raw_input(filename+' not found.  start?  ([y]/n)')
-	if(x=='' or x=='n'):
+	if(x=='n'):
 		exit()
 t0=time.clock()
 for epoch in range(EPOCHS):
