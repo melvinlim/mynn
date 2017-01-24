@@ -39,16 +39,23 @@ done = False
 RENDER=True
 RENDER=False
 RENDERTIMESTEP=0.1
+VERBOSE=True
 
 for i in range(episode_count):
 	obs = env.reset()
+	rewardSum=0
+	stepSum=0
 	while True:
 		if RENDER:
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
 		obs, reward, done, _ = env.step(action)
+		rewardSum+=reward
+		stepSum+=1
 		if done:
+			if(VERBOSE):
+				print('ep:'+str(i)+',total steps:'+str(stepSum)+',total reward:'+str(rewardSum))
 			break
 
 env.close()
