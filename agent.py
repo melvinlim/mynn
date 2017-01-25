@@ -110,18 +110,20 @@ for episode in range(episode_count):
 		memories.append(memory)
 		rewardSum+=reward
 		stepSum+=1
-		if reward!=0:
+		if done:
+			futureRew=reward
 			for i in range(len(memories)-1,-1,-1):
 				mem=memories[i]
 				act=mem[4]
+				rew=mem[1]
 				ob=mem[0]
 				output=NN.predict(ob)
-				change=(1-ALPHA)*output[act]+ALPHA*(reward+GAMMA*output[act])
+				change=(1-ALPHA)*output[act]+ALPHA*(rew+GAMMA*futureRew)
 				if np.fabs(change-output[act])>0.1:
 					bInp.append(ob)
 					output[act]+=change
 					bOut.append(output)
-				reward=np.argmax(output)
+				futureRew=np.argmax(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
 #			meanError=4
 #			while meanError>1:
