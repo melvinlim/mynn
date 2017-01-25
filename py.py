@@ -10,7 +10,8 @@ import extract
 from nn import printInfo
 from generate import *
 
-task='xor'
+#task='xor'
+task='linearxor'
 #task='csv'
 #task='mnist'
 [inp,out]=generate(task)

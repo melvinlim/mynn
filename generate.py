@@ -19,6 +19,21 @@ def generate(target='xor'):
 
 		return [inp,out]
 
+	elif target=='linearxor':
+		inp1=np.array([-1,-1]).astype(np.float64)
+		inp2=np.array([-1,+1]).astype(np.float64)
+		inp3=np.array([+1,-1]).astype(np.float64)
+		inp4=np.array([+1,+1]).astype(np.float64)
+		inp=[inp1,inp2,inp3,inp4]
+
+		out1=np.array([-2,-2]).astype(np.float64)
+		out2=np.array([-1.5,+1.5]).astype(np.float64)
+		out3=np.array([+1.5,-1.5]).astype(np.float64)
+		out4=np.array([+2,+2]).astype(np.float64)
+		out=[out1,out2,out3,out4]
+
+		return [inp,out]
+
 	elif target=='csv':
 		#NEXAMPLES=30
 		NEXAMPLES=4

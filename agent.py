@@ -124,6 +124,10 @@ for episode in range(episode_count):
 					output[act]+=change
 					bOut.append(output)
 				futureRew=np.argmax(output)
+				#if(np.argmax(output)>0.99):
+				#	print(np.argmax(output))
+				#if(np.argmin(output)<-0.99):
+				#	print(np.argmin(output))
 			[output,error]=NN.batchTrain(bInp,bOut)
 #			meanError=4
 #			while meanError>1:

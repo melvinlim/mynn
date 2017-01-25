@@ -11,7 +11,7 @@ import math
 from copy import *
 TESTGPU=False
 TOL=0.01
-GPU=True
+GPU=False
 TPB1D=512
 TPB2D=32
 class cudaKernels:
@@ -300,7 +300,8 @@ class Network:
 		outputdims.append(noutputs)
 		for i in range(self.n-1):
 			self.layer.append(Layer(outputdims[i],inputdims[i],outputdims[i+1],inputdims[i+1],gamma))
-		self.layer.append(Layer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+		#self.layer.append(Layer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+		self.layer.append(LinearLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
 	def predict(self,theInput):
 		tmp=theInput
 		for i in range(self.n):
@@ -361,6 +362,13 @@ class Network:
 			self.layer[i].kernels=0
 		fp=open(filename,'w')
 		pickle.dump(self,fp)
+class LinearLayer(Layer):
+	def forwardGPU(self,x):
+		raise NotImplementedError('unimplemented.')
+	def forwardCPU(self,x):
+		out=np.dot(self.A,x)
+		deriv=1.0
+		return [out,deriv]
 def loadNetwork(filename):
 	import pickle
 	try:
