@@ -83,7 +83,8 @@ except:
 	if(x=='n'):
 		exit()
 t0=time.clock()
-
+ALPHA=0.2
+GAMMA=0.5
 LEARNINGRATE=(0.1)
 info=0
 for episode in range(episode_count):
@@ -115,11 +116,10 @@ for episode in range(episode_count):
 				act=mem[4]
 				ob=mem[0]
 				output=NN.predict(ob)
-				reward=reward*0.9
-				target=reward
-				if np.fabs(target-output[act])>0.1:
+				change=(1-ALPHA)*output[act]+ALPHA*(reward+GAMMA*output[act])
+				if np.fabs(change-output[act])>0.1:
 					bInp.append(ob)
-					output[act]=target
+					output[act]+=change
 					bOut.append(output)
 				reward=np.argmax(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
