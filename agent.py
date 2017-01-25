@@ -119,8 +119,9 @@ for episode in range(episode_count):
 				target=reward
 				if np.fabs(target-output[act])>0.1:
 					bInp.append(ob)
-					output[act]+=LEARNINGRATE*reward
+					output[act]=target
 					bOut.append(output)
+				reward=np.argmax(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
 #			meanError=4
 #			while meanError>1:
