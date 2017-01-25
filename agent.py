@@ -85,7 +85,7 @@ except:
 t0=time.clock()
 
 LEARNINGRATE=(0.1)
-
+info=0
 for episode in range(episode_count):
 	obs = env.reset()
 	rewardSum=0
@@ -98,14 +98,14 @@ for episode in range(episode_count):
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
-		memory=(obs,reward,done,_,action)
+		memory=(obs,reward,done,info,action)
 		if(episode>5):
 			output=NN.predict(obs)
 			action=np.argmax(output)
 		#obs, reward, done, _ = env.step(action)
 		print('action='+str(action))
 		results = env.step(action)
-		obs,reward,done,_=results
+		obs,reward,done,info=results
 		memories.append(memory)
 		rewardSum+=reward
 		stepSum+=1
