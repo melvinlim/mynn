@@ -111,15 +111,15 @@ for episode in range(episode_count):
 		stepSum+=1
 		if reward!=0:
 			for i in range(len(memories)-1,-1,-1):
-				memory=memories[i]
-				action=memory[4]
-				obs=memory[0]
-				output=NN.predict(obs)
+				mem=memories[i]
+				act=mem[4]
+				ob=mem[0]
+				output=NN.predict(ob)
 				reward=reward*0.9
 				target=reward
-				if np.fabs(target-output[action])>0.1:
-					bInp.append(obs)
-					output[action]+=LEARNINGRATE*reward
+				if np.fabs(target-output[act])>0.1:
+					bInp.append(ob)
+					output[act]+=LEARNINGRATE*reward
 					bOut.append(output)
 			[output,error]=NN.batchTrain(bInp,bOut)
 #			meanError=4
