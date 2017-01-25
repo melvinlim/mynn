@@ -110,22 +110,20 @@ for episode in range(episode_count):
 		rewardSum+=reward
 		stepSum+=1
 		if reward!=0:
-			for memory in memories:
-				bInp.append(memory[0])
+			for i in range(len(memories)-1,-1,-1):
+				memory=memories[i]
 				output=NN.predict(memory[0])
-				#output is a numpy array.
-				output-=LEARNINGRATE*reward/2.0
-				output[memory[4]]+=LEARNINGRATE*reward
-				for i in range(len(output)):
-					if output[i]<-1:
-						output[i]=-1.0
-					elif output[i]>1:
-						output[i]=1.0
-				bOut.append(output)
-			meanError=4
-			while meanError>1:
-				[output,error]=NN.batchTrain(bInp,bOut)
-				meanError=np.mean(np.fabs(error))
+				reward=reward*0.9
+				target=reward
+				if np.fabs(target-output[memory[4]])>0.1:
+					bInp.append(memory[0])
+					output[memory[4]]+=LEARNINGRATE*reward
+					bOut.append(output)
+			[output,error]=NN.batchTrain(bInp,bOut)
+#			meanError=4
+#			while meanError>1:
+#				[output,error]=NN.batchTrain(bInp,bOut)
+#				meanError=np.mean(np.fabs(error))
 				#print('meanError:'+str(meanError))
 			#if (epoch%PRINTFREQ==0):
 			#if True:
