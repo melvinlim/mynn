@@ -16,6 +16,23 @@ __global__ void forwardKernel(const double *A,const double *x,double *y,double *
 	}
 }
 """
+linearForwardTemplate="""
+__global__ void forwardKernel(const double *A,const double *x,double *y,double *deriv){
+	int i;
+	double Cval=0;
+	//int row = blockIdx.y * blockDim.y + threadIdx.y;
+	//int col = blockIdx.x * blockDim.x + threadIdx.x;
+	const int row = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if(row<%(NROWS)s){
+		for(i=0;i<%(NCOLS)s;i++){
+			Cval+=A[row*%(NCOLS)s+i]*x[i];
+		}
+		y[row]=Cval;
+		deriv[row]=1.0;
+	}
+}
+"""
 deltaTemplate="""
 __global__ void deltaKernel(const double *A,double *delta,const double *y,const double *deriv){
 	int i;

@@ -9,9 +9,9 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=False
+TESTGPU=True
 TOL=0.01
-GPU=False
+GPU=True
 TPB1D=512
 TPB2D=32
 class cudaKernels:
@@ -362,12 +362,31 @@ class Network:
 			self.layer[i].kernels=0
 		fp=open(filename,'w')
 		pickle.dump(self,fp)
-class LinearLayer(Layer):
-	def forwardGPU(self,x):
-		raise NotImplementedError('unimplemented.')
+class LinearLayer(Layer,object):
+	def __init__(self,*args,**kwargs):
+		super(LinearLayer,self).__init__(*args,**kwargs)
+		m=self.A.shape[0]
+		n=self.A.shape[1]
+		kernel_code=cudaModules.linearForwardTemplate%{
+			'NROWS':m,
+			'NCOLS':n}
+		module=compiler.SourceModule(kernel_code)
+		self.kernels.forwardKernel=module.get_function("forwardKernel")
+	def initKernels(self,*args,**kwargs):
+		super(LinearLayer,self).initKernels(*args,**kwargs)
+		m=self.A.shape[0]
+		n=self.A.shape[1]
+		kernel_code=cudaModules.linearForwardTemplate%{
+			'NROWS':m,
+			'NCOLS':n}
+		module=compiler.SourceModule(kernel_code)
+		self.kernels.forwardKernel=module.get_function("forwardKernel")
+	#def forwardGPU(self,x):
+		#raise NotImplementedError('unimplemented.')
 	def forwardCPU(self,x):
 		out=np.dot(self.A,x)
-		deriv=1.0
+		deriv=np.ones_like(out)
+		#deriv=1.0
 		return [out,deriv]
 def loadNetwork(filename):
 	import pickle
