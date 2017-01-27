@@ -9,7 +9,7 @@ import pycuda.compiler as compiler
 from pycuda.autoinit import context
 import math
 from copy import *
-TESTGPU=True
+TESTGPU=False
 TOL=0.01
 GPU=True
 TPB1D=512
@@ -64,7 +64,7 @@ class cudaKernels:
 			self.weightKernel=module.get_function("weightKernel")
 class Layer:
 	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA=0.95,EPSILON=0.000001,adaDelta=True):
-		adaDelta=False
+#		adaDelta=False
 		self.gamma=gamma
 
 		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
@@ -251,31 +251,43 @@ class Layer:
 			ret.append(ans)
 		return ret
 	def batchUpdateCPU(self):
+		ret=[]
 		ans=np.zeros_like(self.A)
 		if self.adaDelta:
+			g2=np.zeros_like(self.grad2)
+			t2=np.zeros_like(self.theta2)
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.grad2[i][j]=self.ADAGAMMA*self.grad2[i][j]+(1-self.ADAGAMMA)*(self.dA[i][j]**2)
-					theta=(-1)*np.sqrt(self.theta2[i][j]+self.EPSILON)/(np.sqrt(self.grad2[i][j]+self.EPSILON))*self.dA[i][j]
-					self.theta2[i][j]=self.ADAGAMMA*self.theta2[i][j]+(1-self.ADAGAMMA)*(theta**2)
+					g2[i][j]=self.ADAGAMMA*self.grad2[i][j]+(1-self.ADAGAMMA)*(self.dA[i][j]**2)
+					theta=(-1)*np.sqrt(self.theta2[i][j]+self.EPSILON)/(np.sqrt(g2[i][j]+self.EPSILON))*self.dA[i][j]
+					#theta=(-1)*np.sqrt(self.theta2[i][j]+self.EPSILON)/(np.sqrt(self.grad2[i][j]+self.EPSILON))*self.dA[i][j]
+					t2[i][j]=self.ADAGAMMA*self.theta2[i][j]+(1-self.ADAGAMMA)*(theta**2)
 					ans[i][j] = self.A[i][j] + theta
+			ret.append(ans)
+			ret.append(g2)
+			ret.append(t2)
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
 					ans[i][j] = self.A[i][j] - self.gamma*self.dA[i][j]
-		return ans
+			ret.append(ans)
+			ret.append(ans)
+			ret.append(ans)
+		return ret
 	def batchUpdate(self):
 		if TESTGPU:
-			[t1,a,b]=self.batchUpdateGPU()
-			t2=self.batchUpdateCPU()
+			[t1,a1,b1]=self.batchUpdateGPU()
+			[t2,a2,b2]=self.batchUpdateCPU()
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
 					assert np.fabs(t1[i][j]-t2[i][j])<TOL
 			self.A=t1
+			self.grad2=a1
+			self.theta2=b1
 		elif GPU:
-			[self.A,a,b]=self.batchUpdateGPU()
+			[self.A,self.grad2,self.theta2]=self.batchUpdateGPU()
 		else:
-			self.A=self.batchUpdateCPU()
+			[self.A,self.grad2,self.theta2]=self.batchUpdateCPU()
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
 	def updateGPU(self,x):

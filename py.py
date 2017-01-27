@@ -19,7 +19,7 @@ task='linearxor'
 INPUTS=len(inp[0])
 OUTPUTS=len(out[0])
 
-BATCHSIZE=1
+BATCHSIZE=10
 #raise Exception
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
