@@ -17,11 +17,11 @@ TPB2D=32
 class cudaKernels:
 	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta):
 
-		kernel_code=cudaModules.forwardTemplate%{
-			'NROWS':m,
-			'NCOLS':n}
-		module=compiler.SourceModule(kernel_code)
-		self.forwardKernel=module.get_function("forwardKernel")
+#		kernel_code=cudaModules.forwardTemplate%{
+#			'NROWS':m,
+#			'NCOLS':n}
+#		module=compiler.SourceModule(kernel_code)
+#		self.forwardKernel=module.get_function("forwardKernel")
 
 		if nNext>0:
 			kernel_code=cudaModules.deltaTemplate%{
@@ -80,11 +80,13 @@ class Layer:
 			self.grad2=np.zeros_like(self.A)
 			self.theta2=np.zeros_like(self.A)
 
+		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 		self.initKernels()
 #		self.kernels=cudaKernels(m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta)
 
 	def initKernels(self):
-		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
+		raise NotImplementedError('unimplemented.')
+		#self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 
 	def hAlloc(self,x):
 		ret=drv.mem_alloc(x.nbytes)
@@ -299,8 +301,8 @@ class Network:
 			inputdims.append(i)
 		outputdims.append(noutputs)
 		for i in range(self.n-1):
-			self.layer.append(Layer(outputdims[i],inputdims[i],outputdims[i+1],inputdims[i+1],gamma))
-		#self.layer.append(Layer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+			self.layer.append(tanhLayer(outputdims[i],inputdims[i],outputdims[i+1],inputdims[i+1],gamma))
+		#self.layer.append(tanhLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
 		self.layer.append(LinearLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
 	def predict(self,theInput):
 		tmp=theInput
@@ -362,18 +364,29 @@ class Network:
 			self.layer[i].kernels=0
 		fp=open(filename,'w')
 		pickle.dump(self,fp)
-class LinearLayer(Layer,object):
-	def __init__(self,*args,**kwargs):
-		super(LinearLayer,self).__init__(*args,**kwargs)
+class tanhLayer(Layer,object):
+	def initKernels(self,*args,**kwargs):
+		#super(tanhLayer,self).initKernels(*args,**kwargs)
 		m=self.A.shape[0]
 		n=self.A.shape[1]
-		kernel_code=cudaModules.linearForwardTemplate%{
+		kernel_code=cudaModules.forwardTemplate%{
 			'NROWS':m,
 			'NCOLS':n}
 		module=compiler.SourceModule(kernel_code)
 		self.kernels.forwardKernel=module.get_function("forwardKernel")
+	#def forwardGPU(self,x):
+class LinearLayer(Layer,object):
+#	def __init__(self,*args,**kwargs):
+#		super(LinearLayer,self).__init__(*args,**kwargs)
+#		m=self.A.shape[0]
+#		n=self.A.shape[1]
+#		kernel_code=cudaModules.linearForwardTemplate%{
+#			'NROWS':m,
+#			'NCOLS':n}
+#		module=compiler.SourceModule(kernel_code)
+#		self.kernels.forwardKernel=module.get_function("forwardKernel")
 	def initKernels(self,*args,**kwargs):
-		super(LinearLayer,self).initKernels(*args,**kwargs)
+		#super(LinearLayer,self).initKernels(*args,**kwargs)
 		m=self.A.shape[0]
 		n=self.A.shape[1]
 		kernel_code=cudaModules.linearForwardTemplate%{
