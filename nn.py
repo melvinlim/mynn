@@ -80,12 +80,12 @@ class Layer:
 			self.grad2=np.zeros_like(self.A)
 			self.theta2=np.zeros_like(self.A)
 
-		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 		self.initKernels()
 #		self.kernels=cudaKernels(m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta)
 
 	def initKernels(self):
-		raise NotImplementedError('unimplemented.')
+		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
+		#raise NotImplementedError('unimplemented.')
 		#self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 
 	def hAlloc(self,x):
@@ -366,7 +366,7 @@ class Network:
 		pickle.dump(self,fp)
 class tanhLayer(Layer,object):
 	def initKernels(self,*args,**kwargs):
-		#super(tanhLayer,self).initKernels(*args,**kwargs)
+		super(tanhLayer,self).initKernels(*args,**kwargs)
 		m=self.A.shape[0]
 		n=self.A.shape[1]
 		kernel_code=cudaModules.forwardTemplate%{
@@ -386,7 +386,7 @@ class LinearLayer(Layer,object):
 #		module=compiler.SourceModule(kernel_code)
 #		self.kernels.forwardKernel=module.get_function("forwardKernel")
 	def initKernels(self,*args,**kwargs):
-		#super(LinearLayer,self).initKernels(*args,**kwargs)
+		super(LinearLayer,self).initKernels(*args,**kwargs)
 		m=self.A.shape[0]
 		n=self.A.shape[1]
 		kernel_code=cudaModules.linearForwardTemplate%{
@@ -409,7 +409,11 @@ def loadNetwork(filename):
 		print('failed to open '+filename)
 	net=pickle.load(fp)
 	for i in range(net.n):
-		net.layer[i].initKernels()
+		try:
+			net.layer[i].initKernels()
+		except:
+			print('failed to load network.')
+			raise Exception('failed')
 	return net
 def printInfo(error,output,target):
 	print('error:'),
