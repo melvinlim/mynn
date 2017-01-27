@@ -64,6 +64,7 @@ class cudaKernels:
 			self.weightKernel=module.get_function("weightKernel")
 class Layer:
 	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA=0.95,EPSILON=0.000001,adaDelta=True):
+		adaDelta=False
 		self.gamma=gamma
 
 		self.A=np.random.randint(-10000,10000,(m,n))/100000.0
@@ -212,13 +213,13 @@ class Layer:
 	def batchUpdateGPU(self):
 		ret=[]
 		ans=np.zeros_like(self.A)
-		g2=np.zeros_like(self.grad2)
-		t2=np.zeros_like(self.theta2)
 		if self.adaDelta:
 			gA=self.hAlloc(self.A)
 			gdA=self.hAlloc(self.dA)
 			ggrad2=self.hAlloc(self.grad2)
 			gtheta2=self.hAlloc(self.theta2)
+			g2=np.zeros_like(self.grad2)
+			t2=np.zeros_like(self.theta2)
 			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
 			self.kernels.batchUpdateKernel(
@@ -246,6 +247,8 @@ class Layer:
 				grid=(gridX,gridY))
 			drv.memcpy_dtoh(ans,gA)
 			ret.append(ans)
+			ret.append(ans)
+			ret.append(ans)
 		return ret
 	def batchUpdateCPU(self):
 		ans=np.zeros_like(self.A)
@@ -263,14 +266,14 @@ class Layer:
 		return ans
 	def batchUpdate(self):
 		if TESTGPU:
-			[t1,x,y]=self.batchUpdateGPU()
+			[t1,a,b]=self.batchUpdateGPU()
 			t2=self.batchUpdateCPU()
 			for i in range(self.dA.shape[0]):
 				for j in range(self.dA.shape[1]):
 					assert np.fabs(t1[i][j]-t2[i][j])<TOL
 			self.A=t1
 		elif GPU:
-			[self.A,x,y]=self.batchUpdateGPU()
+			[self.A,a,b]=self.batchUpdateGPU()
 		else:
 			self.A=self.batchUpdateCPU()
 	def batchInit(self):
@@ -278,9 +281,9 @@ class Layer:
 	def updateGPU(self,x):
 		ret=[]
 		ans=np.zeros_like(self.A)
-		g2=np.zeros_like(self.grad2)
-		t2=np.zeros_like(self.theta2)
 		if self.adaDelta:
+			g2=np.zeros_like(self.grad2)
+			t2=np.zeros_like(self.theta2)
 			gA=self.hAlloc(self.A)
 			gx=self.hAlloc(x)
 			gdelta=self.hAlloc(self.delta)
@@ -315,6 +318,8 @@ class Layer:
 				block=(TPB2D,TPB2D,1),
 				grid=(gridX,gridY))
 			drv.memcpy_dtoh(ans,gA)
+			ret.append(ans)
+			ret.append(ans)
 			ret.append(ans)
 		return ret
 	def updateCPU(self,x):
