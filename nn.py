@@ -17,12 +17,6 @@ TPB2D=32
 class cudaKernels:
 	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta):
 
-#		kernel_code=cudaModules.forwardTemplate%{
-#			'NROWS':m,
-#			'NCOLS':n}
-#		module=compiler.SourceModule(kernel_code)
-#		self.forwardKernel=module.get_function("forwardKernel")
-
 		if nNext>0:
 			kernel_code=cudaModules.deltaTemplate%{
 				'NROWS':mNext,
@@ -81,12 +75,10 @@ class Layer:
 			self.theta2=np.zeros_like(self.A)
 
 		self.initKernels()
-#		self.kernels=cudaKernels(m,n,mNext,nNext,gamma,ADAGAMMA,EPSILON,adaDelta)
 
 	def initKernels(self):
 		self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 		#raise NotImplementedError('unimplemented.')
-		#self.kernels=cudaKernels(self.A.shape[0],self.A.shape[1],self.mNext,self.nNext,self.gamma,self.ADAGAMMA,self.EPSILON,self.adaDelta)
 
 	def hAlloc(self,x):
 		ret=drv.mem_alloc(x.nbytes)
@@ -374,17 +366,7 @@ class tanhLayer(Layer,object):
 			'NCOLS':n}
 		module=compiler.SourceModule(kernel_code)
 		self.kernels.forwardKernel=module.get_function("forwardKernel")
-	#def forwardGPU(self,x):
 class LinearLayer(Layer,object):
-#	def __init__(self,*args,**kwargs):
-#		super(LinearLayer,self).__init__(*args,**kwargs)
-#		m=self.A.shape[0]
-#		n=self.A.shape[1]
-#		kernel_code=cudaModules.linearForwardTemplate%{
-#			'NROWS':m,
-#			'NCOLS':n}
-#		module=compiler.SourceModule(kernel_code)
-#		self.kernels.forwardKernel=module.get_function("forwardKernel")
 	def initKernels(self,*args,**kwargs):
 		super(LinearLayer,self).initKernels(*args,**kwargs)
 		m=self.A.shape[0]
