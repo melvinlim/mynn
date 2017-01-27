@@ -39,6 +39,15 @@ class cudaKernels:
 				'NCOLS':n}
 			module=compiler.SourceModule(kernel_code)
 			self.batchUpdateKernel=module.get_function("batchUpdateADKernel")
+
+			kernel_code=cudaModules.weightADTemplate%{
+				'GAMMA':ADAGAMMA,
+				'EPSILON':EPSILON,
+				'NROWS':m,
+				'NCOLS':n}
+			module=compiler.SourceModule(kernel_code)
+			self.weightKernel=module.get_function("weightKernel")
+
 		else:
 			kernel_code=cudaModules.batchUpdateTemplate%{
 				'GAMMA':gamma,
@@ -47,12 +56,12 @@ class cudaKernels:
 			module=compiler.SourceModule(kernel_code)
 			self.batchUpdateKernel=module.get_function("batchUpdateKernel")
 
-		kernel_code=cudaModules.weightTemplate%{
-			'GAMMA':gamma,
-			'NROWS':m,
-			'NCOLS':n}
-		module=compiler.SourceModule(kernel_code)
-		self.weightKernel=module.get_function("weightKernel")
+			kernel_code=cudaModules.weightTemplate%{
+				'GAMMA':gamma,
+				'NROWS':m,
+				'NCOLS':n}
+			module=compiler.SourceModule(kernel_code)
+			self.weightKernel=module.get_function("weightKernel")
 class Layer:
 	def __init__(self,m,n,mNext,nNext,gamma,ADAGAMMA=0.95,EPSILON=0.000001,adaDelta=True):
 		self.gamma=gamma
@@ -266,20 +275,74 @@ class Layer:
 			self.A=self.batchUpdateCPU()
 	def batchInit(self):
 		self.dA=np.zeros_like(self.A)
-	def updateWeights(self,x):
-		if GPU:
+	def updateGPU(self,x):
+		ret=[]
+		ans=np.zeros_like(self.A)
+		g2=np.zeros_like(self.grad2)
+		t2=np.zeros_like(self.theta2)
+		if self.adaDelta:
+			gA=self.hAlloc(self.A)
+			gx=self.hAlloc(x)
+			gdelta=self.hAlloc(self.delta)
+			ggrad2=self.hAlloc(self.grad2)
+			gtheta2=self.hAlloc(self.theta2)
 			gridX=int(math.ceil(float(self.A.shape[1])/float(TPB2D)))
 			gridY=int(math.ceil(float(self.A.shape[0])/float(TPB2D)))
 			self.kernels.weightKernel(
-				drv.InOut(self.A),
-				drv.In(x),
-				drv.In(self.delta),
+				gA,
+				gx,
+				gdelta,
+				ggrad2,
+				gtheta2,
 				block=(TPB2D,TPB2D,1),
 				grid=(gridX,gridY))
+			drv.memcpy_dtoh(ans,gA)
+			drv.memcpy_dtoh(g2,ggrad2)
+			drv.memcpy_dtoh(t2,gtheta2)
+			ret.append(ans)
+			ret.append(g2)
+			ret.append(t2)
+		else:
+			gA=self.hAlloc(self.A)
+			gx=self.hAlloc(x)
+			gdelta=self.hAlloc(self.delta)
+			gridX=int(math.ceil(float(self.dA.shape[1])/float(TPB2D)))
+			gridY=int(math.ceil(float(self.dA.shape[0])/float(TPB2D)))
+			self.kernels.weightKernel(
+				gA,
+				gx,
+				gdelta,
+				block=(TPB2D,TPB2D,1),
+				grid=(gridX,gridY))
+			drv.memcpy_dtoh(ans,gA)
+			ret.append(ans)
+		return ret
+	def updateCPU(self,x):
+		ans=np.zeros_like(self.A)
+		if self.adaDelta:
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					self.grad2[i][j]=self.ADAGAMMA*self.grad2[i][j]+(1-self.ADAGAMMA)*((self.delta[i]*x[j])**2)
+					theta=(-1)*np.sqrt(self.theta2[i][j]+self.EPSILON)/(np.sqrt(self.grad2[i][j]+self.EPSILON))*(self.delta[i]*x[j])
+					self.theta2[i][j]=self.ADAGAMMA*self.theta2[i][j]+(1-self.ADAGAMMA)*(theta**2)
+					ans[i][j] = self.A[i][j] + theta
 		else:
 			for i in range(self.A.shape[0]):
 				for j in range(self.A.shape[1]):
-					self.A[i][j] -= self.gamma*self.delta[i]*x[j]
+					ans[i][j] = self.A[i][j] - self.gamma*self.delta[i]*x[j]
+		return ans
+	def updateWeights(self,x):
+		if TESTGPU:
+			[t1,a,b]=self.updateGPU(x)
+			t2=self.updateCPU(x)
+			for i in range(self.A.shape[0]):
+				for j in range(self.A.shape[1]):
+					assert np.fabs(t1[i][j]-t2[i][j])<TOL
+			self.A=t1
+		elif GPU:
+			[self.A,a,b]=self.updateGPU(x)
+		else:
+			self.A=self.updateCPU(x)
 class Network:
 	def __init__(self,layerdims,gamma):
 		self.layer=[]
