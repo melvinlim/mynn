@@ -390,8 +390,8 @@ class Network:
 		outputdims.append(noutputs)
 		for i in range(self.n-1):
 			self.layer.append(tanhLayer(outputdims[i],inputdims[i],outputdims[i+1],inputdims[i+1],gamma))
-		self.layer.append(tanhLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
-		#self.layer.append(LinearLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+		#self.layer.append(tanhLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
+		self.layer.append(LinearLayer(outputdims[self.n-1],inputdims[self.n-1],0,0,gamma))
 	def predict(self,theInput):
 		tmp=theInput
 		for i in range(self.n):
