@@ -59,14 +59,10 @@ RENDER=False
 RENDERTIMESTEP=0.1
 VERBOSE=True
 
-BATCHSIZE=10
-#raise Exception
 #LAYERDIM=[2,1025,2]
 #LAYERDIM=[2,500,10,2]
 LAYERDIM=[INPUTS,500,OUTPUTS]
-EPOCHS=100
 GAMMA=0.005
-PRINTFREQ=BATCHSIZE
 
 np.set_printoptions(precision=4)
 
@@ -134,8 +130,6 @@ for episode in range(episode_count):
 #				[output,error]=NN.batchTrain(bInp,bOut)
 #				meanError=np.mean(np.fabs(error))
 				#print('meanError:'+str(meanError))
-			#if (epoch%PRINTFREQ==0):
-			#if True:
 			if False:
 				print('----------ep:'+str(episode))
 				for i in range(len(bInp)):
