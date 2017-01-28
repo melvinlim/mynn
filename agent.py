@@ -99,8 +99,7 @@ for episode in range(episode_count):
 			output=NN.predict(obs)
 			action=np.argmax(output)
 		memory=(obs,reward,done,info,action)
-		#obs, reward, done, _ = env.step(action)
-		print('action='+str(action))
+		#print('action='+str(action))
 		results = env.step(action)
 		obs,reward,done,info=results
 		memories.append(memory)
@@ -121,9 +120,9 @@ for episode in range(episode_count):
 					bOut.append(output)
 				futureRew=np.argmax(output)
 				#if(np.argmax(output)>0.99):
-				#	print(np.argmax(output))
+				#	print((output))
 				#if(np.argmin(output)<-0.99):
-				#	print(np.argmin(output))
+				#	print((output))
 			[output,error]=NN.batchTrain(bInp,bOut)
 #			meanError=4
 #			while meanError>1:
