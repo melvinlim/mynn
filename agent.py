@@ -95,10 +95,10 @@ for episode in range(episode_count):
 			env.render()
 			time.sleep(RENDERTIMESTEP)
 		action = agent.act(obs, reward, done)
-		memory=(obs,reward,done,info,action)
 		if(episode>5):
 			output=NN.predict(obs)
 			action=np.argmax(output)
+		memory=(obs,reward,done,info,action)
 		#obs, reward, done, _ = env.step(action)
 		print('action='+str(action))
 		results = env.step(action)
