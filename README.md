@@ -1,7 +1,7 @@
 # mynn
-simple nn to help me learn cuda
+Basic Neural Network library implemented in Python and CUDA.
 ## Information
-attempted to implement basic neural network library using Python and CUDA.  appeared to solve pole balancing problem.  definitely solved XOR problem.
+Attempted to implement basic neural network library using Python and CUDA.  Appeared to solve pole balancing problem.  Definitely solved XOR problem.
 ## Usage
 1. install CUDA
 2. install OpenAI Gym
