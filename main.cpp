@@ -11,8 +11,6 @@
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
-//const int mDim[LAYERS]={L1M,L2M,L3M};
-//const int nDim[LAYERS]={L1N,L2N,L3N};
 
 const double ex1[NINPUTS]={-1,-1};
 const double ex2[NINPUTS]={-1,+1};
@@ -22,10 +20,6 @@ const double ans1[NOUTPUTS]={-1,+1};
 const double ans2[NOUTPUTS]={+1,-1};
 const double ans3[NOUTPUTS]={+1,-1};
 const double ans4[NOUTPUTS]={-1,+1};
-//const double ans1[NOUTPUTS]={-1,+1};
-//const double ans2[NOUTPUTS]={+1,-1};
-//const double ans3[NOUTPUTS]={+1,-1};
-//const double ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
 	Net *net=new Net(LAYERS);
