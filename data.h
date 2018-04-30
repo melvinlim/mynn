@@ -4,6 +4,7 @@
 #include<time.h>
 #include<assert.h>
 #include<fcntl.h>
+#include<unistd.h>
 #include<sys/mman.h>
 
 const double ex1[NINPUTS]={-1,-1};

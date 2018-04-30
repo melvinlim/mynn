@@ -43,7 +43,7 @@ int main(){
 
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
-		arrays=data.fillIOArrays();
+		arrays=data.fillIOArrays(true);
 		arrays[1]->print();
 		displayImage(arrays[0]->item);
 		printf("\n");

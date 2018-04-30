@@ -56,6 +56,7 @@ void printImage(struct image *img){
 }
 MNISTData::~MNISTData(){}
 MNISTData::MNISTData():Data(){
+	void *mem1,*mem2;
 	struct idx1 *idx1Header;
 	struct idx3 *idx3Header;
 	struct image *pImage;
@@ -64,8 +65,10 @@ MNISTData::MNISTData():Data(){
 	int fd3=open("t10k-images-idx3-ubyte",O_RDONLY);
 	assert(fd1>=0);
 	assert(fd3>=0);
-	idx1Header=(struct idx1 *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd1,0);
-	idx3Header=(struct idx3 *)mmap(0,8*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
+	mem1=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd1,0);
+	mem2=mmap(0,8*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
+	idx1Header=(struct idx1 *)mem1;
+	idx3Header=(struct idx3 *)mem2;
 	assert(idx1Header!=MAP_FAILED);
 	assert(idx3Header!=MAP_FAILED);
 	assert(bswap_32(idx1Header->magic)==0x801);
@@ -87,4 +90,8 @@ MNISTData::MNISTData():Data(){
 		pLabel++;
 		pImage++;
 	}
+	close(fd1);
+	close(fd3);
+	assert(munmap(mem1,1024*1024)==0);
+	assert(munmap(mem2,8*1024*1024)==0);
 }
