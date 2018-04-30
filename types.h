@@ -11,14 +11,14 @@ class Matrix{
 public:
 	int n;
 	int m;
-	float *el;
+	float *item;
 	Matrix(int n,int m){
 		int i;
 		this->n=n;
 		this->m=m;
-		el=new float[n*m];
+		item=new float[n*m];
 		for(i=0;i<n*m;i++){
-			el[i]=0;
+			item[i]=0;
 		}
 	}
 	~Matrix(){
@@ -28,7 +28,7 @@ public:
 			printf("dimension error\n");
 			exit(1);
 		}
-		return(this->el+(i*this->m+j));
+		return(this->item+(i*this->m+j));
 	}
 	void rand(){
 		int i,j;
@@ -54,24 +54,24 @@ public:
 class Array{
 public:
 	int n;
-	float *el;
+	float *item;
 	Array(int n){
 		int i;
 		this->n=n;
-		el=new float[n];
+		item=new float[n];
 		for(i=0;i<n;i++){
-			el[i]=0;
+			item[i]=0;
 		}
 	}
 	Array(const float *x,const int n){
 		int i;
 		this->n=n;
-		this->el=new float[n];
+		this->item=new float[n];
 		if(x){
 			for(i=0;i<n;i++){
-				this->el[i]=x[i];
+				this->item[i]=x[i];
 			}
-//			memcpy(p->el,x,n*sizeof(float));
+//			memcpy(p->item,x,n*sizeof(float));
 		}
 	}
 	~Array(){
@@ -79,7 +79,7 @@ public:
 	void print(){
 		int i;
 		float *x;
-		x=this->el;
+		x=this->item;
 		for(i=0;i<this->n;i++){
 			printf("[%i]%.02f\t",i,*x++);
 		}
@@ -88,7 +88,7 @@ public:
 	void rand(){
 		int i;
 		for(i=0;i<this->n;i++){
-			this->el[i]=
+			this->item[i]=
 			(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 		}
 	}
@@ -114,21 +114,21 @@ public:
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=(*(M->e(j,i)))*x->el[i];
-				//a+=M->el[j*M->m+i]*x->el[i];
-				//a+=M->e(j,i)*x->el[i];
+				a+=(*(M->e(j,i)))*x->item[i];
+				//a+=M->item[j*M->m+i]*x->item[i];
+				//a+=M->e(j,i)*x->item[i];
 			}
 			tmp=tanh(a);
-			out->el[j]=tmp;
-			deriv->el[j]=1.0-(tmp*tmp);
+			out->item[j]=tmp;
+			deriv->item[j]=1.0-(tmp*tmp);
 		}
 		return(this->out);
 	}
 	void outputDelta(const Array *error){
 		int j;
 		for(j=0;j<error->n;j++){
-			this->delta->el[j]=this->deriv->el[j]*error->el[j];
-			//delta->el[j]=error->el[j];
+			this->delta->item[j]=this->deriv->item[j]*error->item[j];
+			//delta->item[j]=error->item[j];
 		}
 	}
 	void upDelta(const Matrix *W,const Array *delta2){
@@ -137,17 +137,17 @@ public:
 		for(j=0;j<this->deriv->n;j++){
 			sum=0;
 			for(k=0;k<delta2->n;k++){
-				sum+=W->el[k*this->deriv->n+j]*delta2->el[k];
-				//sum+=(*(W->e(k,j)))*delta2->el[k];
+				sum+=W->item[k*this->deriv->n+j]*delta2->item[k];
+				//sum+=(*(W->e(k,j)))*delta2->item[k];
 			}
-			this->delta->el[j]=this->deriv->el[j]*sum;
+			this->delta->item[j]=this->deriv->item[j]*sum;
 		}
 	}
 	void updateWeights(const Array *input){
 		int i,j;
 		for(i=0;i<this->M->n;i++){
 			for(j=0;j<this->M->m;j++){
-				this->M->el[i*this->M->m+j]-=GAMMA*input->el[j]*this->delta->el[i];
+				this->M->item[i*this->M->m+j]-=GAMMA*input->item[j]*this->delta->item[i];
 			}
 		}
 	}
@@ -229,7 +229,7 @@ public:
 	void upError(const Array *yTarget){
 		int i;
 		for(i=0;i<yTarget->n;i++){
-			this->error->el[i]=(this->answer->el[i]-yTarget->el[i]);
+			this->error->item[i]=(this->answer->item[i]-yTarget->item[i]);
 		}
 	}
 };
@@ -241,7 +241,7 @@ float nnTotalError(const Array *y0,const Array *y){
 	int n=y0->n;
 	float ret=0;
 	for(i=0;i<n;i++){
-		ret+=fabs(y0->el[i]-y->el[i]);
+		ret+=fabs(y0->item[i]-y->item[i]);
 		ret*=ret;
 	}
 	return(ret/2.0);

@@ -21,10 +21,10 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 
 void PRINTINFO(Array *pIn,Array *answer,Array *pOut,Array *pErr){
 	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
-	pIn->el[0],pIn->el[1],
-	answer->el[0],answer->el[1],
-	pOut->el[0],pOut->el[1],
-	pErr->el[0],pErr->el[1]
+	pIn->item[0],pIn->item[1],
+	answer->item[0],answer->item[1],
+	pOut->item[0],pOut->item[1],
+	pErr->item[0],pErr->item[1]
 	);
 }
 const float ex1[NINPUTS]={-1,-1};
