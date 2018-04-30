@@ -6,12 +6,12 @@
 
 class Matrix{
 public:
-	int n;
 	int m;
+	int n;
 	float *item;
-	Matrix(int n,int m);
+	Matrix(int,int);
 	~Matrix();
-	float atIndex(int i,int j);
+	float atIndex(int,int);
 	void rand();
 	void print();
 };

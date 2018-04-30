@@ -1,9 +1,9 @@
 #include"layer.h"
-Layer::Layer(int n,int m){
+Layer::Layer(int m,int n){
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-	M=new Matrix(n,m);
+	M=new Matrix(m,n);
 }
 Layer::~Layer(){
 	delete out;
