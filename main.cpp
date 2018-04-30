@@ -1,4 +1,3 @@
-#include <time.h>
 #include "net.h"
 #include "defs.h"
 
@@ -29,7 +28,6 @@ const float ans4[NOUTPUTS]={-1,+1};
 //const float ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
-	srand(time(0));
 	Net *net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
 		net->insertLayer(i,nDim[i],mDim[i]);
