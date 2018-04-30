@@ -55,7 +55,7 @@ Array *Net::train(const Array *x,const Array *y){
 	updateError(y);
 	backward(x);
 //	status(x,y);
-	MNISTStatus(x,y);
+	MNISTStatus(y);
 	return(error);
 }
 void Net::updateError(const Array *yTarget){
@@ -89,10 +89,18 @@ int toLabel(double *x){
 	}
 	return i;
 }
-void Net::MNISTStatus(const Array *pIn,const Array *pOut){
+void Net::MNISTStatus(const Array *pOut){
 	printf("resp:%d targ:%d ssqerr:%f\n",
 	toLabel(response->item),
 	toLabel(pOut->item),
 	sumSqError(error)
 	);
+}
+SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2){
+	int L1M=(inputs+1);
+	int L1N=(hidden);
+	int L2M=(hidden+1);
+	int L2N=(outputs);
+	insertLayer(0,L1M,L1N);
+	insertLayer(1,L2M,L2N);
 }

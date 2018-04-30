@@ -23,19 +23,11 @@ public:
 	void updateError(const Array *);
 	void updateWeights();
 	void status(const Array *,const Array *);
-	void MNISTStatus(const Array *,const Array *);
+	void MNISTStatus(const Array *);
 };
 
+class SingleHidden:public Net{
+public:
+	SingleHidden(int,int,int);
+};
 #endif
-/*
-float nnTotalError(const Array *y0,const Array *y){
-	int i;
-	int n=y0->n;
-	float ret=0;
-	for(i=0;i<n;i++){
-		ret+=fabs(y0->item[i]-y->item[i]);
-		ret*=ret;
-	}
-	return(ret/2.0);
-}
-*/

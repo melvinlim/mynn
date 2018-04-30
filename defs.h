@@ -7,6 +7,7 @@
 //#define NOUTPUTS 2
 #define NINPUTS (28*28)
 #define NOUTPUTS (10)
+#define HIDDEN 10
 #define EPOCHS 100000
 #define LAYERS 2
 #define GAMMA (0.1)

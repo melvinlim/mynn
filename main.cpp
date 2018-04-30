@@ -1,19 +1,6 @@
 #include"net.h"
 #include"data.h"
 #include"defs.h"
-/*
-#define L1M (NINPUTS+1)
-#define L1N (10)
-#define L2M (10+1)
-#define L2N (NOUTPUTS)
-*/
-#define L1M (NINPUTS+1)
-#define L1N (2000)
-#define L2M (2000+1)
-#define L2N (NOUTPUTS)
-
-const int mDim[LAYERS]={L1M,L2M};//,L3M};
-const int nDim[LAYERS]={L1N,L2N};//,L3N};
 
 void displayImage(double *img){
 	double *p=img;
@@ -31,10 +18,7 @@ void displayImage(double *img){
 
 int main(){
 	int i;
-	Net *net=new Net(LAYERS);
-	for(i=0;i<LAYERS;i++){
-		net->insertLayer(i,mDim[i],nDim[i]);
-	}
+	Net *net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
 /*
 	net->print();
 	net->rand();
