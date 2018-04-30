@@ -3,8 +3,10 @@
 
 #define bswap_16(value) ((((value)&0xff)<<8)|((value)>>8))
 #define bswap_32(value)	((bswap_16((value)&0xffff)<<16)|bswap_16((value)>>16))
-#define NINPUTS 2
-#define NOUTPUTS 2
+//#define NINPUTS 2
+//#define NOUTPUTS 2
+#define NINPUTS 10
+#define NOUTPUTS (28*28)
 #define EPOCHS 100000
 #define LAYERS 2
 #define GAMMA (0.1)

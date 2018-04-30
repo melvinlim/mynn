@@ -54,7 +54,8 @@ Array *Net::train(const Array *x,const Array *y){
 	forward(x);
 	updateError(y);
 	backward(x);
-	status(x,y);
+//	status(x,y);
+	MNISTStatus(x,y);
 	return(error);
 }
 void Net::updateError(const Array *yTarget){
@@ -71,16 +72,27 @@ void Net::status(const Array *pIn,const Array *pOut){
 	error->item[0],error->item[1]
 	);
 }
-
-/*
-float nnTotalError(const Array *y0,const Array *y){
-int i;
-int n=y0->n;
-float ret=0;
-for(i=0;i<n;i++){
-	ret+=fabs(y0->item[i]-y->item[i]);
-	ret*=ret;
+double sumSqError(const Array *array){
+	int i;
+	int n=array->n;
+	double *error=array->item;
+	double ret=0;
+	for(i=0;i<n;i++){
+		ret+=error[i]*error[i];
+	}
+	return(ret/2.0);
 }
-return(ret/2.0);
+int toLabel(double *x){
+	int i=0;
+	for(i=0;i<10;i++){
+		if(*x++>0)	return i;
+	}
+	return i;
 }
-*/
+void Net::MNISTStatus(const Array *pIn,const Array *pOut){
+	printf("resp:%d targ:%d ssqerr:%f\n",
+	toLabel(response->item),
+	toLabel(pOut->item),
+	sumSqError(error)
+	);
+}

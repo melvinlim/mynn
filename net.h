@@ -23,6 +23,7 @@ public:
 	void updateError(const Array *);
 	void updateWeights();
 	void status(const Array *,const Array *);
+	void MNISTStatus(const Array *,const Array *);
 };
 
 #endif

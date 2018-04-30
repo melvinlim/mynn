@@ -1,10 +1,15 @@
 #include"net.h"
 #include"data.h"
 #include"defs.h"
-
+/*
 #define L1M (NINPUTS+1)
 #define L1N (10)
 #define L2M (10+1)
+#define L2N (NOUTPUTS)
+*/
+#define L1M (NINPUTS+1)
+#define L1N (1000)
+#define L2M (1000+1)
 #define L2N (NOUTPUTS)
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -48,7 +53,6 @@ int main(){
 		displayImage(arrays[0]->item);
 		printf("\n");
 	}
-return 0;
 
 	for(i=0;i<EPOCHS;i++){
 /*
@@ -62,7 +66,7 @@ delete asdf;
 		pIn=arrays[0];
 		pOut=arrays[1];
 		net->train(pIn,pOut);
-		if(i%4){
+		if(i%10){
 			net->updateWeights();
 		}
 	}
