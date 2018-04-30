@@ -14,7 +14,7 @@ Matrix::~Matrix(){
 }
 float Matrix::atIndex(int i,int j){
 	//assert(((i+1)*(j+1))<=(n*m));
-	return item[i*m+j];
+	return item[i*n+j];
 }
 void Matrix::rand(){
 	int i,j;

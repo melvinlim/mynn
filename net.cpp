@@ -55,7 +55,7 @@ void Net::rand(){
 }
 void Net::print(){
 	int i;
-	for(i=0;i<this->n;i++){
+	for(i=0;i<n;i++){
 		L[i]->mat->print();
 	}
 }
