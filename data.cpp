@@ -42,9 +42,7 @@ XorData::XorData():Data(){
 	pOutputs[3]=new Array(ans4,NOUTPUTS);
 }
 void printImage(struct image *img){
-	uint8_t line[28];
 	uint8_t *p=img->pixel;
-//	memcpy(line,p,28);
 	for(int i=0;i<28;i++){
 		for(int j=0;j<28;j++){
 			if(*p++>=128){
@@ -67,17 +65,18 @@ MNISTData::MNISTData():Data(){
 	assert(fd1>=0);
 	assert(fd3>=0);
 	idx1Header=(struct idx1 *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd1,0);
-	idx3Header=(struct idx3 *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
+	idx3Header=(struct idx3 *)mmap(0,8*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
 	assert(idx1Header!=MAP_FAILED);
 	assert(idx3Header!=MAP_FAILED);
 	assert(bswap_32(idx1Header->magic)==0x801);
 	assert(bswap_32(idx3Header->magic)==0x803);
+	int nLabels=bswap_32(idx1Header->number);
 	printf("0x%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
 	printf("0x%x\n%d\n",bswap_32(idx3Header->magic),bswap_32(idx3Header->nImages));
 	pLabel=(uint8_t *)(++idx1Header);
 	pImage=(struct image *)(++idx3Header);
-	for(int i=0;i<10;i++){
-		printf("label: %d\n",*pLabel++);
+	for(int i=0;i<nLabels;i++){
+		printf("label %d: %d\n",i,*pLabel++);
 		printImage(pImage++);
 	}
 }
