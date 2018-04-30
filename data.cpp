@@ -75,7 +75,12 @@ MNISTData::MNISTData():Data(){
 	printf("0x%x\n%d\n",bswap_32(idx3Header->magic),bswap_32(idx3Header->nImages));
 	pLabel=(uint8_t *)(++idx1Header);
 	pImage=(struct image *)(++idx3Header);
+	sz=nLabels;
+	pInputs=new Array *[sz];
+	pOutputs=new Array *[sz];
 	for(int i=0;i<nLabels;i++){
+		pInputs[i]=new NetArray(pImage->pixel,NINPUTS);
+		pOutputs[i]=new NetArray(*pLabel,NOUTPUTS);
 		printf("label %d: %d\n",i,*pLabel++);
 		printImage(pImage++);
 	}

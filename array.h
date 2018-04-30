@@ -2,6 +2,7 @@
 #define _ARRAY_H
 #include<stdio.h>
 #include<stdlib.h>
+#include<cstdint>
 #include"defs.h"
 
 class Array{
@@ -13,5 +14,11 @@ public:
 	~Array();
 	void print();
 	void rand();
+};
+class NetArray:public Array{
+public:
+	NetArray(uint8_t,int);
+	NetArray(uint8_t *,int);
+	~NetArray();
 };
 #endif
