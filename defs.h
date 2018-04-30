@@ -20,6 +20,9 @@ struct idx3{
 	int32_t nRows;
 	int32_t nCols;
 };
+struct image{
+	uint8_t pixel[28*28];
+};
 #pragma pack(pop)
 
 #endif

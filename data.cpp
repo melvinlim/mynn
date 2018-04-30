@@ -41,10 +41,27 @@ XorData::XorData():Data(){
 	pOutputs[2]=new Array(ans3,NOUTPUTS);
 	pOutputs[3]=new Array(ans4,NOUTPUTS);
 }
+void printImage(struct image *img){
+	uint8_t line[28];
+	uint8_t *p=img->pixel;
+//	memcpy(line,p,28);
+	for(int i=0;i<28;i++){
+		for(int j=0;j<28;j++){
+			if(*p++>=128){
+				printf(".");
+			}else{
+				printf(" ");
+			}
+		}
+		printf("\n");
+	}
+}
 MNISTData::~MNISTData(){}
 MNISTData::MNISTData():Data(){
 	struct idx1 *idx1Header;
 	struct idx3 *idx3Header;
+	struct image *pImage;
+	uint8_t *pLabel;
 	int fd1=open("t10k-labels-idx1-ubyte",O_RDONLY);
 	int fd3=open("t10k-images-idx3-ubyte",O_RDONLY);
 	assert(fd1>=0);
@@ -57,4 +74,10 @@ MNISTData::MNISTData():Data(){
 	assert(bswap_32(idx3Header->magic)==0x803);
 	printf("0x%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
 	printf("0x%x\n%d\n",bswap_32(idx3Header->magic),bswap_32(idx3Header->nImages));
+	pLabel=(uint8_t *)(++idx1Header);
+	pImage=(struct image *)(++idx3Header);
+	for(int i=0;i<10;i++){
+		printf("label: %d\n",*pLabel++);
+		printImage(pImage++);
+	}
 }
