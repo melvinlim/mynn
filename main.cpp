@@ -37,6 +37,13 @@ int main(){
 	}
 
 	for(i=0;i<EPOCHS;i++){
+/*
+Net *asdf=new Net(10);
+for(int j=0;j<10;j++){
+	asdf->insertLayer(j,10,10);
+}
+delete asdf;
+*/
 		arrays=data.fillIOArrays();
 		pIn=arrays[0];
 		pOut=arrays[1];

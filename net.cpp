@@ -4,13 +4,13 @@ Net::Net(int n){
 	srand(time(0));
 	this->n=n;
 	L=new Layer *[n];
-//	L=(Layer **)malloc(n*sizeof(Layer *));
 }
 Net::~Net(){
 	int i;
 	for(i=0;i<n;i++){
-		free(L[i]);
+		delete L[i];
 	}
+	delete[] L;
 }
 void Net::insertLayer(int i,int m,int n){
 	L[i]=new Layer(m,n);
@@ -20,13 +20,11 @@ void Net::insertLayer(int i,int m,int n){
 	}
 }
 void Net::forward(const Array *x){
-	//int i;
 	L[0]->forward(x);
 	L[1]->forward(L[0]->out);
 	response=L[1]->out;
 }
 void Net::backward(const Array *input){
-	//int i;
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 	L[1]->saveErrors(L[0]->out);
