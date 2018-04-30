@@ -23,19 +23,16 @@ public:
 	}
 	~Matrix(){
 	}
-	float *e(int i,int j){
-		if(((i+1)*(j+1))>(this->n*this->m)){
-			printf("dimension error\n");
-			exit(1);
-		}
-		return(this->item+(i*this->m+j));
+	float atIndex(int i,int j){
+		//assert(((i+1)*(j+1))<=(n*m));
+		return item[i*m+j];
 	}
 	void rand(){
 		int i,j;
+		float *p=item;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				*this->e(i,j)=
-				(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
+				*p++=(random()-(RAND_MAX/2))*2.0/((float)RAND_MAX)/((float)RANDSCALING);
 			}
 		}
 	}
@@ -43,7 +40,7 @@ public:
 		int i,j;
 		for(i=0;i<this->n;i++){
 			for(j=0;j<this->m;j++){
-				printf("[%i,%i]%.09f ",i,j,*this->e(i,j));
+				printf("[%i,%i]%.09f ",i,j,this->atIndex(i,j));
 			}
 			printf("\n");
 		}
@@ -114,9 +111,9 @@ public:
 		for(j=0;j<M->n;j++){
 			a=0;
 			for(i=0;i<M->m;i++){
-				a+=(*(M->e(j,i)))*x->item[i];
+				a+=(M->atIndex(j,i))*x->item[i];
 				//a+=M->item[j*M->m+i]*x->item[i];
-				//a+=M->e(j,i)*x->item[i];
+				//a+=M->atIndex(j,i)*x->item[i];
 			}
 			tmp=tanh(a);
 			out->item[j]=tmp;
@@ -138,7 +135,7 @@ public:
 			sum=0;
 			for(k=0;k<delta2->n;k++){
 				sum+=W->item[k*this->deriv->n+j]*delta2->item[k];
-				//sum+=(*(W->e(k,j)))*delta2->item[k];
+				//sum+=(W->atIndex(k,j))*delta2->item[k];
 			}
 			this->delta->item[j]=this->deriv->item[j]*sum;
 		}
