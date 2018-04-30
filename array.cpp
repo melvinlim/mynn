@@ -47,7 +47,7 @@ NetArray::NetArray(uint8_t label,int n):Array(n){
 NetArray::NetArray(uint8_t *pixels,int n):Array(n){
 	uint8_t *p=pixels;
 	for(int i=0;i<n;i++){
-		if(*p>=127){
+		if(*p++>=127){
 			item[i]=1;
 		}else{
 			item[i]=-1;

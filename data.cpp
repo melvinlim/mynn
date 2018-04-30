@@ -78,10 +78,13 @@ MNISTData::MNISTData():Data(){
 	sz=nLabels;
 	pInputs=new Array *[sz];
 	pOutputs=new Array *[sz];
+	int nInputs=28*28;
 	for(int i=0;i<nLabels;i++){
-		pInputs[i]=new NetArray(pImage->pixel,NINPUTS);
-		pOutputs[i]=new NetArray(*pLabel,NOUTPUTS);
-		printf("label %d: %d\n",i,*pLabel++);
-		printImage(pImage++);
+		pInputs[i]=new NetArray(pImage->pixel,nInputs);
+		pOutputs[i]=new NetArray(*pLabel,10);
+//		printf("label %d: %d\n",i,*pLabel);
+//		printImage(pImage);
+		pLabel++;
+		pImage++;
 	}
 }

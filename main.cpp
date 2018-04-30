@@ -2,9 +2,6 @@
 #include"data.h"
 #include"defs.h"
 
-#define NINPUTS (2)
-#define NOUTPUTS (2)
-
 #define L1M (NINPUTS+1)
 #define L1N (10)
 #define L2M (10+1)
@@ -29,7 +26,7 @@ int main(){
 
 	MNISTData data;
 	//XorData data;
-return 0;
+
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays();
@@ -37,6 +34,7 @@ return 0;
 		arrays[1]->print();
 		printf("\n");
 	}
+return 0;
 
 	for(i=0;i<EPOCHS;i++){
 /*

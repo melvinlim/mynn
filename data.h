@@ -1,7 +1,5 @@
 #ifndef _DATA_H
 #define _DATA_H
-#define NINPUTS (2)
-#define NOUTPUTS (2)
 #include"array.h"
 #include<time.h>
 #include<assert.h>
