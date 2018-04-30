@@ -41,3 +41,12 @@ XorData::XorData():Data(){
 	pOutputs[2]=new Array(ans3,NOUTPUTS);
 	pOutputs[3]=new Array(ans4,NOUTPUTS);
 }
+MNISTData::~MNISTData(){}
+MNISTData::MNISTData():Data(){
+	char *c;
+	int fd=open("README.md",O_RDONLY);
+	assert(fd>=0);
+	c=(char *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
+	assert(c!=MAP_FAILED);
+	printf("%c",c[0]);
+}

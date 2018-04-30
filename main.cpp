@@ -27,7 +27,9 @@ int main(){
 	Array **arrays;
 	Array *pIn,*pOut;
 
-	XorData data;
+	MNISTData data;
+	//XorData data;
+return 0;
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays();

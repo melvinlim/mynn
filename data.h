@@ -5,6 +5,8 @@
 #include"array.h"
 #include<time.h>
 #include<assert.h>
+#include<fcntl.h>
+#include<sys/mman.h>
 
 const double ex1[NINPUTS]={-1,-1};
 const double ex2[NINPUTS]={-1,+1};
@@ -26,6 +28,11 @@ public:
 	Data();
 	~Data();
 	Array **fillIOArrays(bool=false);
+};
+class MNISTData:public Data{
+public:
+	MNISTData();
+	~MNISTData();
 };
 class XorData:public Data{
 public:
