@@ -28,15 +28,6 @@ void Net::backward(const Array *input){
 	//int i;
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
-/*
-	L[LAYERS-1]->outputDelta(error);
-	for(i=LAYERS-2;i>=0;i--){
-		L[i]->upDelta(L[i+1]->M,L[i+1]->delta);
-	}
-	for(i=LAYERS-1;i>=1;i--){
-		L[i]->updateWeights(L[i-1]->out);
-	}
-*/
 	L[1]->updateWeights(L[0]->out);
 	L[0]->updateWeights(input);
 }
@@ -62,7 +53,7 @@ Array *Net::train(const Array *x,const Array *y){
 void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
-		error->item[i]=answer->item[i]-yTarget->item[i];
+		error->item[i]=yTarget->item[i]-answer->item[i];
 	}
 }
 void Net::status(const Array *pIn,const Array *pOut){

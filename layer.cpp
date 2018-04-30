@@ -39,7 +39,6 @@ void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
 	for(j=0;j<this->deriv->n;j++){
 		sum=0;
 		for(k=0;k<delta2->n;k++){
-			//sum+=W->item[j*this->deriv->n+k]*delta2->item[k];
 			sum+=(W->atIndex(j,k))*delta2->item[k];
 		}
 		this->delta->item[j]=this->deriv->item[j]*sum;
