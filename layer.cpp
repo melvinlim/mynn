@@ -18,8 +18,6 @@ Array *Layer::forward(const Array *x){
 		a=0;
 		for(i=0;i<M->m;i++){
 			a+=(M->atIndex(j,i))*x->item[i];
-			//a+=M->item[j*M->m+i]*x->item[i];
-			//a+=M->atIndex(j,i)*x->item[i];
 		}
 		tmp=tanh(a);
 		out->item[j]=tmp;
@@ -55,5 +53,5 @@ void Layer::updateWeights(const Array *input){
 	}
 }
 void Layer::rand(){
-	this->M->rand();
+	M->rand();
 }

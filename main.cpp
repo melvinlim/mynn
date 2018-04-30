@@ -1,8 +1,4 @@
-#include <math.h>
 #include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "net.h"
 #include "defs.h"
 
@@ -19,14 +15,6 @@ const int mDim[LAYERS]={L1M,L2M};//,L3M};
 //const int nDim[LAYERS]={L1N,L2N,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
 
-void PRINTINFO(Array *pIn,Array *answer,Array *pOut,Array *pErr){
-	printf("in:[%.0f,%.0f] out:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
-	pIn->item[0],pIn->item[1],
-	answer->item[0],answer->item[1],
-	pOut->item[0],pOut->item[1],
-	pErr->item[0],pErr->item[1]
-	);
-}
 const float ex1[NINPUTS]={-1,-1};
 const float ex2[NINPUTS]={-1,+1};
 const float ex3[NINPUTS]={+1,-1};
@@ -81,6 +69,5 @@ int main(){
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->train(pIn,pOut);
-		PRINTINFO(pIn,net->answer,pOut,net->error);
 	}
 }

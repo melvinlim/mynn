@@ -20,7 +20,8 @@ public:
 	void rand();
 	void print();
 	Array *train(const Array *x,const Array *y);
-	void upError(const Array *yTarget);
+	void updateError(const Array *yTarget);
+	void status(const Array *,const Array *);
 };
 
 #endif

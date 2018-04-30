@@ -59,16 +59,25 @@ void Net::print(){
 	}
 }
 Array *Net::train(const Array *x,const Array *y){
-	this->forward(x);
-	this->upError(y);
-	this->backward(x);
+	forward(x);
+	updateError(y);
+	backward(x);
+	status(x,y);
 	return(this->error);
 }
-void Net::upError(const Array *yTarget){
+void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
 		this->error->item[i]=(this->answer->item[i]-yTarget->item[i]);
 	}
+}
+void Net::status(const Array *pIn,const Array *pOut){
+	printf("in:[%.0f,%.0f] ans:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
+	pIn->item[0],pIn->item[1],
+	answer->item[0],answer->item[1],
+	pOut->item[0],pOut->item[1],
+	error->item[0],error->item[1]
+	);
 }
 
 /*
