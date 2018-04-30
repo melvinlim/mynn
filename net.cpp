@@ -34,7 +34,7 @@ void Net::forward(const Array *x){
 void Net::backward(const Array *input){
 	//int i;
 	L[1]->outputDelta(this->error);
-	L[0]->upDelta(L[1]->mat,L[1]->delta);
+	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 /*
 	L[LAYERS-1]->outputDelta(error);
 	for(i=LAYERS-2;i>=0;i--){

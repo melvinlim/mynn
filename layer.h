@@ -14,7 +14,7 @@ public:
 	~Layer();
 	Array *forward(const Array *x);
 	void outputDelta(const Array *error);
-	void upDelta(const Matrix *W,const Array *delta2);
+	void hiddenDelta(const Matrix *W,const Array *delta2);
 	void updateWeights(const Array *input);
 	void rand();
 };
