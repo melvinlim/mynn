@@ -10,6 +10,20 @@
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
 const int nDim[LAYERS]={L1N,L2N};//,L3N};
 
+void displayImage(double *img){
+	double *p=img;
+	for(int i=0;i<28;i++){
+		for(int j=0;j<28;j++){
+			if(*p++>0){
+				printf(".");
+			}else{
+				printf(" ");
+			}
+		}
+		printf("\n");
+	}
+}
+
 int main(){
 	int i;
 	Net *net=new Net(LAYERS);
@@ -30,8 +44,8 @@ int main(){
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays();
-		arrays[0]->print();
 		arrays[1]->print();
+		displayImage(arrays[0]->item);
 		printf("\n");
 	}
 return 0;
