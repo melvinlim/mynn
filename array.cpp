@@ -28,7 +28,7 @@ void Array::print(){
 	double *x;
 	x=this->item;
 	for(i=0;i<this->n;i++){
-		printf("[%i]%+.02f\t",i,*x++);
+		printf("[%3i] %+.02f\t",i,*x++);
 	}
 	printf("\n");
 }

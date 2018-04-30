@@ -33,7 +33,7 @@ void Matrix::print(){
 	int i,j;
 	for(i=0;i<this->m;i++){
 		for(j=0;j<this->n;j++){
-			printf("[%i,%i]%.09f ",i,j,this->atIndex(i,j));
+			printf("[%3i,%3i] %+.09f ",i,j,this->atIndex(i,j));
 		}
 		printf("\n");
 	}
