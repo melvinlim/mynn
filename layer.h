@@ -1,5 +1,6 @@
 #ifndef _LAYER_H
 #define _LAYER_H
+#include<assert.h>
 #include<math.h>
 #include"defs.h"
 #include"matrix.h"

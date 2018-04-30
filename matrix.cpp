@@ -12,6 +12,10 @@ Matrix::Matrix(int m,int n){
 Matrix::~Matrix(){
 	delete item;
 }
+float Matrix::atIndex(int i,int j) const{
+	//assert(((i+1)*(j+1))<=(n*m));
+	return item[i*n+j];
+}
 float Matrix::atIndex(int i,int j){
 	//assert(((i+1)*(j+1))<=(n*m));
 	return item[i*n+j];

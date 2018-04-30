@@ -11,6 +11,7 @@ public:
 	float *item;
 	Matrix(int,int);
 	~Matrix();
+	float atIndex(int,int) const;
 	float atIndex(int,int);
 	void rand();
 	void print();

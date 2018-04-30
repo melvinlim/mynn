@@ -1,5 +1,5 @@
-#include "net.h"
-#include "defs.h"
+#include"net.h"
+#include"defs.h"
 
 #define NINPUTS (2)
 #define NOUTPUTS (2)
