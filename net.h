@@ -11,7 +11,7 @@ public:
 	Layer **L;
 	int n;
 	Array *error;
-	Array *answer;
+	Array *response;
 	Net(int n=0);
 	~Net();
 	void insertLayer(int,int,int);

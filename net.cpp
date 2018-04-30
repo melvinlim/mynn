@@ -15,14 +15,14 @@ void Net::insertLayer(int i,int m,int n){
 	L[i]=new Layer(m,n);
 	if(i==(this->n-1)){
 		error=new Array(n);
-		answer=new Array(n);
+		response=new Array(n);
 	}
 }
 void Net::forward(const Array *x){
 	//int i;
 	L[0]->forward(x);
 	L[1]->forward(L[0]->out);
-	answer=L[1]->out;
+	response=L[1]->out;
 }
 void Net::backward(const Array *input){
 	//int i;
@@ -53,13 +53,13 @@ Array *Net::train(const Array *x,const Array *y){
 void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
-		error->item[i]=yTarget->item[i]-answer->item[i];
+		error->item[i]=yTarget->item[i]-response->item[i];
 	}
 }
 void Net::status(const Array *pIn,const Array *pOut){
 	printf("in:[%.0f,%.0f] ans:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
 	pIn->item[0],pIn->item[1],
-	answer->item[0],answer->item[1],
+	response->item[0],response->item[1],
 	pOut->item[0],pOut->item[1],
 	error->item[0],error->item[1]
 	);
