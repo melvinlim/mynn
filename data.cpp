@@ -48,5 +48,6 @@ MNISTData::MNISTData():Data(){
 	assert(fd>=0);
 	idx1Header=(struct idx1 *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
 	assert(idx1Header!=MAP_FAILED);
-	printf("%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
+	assert(bswap_32(idx1Header->magic)==0x801);
+	printf("0x%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
 }
