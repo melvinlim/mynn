@@ -11,8 +11,8 @@ Net::~Net(){
 		free(L[i]);
 	}
 }
-void Net::insertLayer(int i,int n,int m){
-	L[i]=new Layer(n,m);
+void Net::insertLayer(int i,int m,int n){
+	L[i]=new Layer(m,n);
 	if(i==(this->n-1)){
 		error=new Array(n);
 		answer=new Array(n);

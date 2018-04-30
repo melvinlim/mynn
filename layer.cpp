@@ -17,7 +17,7 @@ Array *Layer::forward(const Array *x){
 	for(j=0;j<M->n;j++){
 		a=0;
 		for(i=0;i<M->m;i++){
-			a+=(M->atIndex(j,i))*x->item[i];
+			a+=(M->atIndex(i,j))*x->item[i];
 		}
 		tmp=tanh(a);
 		out->item[j]=tmp;

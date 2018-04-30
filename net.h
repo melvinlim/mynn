@@ -14,13 +14,13 @@ public:
 	Array *answer;
 	Net(int n=0);
 	~Net();
-	void insertLayer(int i,int n,int m);
-	void forward(const Array *x);
-	void backward(const Array *input);
+	void insertLayer(int,int,int);
+	void forward(const Array *);
+	void backward(const Array *);
 	void rand();
 	void print();
-	Array *train(const Array *x,const Array *y);
-	void updateError(const Array *yTarget);
+	Array *train(const Array *,const Array *);
+	void updateError(const Array *);
 	void status(const Array *,const Array *);
 };
 
