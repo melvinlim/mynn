@@ -1,7 +1,7 @@
 #include"net.h"
 
 Net::Net(int n){
-	srand(time(0));
+	srandom(time(0));
 	this->n=n;
 	L=new Layer *[n];
 }
@@ -106,4 +106,5 @@ SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2){
 	int L2N=(outputs);
 	insertLayer(0,L1M,L1N);
 	insertLayer(1,L2M,L2N);
+	rand();
 }

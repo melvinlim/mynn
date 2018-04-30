@@ -8,14 +8,13 @@
 #ifdef SOLVEXOR
 	#define NINPUTS 2
 	#define NOUTPUTS 2
-	#define HIDDEN 10
+	#define HIDDEN 20
 #else
 	#define NINPUTS (28*28)
 	#define NOUTPUTS (10)
 	#define HIDDEN 200
 #endif
 #define EPOCHS 100000
-#define LAYERS 2
 #define GAMMA (0.1)
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 #include<cstdint>

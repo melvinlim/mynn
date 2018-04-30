@@ -45,8 +45,8 @@ int main(){
 		pIn=arrays[0];
 		pOut=arrays[1];
 		net->train(pIn,pOut);
-		if(i%4){
+//		if(i%4){
 			net->updateWeights();
-		}
+//		}
 	}
 }
