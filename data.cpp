@@ -3,7 +3,7 @@
 Data::Data(){
 	index=0;
 	sz=0;
-	srand(time(0));
+	srandom(time(0));
 	pInputs=0;
 	pOutputs=0;
 	arrays=new Array *[2];
