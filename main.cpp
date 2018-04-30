@@ -24,13 +24,13 @@ int main(){
 	net->rand();
 	net->print();
 
-	Data data=Data();
-	Array pIn=Array(2);
-	Array pOut=Array(2);
-	data.fillIOArrays(pIn,pOut);
+	Data data;
+	Array pIn(2);
+	Array pOut(2);
+//		data.fillIOArrays(pIn,pOut);
 	for(int i=0;i<4;i++){
-		pIn.print();
-		pOut.print();
+//		pIn.print();
+//		pOut.print();
 		printf("\n");
 	}
 

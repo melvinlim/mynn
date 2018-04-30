@@ -10,7 +10,7 @@ Matrix::Matrix(int m,int n){
 	}
 }
 Matrix::~Matrix(){
-	delete item;
+	delete[] item;
 }
 double Matrix::atIndex(int i,int j) const{
 	//assert(((i+1)*(j+1))<=(n*m));

@@ -1,6 +1,6 @@
 CXX =				g++
-CXXFLAGS =	-std=c++11 -Wall -g -c
-LFLAGS =		-std=c++11 -Wall -g -o mynn
+CXXFLAGS =	-std=c++11 -Wall -Wextra -g -c
+LFLAGS =		-std=c++11 -Wall -Wextra -g -o mynn
 OBJECTS =		main.o matrix.o array.o layer.o net.o data.o
 mynn:		$(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS)
