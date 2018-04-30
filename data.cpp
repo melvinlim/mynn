@@ -43,10 +43,10 @@ XorData::XorData():Data(){
 }
 MNISTData::~MNISTData(){}
 MNISTData::MNISTData():Data(){
-	char *c;
-	int fd=open("README.md",O_RDONLY);
+	struct idx1 *idx1Header;
+	int fd=open("t10k-labels-idx1-ubyte",O_RDONLY);
 	assert(fd>=0);
-	c=(char *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
-	assert(c!=MAP_FAILED);
-	printf("%c",c[0]);
+	idx1Header=(struct idx1 *)mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
+	assert(idx1Header!=MAP_FAILED);
+	printf("%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
 }
