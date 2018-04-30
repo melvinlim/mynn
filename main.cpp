@@ -8,8 +8,8 @@
 #define L2N (NOUTPUTS)
 */
 #define L1M (NINPUTS+1)
-#define L1N (1000)
-#define L2M (1000+1)
+#define L1N (2000)
+#define L2M (2000+1)
 #define L2N (NOUTPUTS)
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -35,11 +35,11 @@ int main(){
 	for(i=0;i<LAYERS;i++){
 		net->insertLayer(i,mDim[i],nDim[i]);
 	}
-
+/*
 	net->print();
 	net->rand();
 	net->print();
-
+*/
 	Array **arrays;
 	Array *pIn,*pOut;
 
