@@ -50,6 +50,7 @@ void Layer::updateWeights(){
 	for(i=0;i<mat->m;i++){
 		for(j=0;j<mat->n;j++){
 			mat->item[i*mat->n+j]+=dw->item[i*mat->n+j];
+			dw->item[i*mat->n+j]=0;
 		}
 	}
 }
