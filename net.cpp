@@ -69,7 +69,7 @@ Array *Net::train(const Array *x,const Array *y){
 void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
-		this->error->item[i]=yTarget->item[i]-answer->item[i];
+		this->error->item[i]=answer->item[i]-yTarget->item[i];
 	}
 }
 void Net::status(const Array *pIn,const Array *pOut){
