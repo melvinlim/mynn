@@ -22,6 +22,7 @@ public:
 		}
 	}
 	~Matrix(){
+		delete item;
 	}
 	float atIndex(int i,int j){
 		//assert(((i+1)*(j+1))<=(n*m));
@@ -72,6 +73,7 @@ public:
 		}
 	}
 	~Array(){
+		delete item;
 	}
 	void print(){
 		int i;
@@ -104,6 +106,10 @@ public:
 		M=new Matrix(n,m);
 	}
 	~Layer(){
+		delete out;
+		delete deriv;
+		delete delta;
+		delete M;
 	}
 	Array *forward(const Array *x){
 		int i,j;
