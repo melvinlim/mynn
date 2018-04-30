@@ -3,7 +3,8 @@
 Net::Net(int n){
 	srand(time(0));
 	this->n=n;
-	L=(Layer **)malloc(n*sizeof(Layer *));
+	L=new Layer *[n];
+//	L=(Layer **)malloc(n*sizeof(Layer *));
 }
 Net::~Net(){
 	int i;

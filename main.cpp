@@ -27,10 +27,11 @@ int main(){
 	Data data;
 	Array pIn(2);
 	Array pOut(2);
-//		data.fillIOArrays(pIn,pOut);
-	for(int i=0;i<4;i++){
-//		pIn.print();
-//		pOut.print();
+	for(int i=0;i<8;i++){
+		printf("%d:\n",i);
+		data.fillIOArrays(pIn,pOut);
+		pIn.print();
+		pOut.print();
 		printf("\n");
 	}
 

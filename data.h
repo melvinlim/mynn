@@ -18,7 +18,6 @@ class Data{
 	Array **pInputs;
 	Array **pOutputs;
 public:
-	Array *pIn,*pOut;
 	int sz;
 	int index;
 	Data();

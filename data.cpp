@@ -15,8 +15,6 @@ Data::Data(){
 	pOutputs[1]=new Array(ans2,NOUTPUTS);
 	pOutputs[2]=new Array(ans3,NOUTPUTS);
 	pOutputs[3]=new Array(ans4,NOUTPUTS);
-	pIn=pInputs[0];
-	pOut=pOutputs[0];
 }
 Data::~Data(){
 	for(int i=0;i<sz;i++){
@@ -27,8 +25,8 @@ Data::~Data(){
 	delete[] pOutputs;
 }
 void Data::fillIOArrays(Array &inputArray,Array &outputArray,const bool randomize){
-	inputArray=pIn[index];
-	outputArray=pOut[index];
+	inputArray=*pInputs[index];
+	outputArray=*pOutputs[index];
 	if(randomize){
 		index=random()%sz;
 	}else{
