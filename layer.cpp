@@ -3,21 +3,21 @@ Layer::Layer(int m,int n){
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-	M=new Matrix(m,n);
+	mat=new Matrix(m,n);
 }
 Layer::~Layer(){
 	delete out;
 	delete deriv;
 	delete delta;
-	delete M;
+	delete mat;
 }
 Array *Layer::forward(const Array *x){
 	int i,j;
 	float a,tmp;
-	for(j=0;j<M->n;j++){
+	for(j=0;j<mat->n;j++){
 		a=0;
-		for(i=0;i<M->m;i++){
-			a+=(M->atIndex(i,j))*x->item[i];
+		for(i=0;i<mat->m;i++){
+			a+=(mat->atIndex(i,j))*x->item[i];
 		}
 		tmp=tanh(a);
 		out->item[j]=tmp;
@@ -46,12 +46,12 @@ void Layer::upDelta(const Matrix *W,const Array *delta2){
 }
 void Layer::updateWeights(const Array *input){
 	int i,j;
-	for(i=0;i<this->M->n;i++){
-		for(j=0;j<this->M->m;j++){
-			this->M->item[i*this->M->m+j]-=GAMMA*input->item[j]*this->delta->item[i];
+	for(i=0;i<mat->n;i++){
+		for(j=0;j<mat->m;j++){
+			mat->item[i*mat->m+j]-=GAMMA*input->item[j]*this->delta->item[i];
 		}
 	}
 }
 void Layer::rand(){
-	M->rand();
+	mat->rand();
 }

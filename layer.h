@@ -6,7 +6,7 @@
 #include"array.h"
 class Layer{
 public:
-	Matrix *M;
+	Matrix *mat;
 	Array *out;
 	Array *deriv;
 	Array *delta;
