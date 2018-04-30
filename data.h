@@ -4,6 +4,7 @@
 #define NOUTPUTS (2)
 #include"array.h"
 #include<time.h>
+#include<assert.h>
 
 const double ex1[NINPUTS]={-1,-1};
 const double ex2[NINPUTS]={-1,+1};
@@ -15,6 +16,7 @@ const double ans3[NOUTPUTS]={+1,-1};
 const double ans4[NOUTPUTS]={-1,+1};
 
 class Data{
+protected:
 	Array **arrays;
 	Array **pInputs;
 	Array **pOutputs;
@@ -24,5 +26,10 @@ public:
 	Data();
 	~Data();
 	Array **fillIOArrays(bool=false);
+};
+class XorData:public Data{
+public:
+	XorData();
+	~XorData();
 };
 #endif
