@@ -54,8 +54,11 @@ Array *Net::train(const Array *x,const Array *y){
 	forward(x);
 	updateError(y);
 	backward(x);
-//	status(x,y);
+#ifdef SOLVEXOR
+	status(x,y);
+#else
 	MNISTStatus(y);
+#endif
 	return(error);
 }
 void Net::updateError(const Array *yTarget){

@@ -19,38 +19,33 @@ void displayImage(double *img){
 int main(){
 	int i;
 	Net *net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
-/*
-	net->print();
-	net->rand();
-	net->print();
-*/
 	Array **arrays;
 	Array *pIn,*pOut;
 
+#ifdef SOLVEXOR
+	XorData data;
+#else
 	MNISTData data;
-	//XorData data;
+#endif
 
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays(true);
 		arrays[1]->print();
+#ifdef SOLVEXOR
+		arrays[0]->print();
+#else
 		displayImage(arrays[0]->item);
+#endif
 		printf("\n");
 	}
 
 	for(i=0;i<EPOCHS;i++){
-/*
-Net *asdf=new Net(10);
-for(int j=0;j<10;j++){
-	asdf->insertLayer(j,10,10);
-}
-delete asdf;
-*/
 		arrays=data.fillIOArrays();
 		pIn=arrays[0];
 		pOut=arrays[1];
 		net->train(pIn,pOut);
-		if(i%10){
+		if(i%4){
 			net->updateWeights();
 		}
 	}
