@@ -28,8 +28,7 @@ Array *Layer::forward(const Array *x){
 void Layer::outputDelta(const Array *error){
 	int j;
 	for(j=0;j<error->n;j++){
-		this->delta->item[j]=this->deriv->item[j]*error->item[j];
-		//delta->item[j]=error->item[j];
+		delta->item[j]=deriv->item[j]*error->item[j];
 	}
 }
 void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
@@ -38,7 +37,7 @@ void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
 	for(j=0;j<this->deriv->n;j++){
 		sum=0;
 		for(k=0;k<delta2->n;k++){
-			sum+=W->item[k*this->deriv->n+j]*delta2->item[k];
+			sum+=W->item[j*this->deriv->n+k]*delta2->item[k];
 			//sum+=(W->atIndex(k,j))*delta2->item[k];
 		}
 		this->delta->item[j]=this->deriv->item[j]*sum;
