@@ -15,6 +15,7 @@ const double ans3[NOUTPUTS]={+1,-1};
 const double ans4[NOUTPUTS]={-1,+1};
 
 class Data{
+	Array **arrays;
 	Array **pInputs;
 	Array **pOutputs;
 public:
@@ -22,6 +23,6 @@ public:
 	int index;
 	Data();
 	~Data();
-	void fillIOArrays(Array &,Array &,bool=false);
+	Array **fillIOArrays(bool=false);
 };
 #endif
