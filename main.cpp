@@ -5,8 +5,8 @@
 #define NOUTPUTS (2)
 
 #define L1M (NINPUTS)
-#define L1N (10)
-#define L2M (10)
+#define L1N (20)
+#define L2M (20)
 #define L2N (NOUTPUTS)
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
@@ -63,7 +63,8 @@ int main(){
 	Array *pIn,*pOut;
 	int tmpvar;
 	for(i=0;i<EPOCHS;i++){
-		tmpvar=rand()%4;
+		tmpvar=(tmpvar+1)%4;
+//		tmpvar=rand()%4;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->train(pIn,pOut);

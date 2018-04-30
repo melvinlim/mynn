@@ -22,18 +22,11 @@ void Net::forward(const Array *x){
 	//int i;
 	L[0]->forward(x);
 	L[1]->forward(L[0]->out);
-/*
-	Array *t=x;
-	for(i=0;i<this->n;i++){
-		t=L[i]->forward(t);
-//		MatMul(*N->L[i]->M,*N->L[i]->in,*N->L[i]->out,*N->L[i]->deriv);
-	}
-*/
-	this->answer=L[1]->out;
+	answer=L[1]->out;
 }
 void Net::backward(const Array *input){
 	//int i;
-	L[1]->outputDelta(this->error);
+	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 /*
 	L[LAYERS-1]->outputDelta(error);
@@ -49,8 +42,8 @@ void Net::backward(const Array *input){
 }
 void Net::rand(){
 	int i;
-	for(i=0;i<this->n;i++){
-		this->L[i]->rand();
+	for(i=0;i<n;i++){
+		L[i]->rand();
 	}
 }
 void Net::print(){
@@ -64,12 +57,12 @@ Array *Net::train(const Array *x,const Array *y){
 	updateError(y);
 	backward(x);
 	status(x,y);
-	return(this->error);
+	return(error);
 }
 void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
-		this->error->item[i]=answer->item[i]-yTarget->item[i];
+		error->item[i]=answer->item[i]-yTarget->item[i];
 	}
 }
 void Net::status(const Array *pIn,const Array *pOut){
