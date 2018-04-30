@@ -1,20 +1,11 @@
 #include"data.h"
 
-/*
-const double ex1[NINPUTS]={-1,-1};
-const double ex2[NINPUTS]={-1,+1};
-const double ex3[NINPUTS]={+1,-1};
-const double ex4[NINPUTS]={+1,+1};
-const double ans1[NOUTPUTS]={-1,+1};
-const double ans2[NOUTPUTS]={+1,-1};
-const double ans3[NOUTPUTS]={+1,-1};
-const double ans4[NOUTPUTS]={-1,+1};
-*/
 Data::Data(){
 	Array *p1,*p2,*p3,*p4;
 	Array *pAns1,*pAns2,*pAns3,*pAns4;
 	index=0;
 	this->sz=4;
+	srand(time(0));
 
 	p1=new Array(ex1,NINPUTS);
 	p2=new Array(ex2,NINPUTS);
@@ -41,8 +32,12 @@ Data::Data(){
 }
 Data::~Data(){
 }
-void Data::fillIOArrays(Array &inputArray,Array &outputArray){
+void Data::fillIOArrays(Array &inputArray,Array &outputArray,const bool randomize){
 	inputArray=(pIn[index]);
 	outputArray=pOut[index];
-	index=(index+1)%sz;
+	if(randomize){
+		index=random()%sz;
+	}else{
+		index=(index+1)%sz;
+	}
 }

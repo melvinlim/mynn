@@ -28,7 +28,11 @@ int main(){
 	Array pIn=Array(2);
 	Array pOut=Array(2);
 	data.fillIOArrays(pIn,pOut);
-	pIn.print();
+	for(int i=0;i<4;i++){
+		pIn.print();
+		pOut.print();
+		printf("\n");
+	}
 
 	return 0;
 	for(i=0;i<EPOCHS;i++){

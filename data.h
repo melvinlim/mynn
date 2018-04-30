@@ -3,6 +3,7 @@
 #define NINPUTS (2)
 #define NOUTPUTS (2)
 #include"array.h"
+#include<time.h>
 
 const double ex1[NINPUTS]={-1,-1};
 const double ex2[NINPUTS]={-1,+1};
@@ -22,6 +23,6 @@ public:
 	int index;
 	Data();
 	~Data();
-	void fillIOArrays(Array &,Array &);
+	void fillIOArrays(Array &,Array &,bool=false);
 };
 #endif
