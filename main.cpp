@@ -25,10 +25,9 @@ int main(){
 	net->print();
 
 	Array **arrays;
+	Array *pIn,*pOut;
 
 	Data data;
-	Array pIn(2);
-	Array pOut(2);
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays();
@@ -37,15 +36,13 @@ int main(){
 		printf("\n");
 	}
 
-	return 0;
 	for(i=0;i<EPOCHS;i++){
-/*
-		pIn=pInputs[tmpvar];
-		pOut=pOutputs[tmpvar];
+		arrays=data.fillIOArrays();
+		pIn=arrays[0];
+		pOut=arrays[1];
 		net->train(pIn,pOut);
 		if(i%4){
 			net->updateWeights();
 		}
-*/
 	}
 }
