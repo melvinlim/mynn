@@ -5,10 +5,6 @@
 #define LAYERS 2
 #define GAMMA (0.01)
 
-// Thread block size
-//#define BLOCK_SIZE 16
-#define BLOCK_SIZE 2
-
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 
 class Matrix{

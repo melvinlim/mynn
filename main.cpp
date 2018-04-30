@@ -1,7 +1,3 @@
-#ifndef _MYNN
-#define _MYNN
-
-#include <cuda.h>
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
@@ -88,5 +84,3 @@ int main(){
 		PRINTINFO(pIn,net->answer,pOut,net->error);
 	}
 }
-
-#endif
