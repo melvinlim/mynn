@@ -21,6 +21,7 @@ public:
 	void print();
 	Array *train(const Array *,const Array *);
 	void updateError(const Array *);
+	void updateWeights();
 	void status(const Array *,const Array *);
 };
 

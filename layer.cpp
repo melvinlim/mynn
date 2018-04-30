@@ -45,7 +45,23 @@ void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
 		this->delta->item[j]=this->deriv->item[j]*sum;
 	}
 }
-void Layer::updateWeights(const Array *input){
+void Layer::updateWeights(){
+	int i,j;
+	for(i=0;i<mat->m;i++){
+		for(j=0;j<mat->n;j++){
+			mat->item[i*mat->n+j]+=dw->item[i*mat->n+j];
+		}
+	}
+}
+void Layer::saveErrors(const Array *input){
+	int i,j;
+	for(i=0;i<mat->m;i++){
+		for(j=0;j<mat->n;j++){
+			dw->item[i*mat->n+j]+=GAMMA*input->item[i]*this->delta->item[j];
+		}
+	}
+}
+void Layer::directUpdateWeights(const Array *input){
 	int i,j;
 	for(i=0;i<mat->m;i++){
 		for(j=0;j<mat->n;j++){

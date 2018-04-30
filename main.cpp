@@ -68,5 +68,8 @@ int main(){
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->train(pIn,pOut);
+		if(i%4){
+			net->updateWeights();
+		}
 	}
 }

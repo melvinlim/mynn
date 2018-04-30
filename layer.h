@@ -17,7 +17,9 @@ public:
 	Array *forward(const Array *x);
 	void outputDelta(const Array *error);
 	void hiddenDelta(const Matrix *W,const Array *delta2);
-	void updateWeights(const Array *input);
+	void saveErrors(const Array *input);
+	void updateWeights();
+	void directUpdateWeights(const Array *input);
 	void rand();
 };
 #endif

@@ -28,8 +28,12 @@ void Net::backward(const Array *input){
 	//int i;
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
-	L[1]->updateWeights(L[0]->out);
-	L[0]->updateWeights(input);
+	L[1]->saveErrors(L[0]->out);
+	L[0]->saveErrors(input);
+/*
+	L[1]->directUpdateWeights(L[0]->out);
+	L[0]->directUpdateWeights(input);
+*/
 }
 void Net::rand(){
 	int i;
@@ -42,6 +46,10 @@ void Net::print(){
 	for(i=0;i<n;i++){
 		L[i]->mat->print();
 	}
+}
+void Net::updateWeights(){
+	L[1]->updateWeights();
+	L[0]->updateWeights();
 }
 Array *Net::train(const Array *x,const Array *y){
 	forward(x);
