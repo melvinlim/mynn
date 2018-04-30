@@ -4,6 +4,7 @@ Layer::Layer(int m,int n){
 	deriv=new Array(n);
 	delta=new Array(n);
 	mat=new Matrix(m,n);
+	dw=new Matrix(m,n);
 }
 Layer::~Layer(){
 	delete out;
@@ -13,7 +14,7 @@ Layer::~Layer(){
 }
 Array *Layer::forward(const Array *x){
 	int i,j;
-	float a,tmp;
+	double a,tmp;
 	for(j=0;j<mat->n;j++){
 		a=0;
 		for(i=0;i<mat->m;i++){
@@ -33,7 +34,7 @@ void Layer::outputDelta(const Array *error){
 }
 void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
 	int j,k;
-	float sum;
+	double sum;
 	assert(W->m==delta->n);
 	assert(W->n==delta2->n);
 	for(j=0;j<this->deriv->n;j++){
@@ -48,7 +49,12 @@ void Layer::updateWeights(const Array *input){
 	int i,j;
 	for(i=0;i<mat->m;i++){
 		for(j=0;j<mat->n;j++){
-			mat->item[i*mat->n+j]-=GAMMA*input->item[i]*this->delta->item[j];
+			mat->item[i*mat->n+j]+=GAMMA*input->item[i]*this->delta->item[j];
+/*
+			mat->item[i*mat->n+j]+=0.1*input->item[i]*this->delta->item[j];
+			mat->item[i*mat->n+j]+=0.001*dw->atIndex(i,j);
+			dw->item[i*mat->n+j]=mat->atIndex(i,j);
+*/
 		}
 	}
 }

@@ -14,18 +14,18 @@ const int nDim[LAYERS]={L1N,L2N};//,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
 //const int nDim[LAYERS]={L1N,L2N,L3N};
 
-const float ex1[NINPUTS]={-1,-1};
-const float ex2[NINPUTS]={-1,+1};
-const float ex3[NINPUTS]={+1,-1};
-const float ex4[NINPUTS]={+1,+1};
-const float ans1[NOUTPUTS]={-1,+1};
-const float ans2[NOUTPUTS]={+1,-1};
-const float ans3[NOUTPUTS]={+1,-1};
-const float ans4[NOUTPUTS]={-1,+1};
-//const float ans1[NOUTPUTS]={-1,+1};
-//const float ans2[NOUTPUTS]={+1,-1};
-//const float ans3[NOUTPUTS]={+1,-1};
-//const float ans4[NOUTPUTS]={+1,-1};
+const double ex1[NINPUTS]={-1,-1};
+const double ex2[NINPUTS]={-1,+1};
+const double ex3[NINPUTS]={+1,-1};
+const double ex4[NINPUTS]={+1,+1};
+const double ans1[NOUTPUTS]={-1,+1};
+const double ans2[NOUTPUTS]={+1,-1};
+const double ans3[NOUTPUTS]={+1,-1};
+const double ans4[NOUTPUTS]={-1,+1};
+//const double ans1[NOUTPUTS]={-1,+1};
+//const double ans2[NOUTPUTS]={+1,-1};
+//const double ans3[NOUTPUTS]={+1,-1};
+//const double ans4[NOUTPUTS]={+1,-1};
 int main(){
 	int i;
 	Net *net=new Net(LAYERS);
@@ -63,8 +63,8 @@ int main(){
 	Array *pIn,*pOut;
 	int tmpvar;
 	for(i=0;i<EPOCHS;i++){
-		tmpvar=(tmpvar+1)%4;
-//		tmpvar=rand()%4;
+//		tmpvar=(tmpvar+1)%4;
+		tmpvar=rand()%3;
 		pIn=pInputs[tmpvar];
 		pOut=pOutputs[tmpvar];
 		net->train(pIn,pOut);

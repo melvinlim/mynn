@@ -8,11 +8,11 @@ class Matrix{
 public:
 	int m;
 	int n;
-	float *item;
+	double *item;
 	Matrix(int,int);
 	~Matrix();
-	float atIndex(int,int) const;
-	float atIndex(int,int);
+	double atIndex(int,int) const;
+	double atIndex(int,int);
 	void rand();
 	void print();
 };

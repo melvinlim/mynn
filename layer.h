@@ -8,6 +8,7 @@
 class Layer{
 public:
 	Matrix *mat;
+	Matrix *dw;
 	Array *out;
 	Array *deriv;
 	Array *delta;

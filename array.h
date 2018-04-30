@@ -7,9 +7,9 @@
 class Array{
 public:
 	int n;
-	float *item;
+	double *item;
 	Array(int n);
-	Array(const float *x,const int n);
+	Array(const double *x,const int n);
 	~Array();
 	void print();
 	void rand();
