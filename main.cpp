@@ -9,10 +9,10 @@
 #define L2M (7)
 #define L2N (NOUTPUTS)
 
-const int nDim[LAYERS]={L1N,L2N};//,L3N};
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
-//const int nDim[LAYERS]={L1N,L2N,L3N};
+const int nDim[LAYERS]={L1N,L2N};//,L3N};
 //const int mDim[LAYERS]={L1M,L2M,L3M};
+//const int nDim[LAYERS]={L1N,L2N,L3N};
 
 const float ex1[NINPUTS]={-1,-1};
 const float ex2[NINPUTS]={-1,+1};
@@ -30,7 +30,7 @@ int main(){
 	int i;
 	Net *net=new Net(LAYERS);
 	for(i=0;i<LAYERS;i++){
-		net->insertLayer(i,nDim[i],mDim[i]);
+		net->insertLayer(i,mDim[i],nDim[i]);
 	}
 
 	net->print();
