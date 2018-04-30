@@ -5,8 +5,8 @@
 #define NOUTPUTS (2)
 
 #define L1M (NINPUTS)
-#define L1N (7)
-#define L2M (7)
+#define L1N (10)
+#define L2M (10)
 #define L2N (NOUTPUTS)
 
 const int mDim[LAYERS]={L1M,L2M};//,L3M};
