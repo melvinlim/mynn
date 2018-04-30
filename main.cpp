@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "types.h"
+#include "defs.h"
 
 #define NINPUTS (2)
 #define NOUTPUTS (2)
