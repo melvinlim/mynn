@@ -15,6 +15,7 @@ Data::~Data(){
 	}
 	delete[] pInputs;
 	delete[] pOutputs;
+	delete[] arrays;
 }
 Array **Data::fillIOArrays(const bool randomize){
 	assert(pInputs&&pOutputs);
