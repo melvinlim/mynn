@@ -7,6 +7,8 @@
 #include"array.h"
 class Layer{
 public:
+	int nRows;
+	int nCols;
 	Matrix *mat;
 	Matrix *dw;
 	Array *out;

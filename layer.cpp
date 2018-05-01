@@ -2,6 +2,8 @@
 Layer::Layer(Matrix *mat){
 	int m=mat->m;
 	int n=mat->n;
+	nRows=m;
+	nCols=n;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
@@ -9,6 +11,8 @@ Layer::Layer(Matrix *mat){
 	dw=new Matrix(m,n);
 }
 Layer::Layer(int m,int n){
+	nRows=m;
+	nCols=n;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
@@ -25,7 +29,7 @@ Layer::~Layer(){
 Array *Layer::forward(const Array *x){
 	int i,j;
 	double a,tmp;
-	for(j=0;j<mat->n;j++){
+	for(j=0;j<nCols;j++){
 		a=0;
 		for(i=0;i<x->n;i++){
 			a+=(mat->atIndex(i,j))*x->item[i];
@@ -58,29 +62,29 @@ void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
 }
 void Layer::updateWeights(){
 	int i,j;
-	for(j=0;j<mat->n;j++){
-		for(i=0;i<mat->m;i++){
-			mat->item[i*mat->n+j]+=dw->item[i*mat->n+j];
-			dw->item[i*mat->n+j]=0;
+	for(j=0;j<nCols;j++){
+		for(i=0;i<nRows;i++){
+			mat->item[i*nCols+j]+=dw->item[i*nCols+j];
+			dw->item[i*nCols+j]=0;
 		}
 	}
 }
 void Layer::saveErrors(const Array *input){
 	int i,j;
-	for(j=0;j<mat->n;j++){
+	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			dw->item[i*mat->n+j]+=GAMMA*input->item[i]*this->delta->item[j];
+			dw->item[i*nCols+j]+=GAMMA*input->item[i]*this->delta->item[j];
 		}
-		dw->item[i*mat->n+j]+=GAMMA*this->delta->item[j];
+		dw->item[i*nCols+j]+=GAMMA*this->delta->item[j];
 	}
 }
 void Layer::directUpdateWeights(const Array *input){
 	int i,j;
-	for(j=0;j<mat->n;j++){
+	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			mat->item[i*mat->n+j]+=GAMMA*input->item[i]*this->delta->item[j];
+			mat->item[i*nCols+j]+=GAMMA*input->item[i]*this->delta->item[j];
 		}
-		mat->item[i*mat->n+j]+=GAMMA*this->delta->item[j];
+		mat->item[i*nCols+j]+=GAMMA*this->delta->item[j];
 	}
 }
 void Layer::randomize(){
