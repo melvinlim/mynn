@@ -23,8 +23,6 @@ public:
 	Array *train(const Array *,const Array *);
 	void updateError(const Array *);
 	void updateWeights();
-	void status(const Array *,const Array *);
-	void MNISTStatus(const Array *);
 };
 
 class SingleHidden:public Net{

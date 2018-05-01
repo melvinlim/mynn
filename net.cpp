@@ -71,38 +71,6 @@ void Net::updateError(const Array *yTarget){
 		error->item[i]=yTarget->item[i]-response->item[i];
 	}
 }
-void Net::status(const Array *pIn,const Array *pOut){
-	printf("in:[%.0f,%.0f] resp:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
-	pIn->item[0],pIn->item[1],
-	response->item[0],response->item[1],
-	pOut->item[0],pOut->item[1],
-	error->item[0],error->item[1]
-	);
-}
-double sumSqError(const Array *array){
-	int i;
-	int n=array->n;
-	double *error=array->item;
-	double ret=0;
-	for(i=0;i<n;i++){
-		ret+=error[i]*error[i];
-	}
-	return(ret/2.0);
-}
-int toLabel(double *x){
-	int i=0;
-	for(i=0;i<10;i++){
-		if(*x++>0)	return i;
-	}
-	return i;
-}
-void Net::MNISTStatus(const Array *pOut){
-	printf("resp:%d targ:%d ssqerr:%f\n",
-	toLabel(response->item),
-	toLabel(pOut->item),
-	sumSqError(error)
-	);
-}
 SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);

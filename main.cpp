@@ -50,9 +50,9 @@ int main(){
 			pOut=arrays[1];
 			net->forward(pIn);
 #ifdef SOLVEXOR
-			net->status(pIn,pOut);
+			data.status(pIn,pOut,net->response,net->error);
 #else
-			net->MNISTStatus(pOut);
+			data.status(pOut,net->response,net->error);
 #endif
 		}
 	}

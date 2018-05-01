@@ -28,15 +28,19 @@ public:
 	Data();
 	~Data();
 	Array **fillIOArrays(bool=false);
+	double sumSqError(const Array *);
+	int toLabel(double *);
 };
 class MNISTData:public Data{
 public:
 	MNISTData();
 	~MNISTData();
+	void status(const Array *,const Array *,const Array *);
 };
 class XorData:public Data{
 public:
 	XorData();
 	~XorData();
+	void status(const Array *,const Array *,const Array *,const Array *);
 };
 #endif
