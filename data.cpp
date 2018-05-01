@@ -107,10 +107,10 @@ double Data::sumSqError(const Array *array){
 	}
 	return(ret/2.0);
 }
-int Data::toLabel(double *x){
+int Data::toLabel(const double *x){
 	int i=0;
 	for(i=0;i<10;i++){
-		if(*x++>0)	return i;
+		if(x[i]>0)	return i;
 	}
 	return i;
 }

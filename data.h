@@ -30,7 +30,7 @@ public:
 	~Data();
 	Array **fillIOArrays(bool=false);
 	double sumSqError(const Array *);
-	int toLabel(double *);
+	int toLabel(const double *);
 };
 class MNISTData:public Data{
 public:
