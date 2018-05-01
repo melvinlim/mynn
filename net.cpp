@@ -27,12 +27,12 @@ void Net::forward(const Array *x){
 void Net::backward(const Array *input){
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
+/*
 	L[1]->saveErrors(L[0]->out);
 	L[0]->saveErrors(input);
-/*
+*/
 	L[1]->directUpdateWeights(L[0]->out);
 	L[0]->directUpdateWeights(input);
-*/
 }
 void Net::rand(){
 	int i;
@@ -55,9 +55,9 @@ Array *Net::train(const Array *x,const Array *y){
 	updateError(y);
 	backward(x);
 #ifdef SOLVEXOR
-	status(x,y);
+//	status(x,y);
 #else
-	MNISTStatus(y);
+//	MNISTStatus(y);
 #endif
 	return(error);
 }

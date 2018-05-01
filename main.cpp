@@ -40,13 +40,26 @@ int main(){
 		printf("\n");
 	}
 
-	for(i=0;i<EPOCHS;i++){
-		arrays=data.fillIOArrays();
-		pIn=arrays[0];
-		pOut=arrays[1];
-		net->train(pIn,pOut);
-//		if(i%4){
-			net->updateWeights();
-//		}
+	int hidden=10;
+	for(int network=0;network<100;network++){
+		delete net;
+		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
+		for(i=0;i<EPOCHS;i++){
+			arrays=data.fillIOArrays();
+			pIn=arrays[0];
+			pOut=arrays[1];
+			net->train(pIn,pOut);
+	//		if(i%4){
+				net->updateWeights();
+	//		}
+		}
+		printf("net: %d\n",network);
+		for(int i=0;i<4;i++){
+			arrays=data.fillIOArrays();
+			pIn=arrays[0];
+			pOut=arrays[1];
+			net->train(pIn,pOut);
+			net->status(pIn,pOut);
+		}
 	}
 }

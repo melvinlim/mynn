@@ -53,8 +53,6 @@ void Layer::updateWeights(){
 			mat->item[i*mat->n+j]+=dw->item[i*mat->n+j];
 			dw->item[i*mat->n+j]=0;
 		}
-//		mat->item[i*mat->n+j]+=dw->item[i*mat->n+j];
-//		dw->item[i*mat->n+j]=0;
 	}
 }
 void Layer::saveErrors(const Array *input){
@@ -71,11 +69,6 @@ void Layer::directUpdateWeights(const Array *input){
 	for(j=0;j<mat->n;j++){
 		for(i=0;i<input->n;i++){
 			mat->item[i*mat->n+j]+=GAMMA*input->item[i]*this->delta->item[j];
-/*
-			mat->item[i*mat->n+j]+=0.1*input->item[i]*this->delta->item[j];
-			mat->item[i*mat->n+j]+=0.001*dw->atIndex(i,j);
-			dw->item[i*mat->n+j]=mat->atIndex(i,j);
-*/
 		}
 		mat->item[i*mat->n+j]+=GAMMA*this->delta->item[j];
 	}
