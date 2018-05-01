@@ -79,9 +79,16 @@ Net *IDX::loadNetwork(const char *filename){
 	}
 	int noutputs=idx2Header->nCols;
 	net=new SingleHidden(ninputs,hidden,noutputs);
+	idx2Header=(struct idx2 *)mem;
+	offset=0;
 	for(int i=0;i<layers;i++){
 		mat=loadIDXEntry(idx2Header);
 		net->insertLayer(i,mat);
+		rows=idx2Header->nRows;
+		cols=idx2Header->nCols;
+		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
+		ptr=(int8_t *)mem+offset;
+		idx2Header=(struct idx2 *)ptr;
 	}
 	close(fd);
 	assert(munmap(mem,1024*1024)==0);

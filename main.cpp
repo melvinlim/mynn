@@ -56,6 +56,8 @@ int main(){
 		IDX::saveIDX(net->L[0]->mat,"l0.idx");
 		IDX::saveIDX(net->L[1]->mat,"l1.idx");
 		IDX::saveNetwork(net,"test.idx");
-		IDX::loadNetwork("test.idx");
+		Net *tmpNet=IDX::loadNetwork("test.idx");
+		assert(*tmpNet->L[0]->mat==*net->L[0]->mat);
+		assert(*tmpNet->L[1]->mat==*net->L[1]->mat);
 	}
 }
