@@ -1,7 +1,7 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-//#define SOLVEXOR
+#define SOLVEXOR
 #define BATCH
 
 #define bswap_16(value) ((((value)&0xff)<<8)|((value)>>8))

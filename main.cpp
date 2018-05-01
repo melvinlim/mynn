@@ -3,6 +3,7 @@
 #include"defs.h"
 #include"idx.h"
 #include"mnist.h"
+#include"xor.h"
 
 int main(){
 	int i;

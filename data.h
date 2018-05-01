@@ -7,15 +7,6 @@
 #include<unistd.h>
 #include<sys/mman.h>
 
-const double ex1[NINPUTS]={-1,-1};
-const double ex2[NINPUTS]={-1,+1};
-const double ex3[NINPUTS]={+1,-1};
-const double ex4[NINPUTS]={+1,+1};
-const double ans1[NOUTPUTS]={-1,+1};
-const double ans2[NOUTPUTS]={+1,-1};
-const double ans3[NOUTPUTS]={+1,-1};
-const double ans4[NOUTPUTS]={-1,+1};
-
 class Data{
 protected:
 	Array **arrays;
@@ -30,11 +21,5 @@ public:
 	Array **fillIOArrays(bool=false);
 	double sumSqError(const Array *);
 	int toLabel(const double *);
-};
-class XorData:public Data{
-public:
-	XorData();
-	~XorData();
-	void status(Array **,const Array *,const Array *);
 };
 #endif
