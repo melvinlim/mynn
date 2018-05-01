@@ -24,6 +24,11 @@ struct idx1{
 	int32_t magic;
 	int32_t number;
 };
+struct idx2{
+	int32_t magic;
+	int32_t nRows;
+	int32_t nCols;
+};
 struct idx3{
 	int32_t magic;
 	int32_t nImages;

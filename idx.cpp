@@ -27,28 +27,27 @@ void IDX::printImage(struct image *img){
 }
 Matrix *IDX::loadIDX(const char *filename){
 	void *mem;
-	struct idx3 *idx3Header;
+	struct idx2 *idx2Header;
 	double *ptr;
 	Matrix *mat;
 	int rows,cols,matlen;
 	int fd=open(filename,O_RDONLY);
 	assert(fd>=0);
 	mem=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
-	idx3Header=(struct idx3 *)mem;
-	assert(idx3Header!=MAP_FAILED);
+	idx2Header=(struct idx2 *)mem;
+	assert(idx2Header!=MAP_FAILED);
 	//assert(bswap_32(idx1Header->magic)==0x801);
-	if((idx3Header->magic)!=0x803){
-		assert(bswap_32(idx3Header->magic)==0x803);
-		idx3Header->nImages=bswap_32(idx3Header->nImages);
-		idx3Header->nRows=bswap_32(idx3Header->nRows);
-		idx3Header->nCols=bswap_32(idx3Header->nCols);
+	if((idx2Header->magic)!=0xe02){
+		assert(bswap_32(idx2Header->magic)==0xe02);
+		idx2Header->nRows=bswap_32(idx2Header->nRows);
+		idx2Header->nCols=bswap_32(idx2Header->nCols);
 		assert(false);	//untested.
 	}
-	rows=idx3Header->nRows;
-	cols=idx3Header->nCols;
+	rows=idx2Header->nRows;
+	cols=idx2Header->nCols;
 	matlen=rows*cols;
 	mat=new Matrix(rows,cols);
-	ptr=(double *)++idx3Header;
+	ptr=(double *)++idx2Header;
 	for(int i=0;i<matlen;i++){
 		mat->item[i]=*ptr++;
 	}
@@ -56,12 +55,9 @@ Matrix *IDX::loadIDX(const char *filename){
 	assert(munmap(mem,1024*1024)==0);
 	return mat;
 }
-void IDX::saveIDX(Matrix *mat,const char *filename){
-	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
-	assert(fd>=0);
-	struct idx3 hdr;
-	hdr.magic=0x803;
-	hdr.nImages=1;
+void IDX::saveIDXEntry(Matrix *mat,int fd){
+	struct idx2 hdr;
+	hdr.magic=0xe02;
 	hdr.nRows=mat->m;
 	hdr.nCols=mat->n;
 	double *ptr=mat->item;
@@ -70,6 +66,20 @@ void IDX::saveIDX(Matrix *mat,const char *filename){
 		for(int j=0;j<mat->n;j++){
 			write(fd,ptr++,sizeof(ptr));
 		}
+	}
+}
+void IDX::saveIDX(Matrix *mat,const char *filename){
+	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
+	assert(fd>=0);
+	saveIDXEntry(mat,fd);
+	close(fd);
+}
+void IDX::saveNetwork(Net *network,const char *filename){
+	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
+	assert(fd>=0);
+	int layers=network->n;
+	for(int i=0;i<layers;i++){
+		saveIDX(network->L[i]->mat,filename);
 	}
 	close(fd);
 }
