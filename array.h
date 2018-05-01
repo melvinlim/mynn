@@ -11,14 +11,8 @@ public:
 	double *item;
 	Array(int n);
 	Array(const double *x,const int n);
-	~Array();
-	void print();
+	virtual ~Array();
+	virtual void print();
 	void rand();
-};
-class NetArray:public Array{
-public:
-	NetArray(uint8_t,int);
-	NetArray(uint8_t *,int);
-	~NetArray();
 };
 #endif

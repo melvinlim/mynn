@@ -19,12 +19,7 @@ int main(){
 		printf("%d:\n",i);
 		arrays=data.fillIOArrays(true);
 		arrays[1]->print();
-#ifdef SOLVEXOR
 		arrays[0]->print();
-#else
-		IDX::displayImage(arrays[0]->item);
-#endif
-		printf("\n");
 	}
 	int hidden=HIDDEN;
 	for(int network=0;network<4;network++){

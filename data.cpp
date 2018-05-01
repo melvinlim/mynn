@@ -74,8 +74,9 @@ MNISTData::MNISTData():Data(){
 	pOutputs=new Array *[sz];
 	int nInputs=28*28;
 	for(int i=0;i<nLabels;i++){
-		pInputs[i]=new NetArray(pImage->pixel,nInputs);
-		pOutputs[i]=new NetArray(*pLabel,10);
+		pInputs[i]=new MNISTArray(pImage->pixel,nInputs);
+		pOutputs[i]=expandLabelArray(*pLabel,10);
+//		pOutputs[i]=new MNISTArray(*pLabel,10);
 //		printf("label %d: %d\n",i,*pLabel);
 //		IDX::printImage(pImage);
 		pLabel++;
@@ -117,4 +118,13 @@ void MNISTData::status(const Array *pOut,const Array *response,const Array *erro
 	toLabel(pOut->item),
 	sumSqError(error)
 	);
+}
+Array *MNISTData::expandLabelArray(uint8_t label,int n){
+	Array *array=new Array(n);
+	double *item=array->item;
+	for(int i=0;i<n;i++){
+		item[i]=-1;
+	}
+	item[label]=1;
+	return array;
 }
