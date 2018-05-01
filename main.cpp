@@ -9,7 +9,6 @@ int main(){
 	Array **arrays;
 	Array *pIn,*pOut;
 	net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
-	net->randomize();
 #ifdef SOLVEXOR
 	XorData data;
 #else
@@ -27,16 +26,10 @@ int main(){
 #endif
 		printf("\n");
 	}
-/*
 	int hidden=10;
-	for(int network=0;network<100;network++){
-		delete net;
-//		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
-		net=new Net(2);
-		net->insertLayer(0,3,10);
-		net->insertLayer(1,11,2);
-		net->randomize();
-*/
+	for(int network=0;network<10;network++){
+//		delete net;
+		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
 		for(i=0;i<EPOCHS;i++){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
@@ -46,7 +39,6 @@ int main(){
 				net->updateWeights();
 			}
 		}
-/*
 		printf("net: %d\n",network);
 		for(int i=0;i<4;i++){
 			arrays=data.fillIOArrays();
@@ -56,5 +48,4 @@ int main(){
 			net->status(pIn,pOut);
 		}
 	}
-*/
 }
