@@ -17,13 +17,14 @@ public:
 	void insertLayer(int,int,int);
 	void insertLayer(int,Matrix *);
 	void forward(const Array *);
-	inline void backward(const Array *);
+	inline void backward();
 	void randomize();
 	void print();
 	Array *trainBatch(const Array *,const Array *);
 	Array *trainOnce(const Array *,const Array *);
 	void updateError(const Array *);
 	inline void updateBatchCorrections(const Array *);
+	inline void directUpdateWeights(const Array *);
 	void updateWeights();
 };
 
