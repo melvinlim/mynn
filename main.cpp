@@ -2,20 +2,6 @@
 #include"data.h"
 #include"defs.h"
 
-void displayImage(double *img){
-	double *p=img;
-	for(int i=0;i<28;i++){
-		for(int j=0;j<28;j++){
-			if(*p++>0){
-				printf(".");
-			}else{
-				printf(" ");
-			}
-		}
-		printf("\n");
-	}
-}
-
 int main(){
 	int i;
 	Net *net;
@@ -23,16 +9,10 @@ int main(){
 	Array *pIn,*pOut;
 	net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
 	net->randomize();
-/*
-	net=new Net(2);
-	net->insertLayer(0,3,10);
-	net->insertLayer(1,11,2);
-	net->randomize();
-*/
 #ifdef SOLVEXOR
 	XorData data;
 #else
-//	MNISTData data;
+	MNISTData data;
 #endif
 
 	for(int i=0;i<8;i++){
@@ -42,7 +22,7 @@ int main(){
 #ifdef SOLVEXOR
 		arrays[0]->print();
 #else
-		displayImage(arrays[0]->item);
+		IDX::displayImage(arrays[0]->item);
 #endif
 		printf("\n");
 	}

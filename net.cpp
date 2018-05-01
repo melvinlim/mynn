@@ -57,7 +57,7 @@ Array *Net::train(const Array *x,const Array *y){
 #ifdef SOLVEXOR
 	status(x,y);
 #else
-//	MNISTStatus(y);
+	MNISTStatus(y);
 #endif
 	return(error);
 }
