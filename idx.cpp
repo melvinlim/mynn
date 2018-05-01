@@ -79,7 +79,7 @@ void IDX::saveNetwork(Net *network,const char *filename){
 	assert(fd>=0);
 	int layers=network->n;
 	for(int i=0;i<layers;i++){
-		saveIDX(network->L[i]->mat,filename);
+		saveIDXEntry(network->L[i]->mat,fd);
 	}
 	close(fd);
 }

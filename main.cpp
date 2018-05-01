@@ -47,11 +47,6 @@ int main(){
 			net->forward(pIn);
 			net->status(pIn,pOut);
 		}
-		IDX::saveIDX(net->L[0]->mat,"test.idx");
-		Matrix *tmpMat;
-		net->L[0]->mat->print();
-		tmpMat=IDX::loadIDX("test.idx");
-		tmpMat->print();
-		assert(*tmpMat==*net->L[0]->mat);
+		IDX::saveNetwork(net,"test.idx");
 	}
 }
