@@ -22,6 +22,7 @@ protected:
 	Array **pInputs;
 	Array **pOutputs;
 public:
+	int nOutputs;
 	int sz;
 	int index;
 	Data();

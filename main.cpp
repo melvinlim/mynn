@@ -26,7 +26,7 @@ int main(){
 #endif
 		printf("\n");
 	}
-	int hidden=10;
+	int hidden=HIDDEN;
 	for(int network=0;network<2;network++){
 		delete net;
 		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
@@ -38,14 +38,22 @@ int main(){
 			if(i%4){
 				net->updateWeights();
 			}
+#ifndef SOLVEXOR
+//			printf("epoch: %i\n",i);
+//			net->MNISTStatus(pOut);
+#endif
 		}
 		printf("net: %d\n",network);
-		for(int i=0;i<4;i++){
+		for(int i=0;i<data.nOutputs;i++){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
 			net->forward(pIn);
+#ifdef SOLVEXOR
 			net->status(pIn,pOut);
+#else
+			net->MNISTStatus(pOut);
+#endif
 		}
 	}
 }

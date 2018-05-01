@@ -9,12 +9,13 @@
 	#define NINPUTS 2
 	#define NOUTPUTS 2
 	#define HIDDEN 10
+	#define EPOCHS 100000
 #else
 	#define NINPUTS (28*28)
 	#define NOUTPUTS (10)
 	#define HIDDEN 200
+	#define EPOCHS 2000
 #endif
-#define EPOCHS 100000
 #define GAMMA (0.01)
 #define RANDSCALING 10	//scale random weights to be from -0.1 to +0.1
 #include<cstdint>
