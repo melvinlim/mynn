@@ -12,7 +12,7 @@ public:
 	int n;
 	Array *error;
 	Array *response;
-	Net(int n=0);
+	Net(int,int);
 	~Net();
 	void insertLayer(int,int,int);
 	void forward(const Array *);

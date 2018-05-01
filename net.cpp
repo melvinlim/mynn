@@ -1,11 +1,11 @@
 #include"net.h"
 
-Net::Net(int n){
+Net::Net(int n,int outputs){
 	srandom(time(0));
 	this->n=n;
 	L=new Layer *[n];
-	error=new Array(n);
-	response=new Array(n);
+	error=new Array(outputs);
+	response=new Array(outputs);
 }
 Net::~Net(){
 	int i;
@@ -99,7 +99,7 @@ void Net::MNISTStatus(const Array *pOut){
 	sumSqError(error)
 	);
 }
-SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2){
+SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);
 	int L2M=(hidden+1);

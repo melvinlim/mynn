@@ -1,6 +1,7 @@
 #include"net.h"
 #include"data.h"
 #include"defs.h"
+#include"idx.h"
 
 int main(){
 	int i;

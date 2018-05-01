@@ -41,19 +41,6 @@ XorData::XorData():Data(){
 	pOutputs[2]=new Array(ans3,NOUTPUTS);
 	pOutputs[3]=new Array(ans4,NOUTPUTS);
 }
-void printImage(struct image *img){
-	uint8_t *p=img->pixel;
-	for(int i=0;i<28;i++){
-		for(int j=0;j<28;j++){
-			if(*p++>=128){
-				printf(".");
-			}else{
-				printf(" ");
-			}
-		}
-		printf("\n");
-	}
-}
 MNISTData::~MNISTData(){}
 MNISTData::MNISTData():Data(){
 	void *mem1,*mem2;
@@ -86,7 +73,7 @@ MNISTData::MNISTData():Data(){
 		pInputs[i]=new NetArray(pImage->pixel,nInputs);
 		pOutputs[i]=new NetArray(*pLabel,10);
 //		printf("label %d: %d\n",i,*pLabel);
-//		printImage(pImage);
+//		IDX::printImage(pImage);
 		pLabel++;
 		pImage++;
 	}
