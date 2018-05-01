@@ -1,4 +1,13 @@
 #include"layer.h"
+Layer::Layer(Matrix *mat){
+	int m=mat->m;
+	int n=mat->n;
+	out=new Array(n);
+	deriv=new Array(n);
+	delta=new Array(n);
+	this->mat=mat;
+	dw=new Matrix(m,n);
+}
 Layer::Layer(int m,int n){
 	out=new Array(n);
 	deriv=new Array(n);

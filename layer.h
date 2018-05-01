@@ -12,14 +12,15 @@ public:
 	Array *out;
 	Array *deriv;
 	Array *delta;
-	Layer(int n,int m);
+	Layer(int,int);
+	Layer(Matrix *);
 	~Layer();
-	Array *forward(const Array *x);
-	void outputDelta(const Array *error);
-	void hiddenDelta(const Matrix *W,const Array *delta2);
-	void saveErrors(const Array *input);
+	Array *forward(const Array *);
+	void outputDelta(const Array *);
+	void hiddenDelta(const Matrix *,const Array *);
+	void saveErrors(const Array *);
 	void updateWeights();
-	void directUpdateWeights(const Array *input);
+	void directUpdateWeights(const Array *);
 	void randomize();
 };
 #endif

@@ -16,6 +16,9 @@ Net::~Net(){
 	delete error;
 	delete response;
 }
+void Net::insertLayer(int i,Matrix *mat){
+	L[i]=new Layer(mat);
+}
 void Net::insertLayer(int i,int m,int n){
 	L[i]=new Layer(m,n);
 }
