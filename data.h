@@ -36,13 +36,13 @@ class MNISTData:public Data{
 public:
 	MNISTData();
 	~MNISTData();
-	void status(const Array *,const Array *,const Array *);
+	void status(Array **,const Array *,const Array *);
 	Array *expandLabelArray(uint8_t,int);
 };
 class XorData:public Data{
 public:
 	XorData();
 	~XorData();
-	void status(const Array *,const Array *,const Array *,const Array *);
+	void status(Array **,const Array *,const Array *);
 };
 #endif

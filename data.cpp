@@ -87,7 +87,9 @@ MNISTData::MNISTData():Data(){
 	assert(munmap(mem1,1024*1024)==0);
 	assert(munmap(mem2,8*1024*1024)==0);
 }
-void XorData::status(const Array *pIn,const Array *pOut,const Array *response,const Array *error){
+void XorData::status(Array **ioArrays,const Array *response,const Array *error){
+	Array *pIn=ioArrays[0];
+	Array *pOut=ioArrays[1];
 	printf("in:[%.0f,%.0f] resp:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
 	pIn->item[0],pIn->item[1],
 	response->item[0],response->item[1],
@@ -112,7 +114,8 @@ int Data::toLabel(double *x){
 	}
 	return i;
 }
-void MNISTData::status(const Array *pOut,const Array *response,const Array *error){
+void MNISTData::status(Array **ioArrays,const Array *response,const Array *error){
+	Array *pOut=ioArrays[0];
 	printf("resp:%d targ:%d ssqerr:%f\n",
 	toLabel(response->item),
 	toLabel(pOut->item),

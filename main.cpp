@@ -44,11 +44,7 @@ int main(){
 			pIn=arrays[0];
 			pOut=arrays[1];
 			net->forward(pIn);
-#ifdef SOLVEXOR
-			data.status(pIn,pOut,net->response,net->error);
-#else
-			data.status(pOut,net->response,net->error);
-#endif
+			data.status(arrays,net->response,net->error);
 		}
 	}
 }
