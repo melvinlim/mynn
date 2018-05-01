@@ -13,8 +13,8 @@ Net::~Net(){
 		delete L[i];
 	}
 	delete[] L;
-	//delete error;
-	//delete response;
+	delete error;
+	delete response;
 }
 void Net::insertLayer(int i,int m,int n){
 	L[i]=new Layer(m,n);
