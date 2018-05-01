@@ -20,6 +20,6 @@ public:
 	void saveErrors(const Array *input);
 	void updateWeights();
 	void directUpdateWeights(const Array *input);
-	void rand();
+	void randomize();
 };
 #endif

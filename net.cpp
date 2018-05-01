@@ -34,10 +34,10 @@ void Net::backward(const Array *input){
 	L[1]->directUpdateWeights(L[0]->out);
 	L[0]->directUpdateWeights(input);
 }
-void Net::rand(){
+void Net::randomize(){
 	int i;
 	for(i=0;i<n;i++){
-		L[i]->rand();
+		L[i]->randomize();
 	}
 }
 void Net::print(){
@@ -106,5 +106,5 @@ SingleHidden::SingleHidden(int inputs,int hidden,int outputs):Net(2){
 	int L2N=(outputs);
 	insertLayer(0,L1M,L1N);
 	insertLayer(1,L2M,L2N);
-	rand();
+	randomize();
 }

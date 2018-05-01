@@ -17,7 +17,7 @@ public:
 	void insertLayer(int,int,int);
 	void forward(const Array *);
 	void backward(const Array *);
-	void rand();
+	void randomize();
 	void print();
 	Array *train(const Array *,const Array *);
 	void updateError(const Array *);

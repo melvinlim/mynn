@@ -43,7 +43,11 @@ int main(){
 	int hidden=10;
 	for(int network=0;network<100;network++){
 		delete net;
-		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
+//		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
+		net=new Net(2);
+		net->insertLayer(0,3,10);
+		net->insertLayer(1,11,2);
+		net->randomize();
 		for(i=0;i<EPOCHS;i++){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];

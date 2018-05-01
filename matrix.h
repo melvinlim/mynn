@@ -13,7 +13,7 @@ public:
 	~Matrix();
 	double atIndex(int,int) const;
 	double atIndex(int,int);
-	void rand();
+	void randomize();
 	void print();
 };
 #endif

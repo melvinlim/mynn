@@ -20,7 +20,7 @@ double Matrix::atIndex(int i,int j){
 	//assert(((i+1)*(j+1))<=(n*m));
 	return item[i*n+j];
 }
-void Matrix::rand(){
+void Matrix::randomize(){
 	int i,j;
 	double *p=item;
 	for(i=0;i<this->m;i++){

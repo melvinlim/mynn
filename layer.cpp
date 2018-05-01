@@ -73,6 +73,6 @@ void Layer::directUpdateWeights(const Array *input){
 		mat->item[i*mat->n+j]+=GAMMA*this->delta->item[j];
 	}
 }
-void Layer::rand(){
-	mat->rand();
+void Layer::randomize(){
+	mat->randomize();
 }
