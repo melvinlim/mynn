@@ -8,11 +8,11 @@
 #ifdef SOLVEXOR
 	#define NINPUTS 2
 	#define NOUTPUTS 2
-	#define HIDDEN 20
+	#define HIDDEN 10
 #else
-	#define NINPUTS (28*28)
-	#define NOUTPUTS (10)
-	#define HIDDEN 200
+//	#define NINPUTS (28*28)
+//	#define NOUTPUTS (10)
+//	#define HIDDEN 200
 #endif
 #define EPOCHS 100000
 #define GAMMA (0.1)
