@@ -59,5 +59,9 @@ int main(){
 		Net *tmpNet=IDX::loadNetwork("test.idx");
 		assert(*tmpNet->L[0]->mat==*net->L[0]->mat);
 		assert(*tmpNet->L[1]->mat==*net->L[1]->mat);
+		net->forward(pIn);
+		net->status(pIn,pOut);
+		tmpNet->forward(pIn);
+		tmpNet->status(pIn,pOut);
 	}
 }
