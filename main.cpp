@@ -29,20 +29,21 @@ int main(){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
+#ifdef BATCH
 			net->trainBatch(pIn,pOut);
 			if(i%4){
 				net->updateWeights();
 			}
-#ifndef SOLVEXOR
-//			printf("epoch: %i\n",i);
-//			net->MNISTStatus(pOut);
+#else
+			net->trainOnce(pIn,pOut);
+			printf("epoch: %i\n",i);
+			data.status(arrays,net->response,net->error);
 #endif
 		}
 		printf("net: %d\n",network);
 		for(int i=0;i<data.nOutputs;i++){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
-			pOut=arrays[1];
 			net->forward(pIn);
 			data.status(arrays,net->response,net->error);
 		}

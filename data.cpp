@@ -115,7 +115,7 @@ int Data::toLabel(const double *x){
 	return i;
 }
 void MNISTData::status(Array **ioArrays,const Array *response,const Array *error){
-	Array *pOut=ioArrays[0];
+	Array *pOut=ioArrays[1];
 	printf("resp:%d targ:%d ssqerr:%f\n",
 	toLabel(response->item),
 	toLabel(pOut->item),
