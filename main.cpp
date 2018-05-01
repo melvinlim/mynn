@@ -26,8 +26,8 @@ int main(){
 #endif
 		printf("\n");
 	}
-	int hidden=10;
-	for(int network=0;network<10;network++){
+	int hidden=15;
+	for(int network=0;network<5;network++){
 //		delete net;
 		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
 		for(i=0;i<EPOCHS;i++){
@@ -47,5 +47,8 @@ int main(){
 			net->forward(pIn);
 			net->status(pIn,pOut);
 		}
+		IDX::saveIDX(net->L[0]->mat,"test.idx");
+		Matrix *tmpMat=new Matrix(net->L[0]->mat->m,net->L[0]->mat->n);
+		IDX::loadIDX(tmpMat,"test.idx");
 	}
 }
