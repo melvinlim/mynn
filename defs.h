@@ -8,7 +8,7 @@
 #ifdef SOLVEXOR
 	#define NINPUTS 2
 	#define NOUTPUTS 2
-	#define HIDDEN 10
+	#define HIDDEN 15
 	#define EPOCHS 100000
 #else
 	#define NINPUTS (28*28)

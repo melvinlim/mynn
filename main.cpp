@@ -27,14 +27,14 @@ int main(){
 		printf("\n");
 	}
 	int hidden=HIDDEN;
-	for(int network=0;network<2;network++){
+	for(int network=0;network<4;network++){
 		delete net;
 		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
 		for(i=0;i<EPOCHS;i++){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
-			net->train(pIn,pOut);
+			net->trainBatch(pIn,pOut);
 			if(i%4){
 				net->updateWeights();
 			}

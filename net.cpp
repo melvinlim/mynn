@@ -28,11 +28,9 @@ void Net::forward(const Array *x){
 	L[1]->forward(L[0]->out);
 	response=L[1]->out;
 }
-void Net::backward(const Array *input){
+inline void Net::backward(const Array *input){
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
-	L[1]->saveErrors(L[0]->out);
-	L[0]->saveErrors(input);
 /*
 	L[1]->directUpdateWeights(L[0]->out);
 	L[0]->directUpdateWeights(input);
@@ -50,19 +48,25 @@ void Net::print(){
 		L[i]->mat->print();
 	}
 }
+inline void Net::updateBatchCorrections(const Array *input){
+	L[1]->saveErrors(L[0]->out);
+	L[0]->saveErrors(input);
+}
 void Net::updateWeights(){
 	L[1]->updateWeights();
 	L[0]->updateWeights();
 }
-Array *Net::train(const Array *x,const Array *y){
+Array *Net::trainOnce(const Array *x,const Array *y){
 	forward(x);
 	updateError(y);
 	backward(x);
-#ifdef SOLVEXOR
-//	status(x,y);
-#else
-//	MNISTStatus(y);
-#endif
+	return(error);
+}
+Array *Net::trainBatch(const Array *x,const Array *y){
+	forward(x);
+	updateError(y);
+	backward(x);
+	updateBatchCorrections(x);
 	return(error);
 }
 void Net::updateError(const Array *yTarget){
