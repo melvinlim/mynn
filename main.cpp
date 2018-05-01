@@ -2,6 +2,7 @@
 #include"data.h"
 #include"defs.h"
 #include"idx.h"
+#include"mnist.h"
 
 int main(){
 	int i;
@@ -10,14 +11,16 @@ int main(){
 	Array *pIn,*pOut;
 	net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
 #ifdef SOLVEXOR
-	XorData data;
+	XorData trainingData;
+	XorData testingData;
 #else
-	MNISTData data;
+	MNISTTrainingData trainingData;
+	MNISTTestingData testingData;
 #endif
 
 	for(int i=0;i<8;i++){
 		printf("%d:\n",i);
-		arrays=data.fillIOArrays(true);
+		arrays=trainingData.fillIOArrays(true);
 		arrays[1]->print();
 		arrays[0]->print();
 	}
@@ -26,7 +29,7 @@ int main(){
 		delete net;
 		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
 		for(i=0;i<EPOCHS;i++){
-			arrays=data.fillIOArrays();
+			arrays=trainingData.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
 #ifdef BATCH
@@ -37,15 +40,15 @@ int main(){
 #else
 			net->trainOnce(pIn,pOut);
 			printf("epoch: %i\n",i);
-			data.status(arrays,net->response,net->error);
+			trainingData.status(arrays,net->response,net->error);
 #endif
 		}
 		printf("net: %d\n",network);
-		for(int i=0;i<data.nOutputs;i++){
-			arrays=data.fillIOArrays();
+		for(int i=0;i<testingData.nOutputs;i++){
+			arrays=testingData.fillIOArrays();
 			pIn=arrays[0];
 			net->forward(pIn);
-			data.status(arrays,net->response,net->error);
+			testingData.status(arrays,net->response,net->error);
 		}
 	}
 }

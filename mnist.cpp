@@ -33,20 +33,24 @@ Array *MNISTData::expandLabelArray(uint8_t label,int n){
 	item[label]=1;
 	return array;
 }
+MNISTTrainingData::~MNISTTrainingData(){}
+MNISTTrainingData::MNISTTrainingData():MNISTData("t10k-labels-idx1-ubyte","t10k-images-idx3-ubyte"){}
+MNISTTestingData::~MNISTTestingData(){}
+MNISTTestingData::MNISTTestingData():MNISTData("train-labels-idx1-ubyte","train-images-idx3-ubyte"){}
 MNISTData::~MNISTData(){}
-MNISTData::MNISTData():Data(){
+MNISTData::MNISTData(const char *file1,const char *file2):Data(){
 	void *mem1,*mem2;
 	struct idx1 *idx1Header;
 	struct idx3 *idx3Header;
 	struct image *pImage;
 	uint8_t *pLabel;
-	int fd1=open("t10k-labels-idx1-ubyte",O_RDONLY);
-	int fd3=open("t10k-images-idx3-ubyte",O_RDONLY);
+	int fd1=open(file1,O_RDONLY);
+	int fd3=open(file2,O_RDONLY);
 	assert(fd1>=0);
 	assert(fd3>=0);
 	nOutputs=10;
-	mem1=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd1,0);
-	mem2=mmap(0,8*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
+	mem1=mmap(0,6*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd1,0);
+	mem2=mmap(0,6*8*1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd3,0);
 	idx1Header=(struct idx1 *)mem1;
 	idx3Header=(struct idx3 *)mem2;
 	assert(idx1Header!=MAP_FAILED);

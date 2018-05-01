@@ -17,9 +17,19 @@ public:
 
 class MNISTData:public Data{
 public:
-	MNISTData();
+	MNISTData(const char *,const char *);
 	~MNISTData();
 	void status(Array **,const Array *,const Array *);
 	Array *expandLabelArray(uint8_t,int);
+};
+class MNISTTrainingData:public MNISTData{
+public:
+	MNISTTrainingData();
+	~MNISTTrainingData();
+};
+class MNISTTestingData:public MNISTData{
+public:
+	MNISTTestingData();
+	~MNISTTestingData();
 };
 #endif
