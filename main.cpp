@@ -48,9 +48,10 @@ int main(){
 			net->status(pIn,pOut);
 		}
 		IDX::saveIDX(net->L[0]->mat,"test.idx");
-		Matrix *tmpMat;//=new Matrix(net->L[0]->mat->m,net->L[0]->mat->n);
+		Matrix *tmpMat;
 		net->L[0]->mat->print();
 		tmpMat=IDX::loadIDX("test.idx");
 		tmpMat->print();
+		assert(*tmpMat==*net->L[0]->mat);
 	}
 }
