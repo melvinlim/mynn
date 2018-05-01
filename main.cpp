@@ -18,9 +18,14 @@ void displayImage(double *img){
 
 int main(){
 	int i;
-	Net *net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
+	Net *net;
 	Array **arrays;
 	Array *pIn,*pOut;
+	//net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
+	net=new Net(2);
+	net->insertLayer(0,3,10);
+	net->insertLayer(1,11,2);
+	net->randomize();
 
 #ifdef SOLVEXOR
 	XorData data;

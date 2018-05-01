@@ -4,6 +4,8 @@ Net::Net(int n){
 	srandom(time(0));
 	this->n=n;
 	L=new Layer *[n];
+	error=new Array(n);
+	response=new Array(n);
 }
 Net::~Net(){
 	int i;
@@ -11,13 +13,11 @@ Net::~Net(){
 		delete L[i];
 	}
 	delete[] L;
+	//delete error;
+	//delete response;
 }
 void Net::insertLayer(int i,int m,int n){
 	L[i]=new Layer(m,n);
-	if(i==(this->n-1)){
-		error=new Array(n);
-		response=new Array(n);
-	}
 }
 void Net::forward(const Array *x){
 	L[0]->forward(x);

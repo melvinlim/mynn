@@ -11,6 +11,7 @@ Layer::~Layer(){
 	delete deriv;
 	delete delta;
 	delete mat;
+	delete dw;
 }
 Array *Layer::forward(const Array *x){
 	int i,j;
