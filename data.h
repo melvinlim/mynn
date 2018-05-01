@@ -1,7 +1,6 @@
 #ifndef _DATA_H
 #define _DATA_H
 #include"array.h"
-#include"mnist.h"
 #include<time.h>
 #include<assert.h>
 #include<fcntl.h>
@@ -31,13 +30,6 @@ public:
 	Array **fillIOArrays(bool=false);
 	double sumSqError(const Array *);
 	int toLabel(const double *);
-};
-class MNISTData:public Data{
-public:
-	MNISTData();
-	~MNISTData();
-	void status(Array **,const Array *,const Array *);
-	Array *expandLabelArray(uint8_t,int);
 };
 class XorData:public Data{
 public:
