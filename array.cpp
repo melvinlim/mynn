@@ -20,7 +20,8 @@ Array::Array(const double *x,const int n){
 	}
 }
 Array::~Array(){
-	delete[] item;
+	if(item)
+		delete[] item;
 }
 void Array::print(){
 	int i;

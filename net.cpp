@@ -5,16 +5,17 @@ Net::Net(int n,int outputs){
 	this->n=n;
 	L=new Layer *[n];
 	error=new Array(outputs);
-	response=new Array(outputs);
+	response=0;
 }
 Net::~Net(){
 	int i;
-	for(i=0;i<n;i++){
-		delete L[i];
+	if(L){
+		for(i=0;i<n;i++){
+			delete L[i];
+		}
 	}
 	delete[] L;
 	delete error;
-	delete response;
 }
 void Net::insertLayer(int i,Matrix *mat){
 	L[i]=new Layer(mat);
