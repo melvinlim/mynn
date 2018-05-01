@@ -44,7 +44,7 @@ int main(){
 			arrays=data.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
-			net->train(pIn,pOut);
+			net->forward(pIn);
 			net->status(pIn,pOut);
 		}
 	}

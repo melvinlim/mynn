@@ -68,7 +68,7 @@ void Net::updateError(const Array *yTarget){
 	}
 }
 void Net::status(const Array *pIn,const Array *pOut){
-	printf("in:[%.0f,%.0f] ans:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
+	printf("in:[%.0f,%.0f] resp:[%f,%f] targ:[%.0f,%.0f] err:[%f,%f]\n",
 	pIn->item[0],pIn->item[1],
 	response->item[0],response->item[1],
 	pOut->item[0],pOut->item[1],
