@@ -58,8 +58,8 @@ MNISTData::MNISTData(const char *file1,const char *file2):Data(){
 	assert(bswap_32(idx1Header->magic)==0x801);
 	assert(bswap_32(idx3Header->magic)==0x803);
 	int nLabels=bswap_32(idx1Header->number);
-	printf("0x%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
-	printf("0x%x\n%d\n",bswap_32(idx3Header->magic),bswap_32(idx3Header->nImages));
+	//printf("0x%x\n%d\n",bswap_32(idx1Header->magic),bswap_32(idx1Header->number));
+	//printf("0x%x\n%d\n",bswap_32(idx3Header->magic),bswap_32(idx3Header->nImages));
 	pLabel=(uint8_t *)(++idx1Header);
 	pImage=(struct image *)(++idx3Header);
 	sz=nLabels;
