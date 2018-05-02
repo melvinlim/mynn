@@ -24,11 +24,9 @@ int main(){
 
 	for(int i=0;i<8;i++){
 		arrays=trainingData.fillIOArrays(true);
-#ifndef BENCHMARK
 		printf("%d:\n",i);
 		arrays[1]->print();
 		arrays[0]->print();
-#endif
 	}
 	int hidden=HIDDEN;
 	double gamma=GAMMA;
@@ -48,25 +46,19 @@ int main(){
 #else
 			errorArray=net->trainOnce(pIn,pOut);
 			sumSqErr+=trainingData.sumSqError(errorArray);
-#ifndef BENCHMARK
 			printf("epoch: %i\n",i);
 			trainingData.status(arrays,net->response,net->error);
 #endif
-#endif
 		}
-#ifndef BENCHMARK
 		printf("net: %d\n",network);
 		printf("avg sse: %f\n",sumSqErr/(double)EPOCHS);
-#endif
 		for(int i=0;i<testingData.nOutputs;i++){
 			arrays=testingData.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
 			net->forward(pIn);
 			net->updateError(pOut);
-#ifndef BENCHMARK
 			testingData.status(arrays,net->response,net->error);
-#endif
 		}
 		delete net;
 	}
