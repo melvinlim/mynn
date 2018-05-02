@@ -5,22 +5,23 @@
 #include<cstdint>
 #include"defs.h"
 
+template<typename T>
 class Array{
 public:
 	int n;
-	double *item;
+	T *item;
 	Array(int n){
 		int i;
 		this->n=n;
-		item=new double[n];
+		item=new T[n];
 		for(i=0;i<n;i++){
 			item[i]=0;
 		}
 	}
-	Array(const double *x,const int n){
+	Array(const T *x,const int n){
 		int i;
 		this->n=n;
-		this->item=new double[n];
+		this->item=new T[n];
 		if(x){
 			for(i=0;i<n;i++){
 				this->item[i]=x[i];
@@ -33,7 +34,7 @@ public:
 	}
 	virtual void print(){
 		int i;
-		double *x;
+		T *x;
 		x=this->item;
 		for(i=0;i<this->n;i++){
 			printf("[%3i] %+.02f\t",i,*x++);

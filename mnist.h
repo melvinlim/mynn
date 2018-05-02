@@ -8,7 +8,7 @@
 #include"data.h"
 #include"idx.h"
 
-class MNISTArray:public Array{
+class MNISTArray:public Array<double>{
 public:
 	MNISTArray(uint8_t *,int);
 	~MNISTArray();
@@ -19,8 +19,8 @@ class MNISTData:public Data{
 public:
 	MNISTData(const char *,const char *);
 	~MNISTData();
-	void status(Array **,const Array *,const Array *);
-	Array *expandLabelArray(uint8_t,int);
+	void status(Array<double> **,const Array<double> *,const Array<double> *);
+	Array<double> *expandLabelArray(uint8_t,int);
 };
 class MNISTTrainingData:public MNISTData{
 public:

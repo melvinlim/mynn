@@ -23,7 +23,7 @@ void Net::insertLayer(int i,Matrix<double> &mat,double gamma){
 void Net::insertLayer(int i,int m,int n,double gamma){
 	L[i]=new Layer(m,n,gamma);
 }
-void Net::forward(const Array *x){
+void Net::forward(const Array<double> *x){
 	L[0]->forward(*x);
 	L[1]->forward(L[0]->out);
 }
@@ -43,11 +43,11 @@ void Net::print(){
 		L[i]->mat.print();
 	}
 }
-inline void Net::updateBatchCorrections(const Array *input){
+inline void Net::updateBatchCorrections(const Array<double> *input){
 	L[1]->saveErrors(L[0]->out);
 	L[0]->saveErrors(*input);
 }
-inline void Net::directUpdateWeights(const Array *input){
+inline void Net::directUpdateWeights(const Array<double> *input){
 	L[1]->directUpdateWeights(L[0]->out);
 	L[0]->directUpdateWeights(*input);
 }
@@ -55,21 +55,21 @@ void Net::updateWeights(){
 	L[1]->updateWeights();
 	L[0]->updateWeights();
 }
-Array &Net::trainOnce(const Array *x,const Array *y){
+Array<double> &Net::trainOnce(const Array<double> *x,const Array<double> *y){
 	forward(x);
 	updateError(y);
 	backward();
 	directUpdateWeights(x);
 	return(error);
 }
-Array &Net::trainBatch(const Array *x,const Array *y){
+Array<double> &Net::trainBatch(const Array<double> *x,const Array<double> *y){
 	forward(x);
 	updateError(y);
 	backward();
 	updateBatchCorrections(x);
 	return(error);
 }
-void Net::updateError(const Array *yTarget){
+void Net::updateError(const Array<double> *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
 		error.item[i]=yTarget->item[i]-response->item[i];

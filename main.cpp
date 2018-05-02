@@ -10,8 +10,8 @@ int main(){
 	int i;
 	Net *net;
 	double sumSqErr;
-	Array **arrays;
-	Array *pIn,*pOut;
+	Array<double> **arrays;
+	Array<double> *pIn,*pOut;
 #ifdef SOLVEXOR
 	XorData trainingData;
 	XorData testingData;

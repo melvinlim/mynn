@@ -10,21 +10,21 @@ class Net{
 public:
 	Layer **L;
 	int n;
-	Array error;
-	Array *response;
+	Array<double> error;
+	Array<double> *response;
 	Net(int,int);
 	~Net();
 	void insertLayer(int,int,int,double);
 	void insertLayer(int,Matrix<double> &,double);
-	void forward(const Array *);
+	void forward(const Array<double> *);
 	inline void backward();
 	void randomize();
 	void print();
-	Array &trainBatch(const Array *,const Array *);
-	Array &trainOnce(const Array *,const Array *);
-	void updateError(const Array *);
-	inline void updateBatchCorrections(const Array *);
-	inline void directUpdateWeights(const Array *);
+	Array<double> &trainBatch(const Array<double> *,const Array<double> *);
+	Array<double> &trainOnce(const Array<double> *,const Array<double> *);
+	void updateError(const Array<double> *);
+	inline void updateBatchCorrections(const Array<double> *);
+	inline void directUpdateWeights(const Array<double> *);
 	void updateWeights();
 };
 

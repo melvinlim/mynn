@@ -25,7 +25,7 @@ delta(mat.nCols)
 }
 Layer::~Layer(){
 }
-Array &Layer::forward(const Array &x){
+Array<double> &Layer::forward(const Array<double> &x){
 	int i,j;
 	double a,tmp;
 	for(j=0;j<nCols;j++){
@@ -40,13 +40,13 @@ Array &Layer::forward(const Array &x){
 	}
 	return(out);
 }
-void Layer::outputDelta(const Array &error){
+void Layer::outputDelta(const Array<double> &error){
 	int j;
 	for(j=0;j<error.n;j++){
 		delta.item[j]=deriv.item[j]*error.item[j];
 	}
 }
-void Layer::hiddenDelta(const Matrix<double> &W,const Array &delta2){
+void Layer::hiddenDelta(const Matrix<double> &W,const Array<double> &delta2){
 	int j,k;
 	double sum;
 	//assert(W.m==delta.n);
@@ -68,7 +68,7 @@ void Layer::updateWeights(){
 		}
 	}
 }
-void Layer::saveErrors(const Array &input){
+void Layer::saveErrors(const Array<double> &input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input.n;i++){
@@ -77,7 +77,7 @@ void Layer::saveErrors(const Array &input){
 		dw.item[i*nCols+j]+=gamma*delta.item[j];
 	}
 }
-void Layer::directUpdateWeights(const Array &input){
+void Layer::directUpdateWeights(const Array<double> &input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input.n;i++){

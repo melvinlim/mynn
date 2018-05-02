@@ -5,7 +5,7 @@ MNISTArray::~MNISTArray(){
 void MNISTArray::print(){
 	IDX::displayImage(item);
 }
-MNISTArray::MNISTArray(uint8_t *pixels,int n):Array(n){
+MNISTArray::MNISTArray(uint8_t *pixels,int n):Array<double>(n){
 	uint8_t *p=pixels;
 	for(int i=0;i<n;i++){
 		if(*p++>=127){
@@ -16,16 +16,16 @@ MNISTArray::MNISTArray(uint8_t *pixels,int n):Array(n){
 	}
 }
 
-void MNISTData::status(Array **ioArrays,const Array *response,const Array *error){
-	Array *pOut=ioArrays[1];
+void MNISTData::status(Array<double> **ioArrays,const Array<double> *response,const Array<double> *error){
+	Array<double> *pOut=ioArrays[1];
 	printf("resp:%d targ:%d ssqerr:%f\n",
 	toLabel(response->item),
 	toLabel(pOut->item),
 	sumSqError(error)
 	);
 }
-Array *MNISTData::expandLabelArray(uint8_t label,int n){
-	Array *array=new Array(n);
+Array<double> *MNISTData::expandLabelArray(uint8_t label,int n){
+	Array<double> *array=new Array<double>(n);
 	double *item=array->item;
 	for(int i=0;i<n;i++){
 		item[i]=-1;
@@ -63,8 +63,8 @@ MNISTData::MNISTData(const char *file1,const char *file2):Data(){
 	pLabel=(uint8_t *)(++idx1Header);
 	pImage=(struct image *)(++idx3Header);
 	sz=nLabels;
-	pInputs=new Array *[sz];
-	pOutputs=new Array *[sz];
+	pInputs=new Array<double> *[sz];
+	pOutputs=new Array<double> *[sz];
 	int nInputs=28*28;
 	for(int i=0;i<nLabels;i++){
 		pInputs[i]=new MNISTArray(pImage->pixel,nInputs);

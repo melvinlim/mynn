@@ -6,17 +6,17 @@
 
 class Data{
 protected:
-	Array **arrays;
-	Array **pInputs;
-	Array **pOutputs;
+	Array<double> **arrays;
+	Array<double> **pInputs;
+	Array<double> **pOutputs;
 public:
 	int nOutputs;
 	int sz;
 	int index;
 	Data();
 	~Data();
-	Array **fillIOArrays(bool=false);
-	double sumSqError(const Array *);
+	Array<double> **fillIOArrays(bool=false);
+	double sumSqError(const Array<double> *);
 	int toLabel(const double *);
 };
 #endif

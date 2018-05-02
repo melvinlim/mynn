@@ -7,7 +7,7 @@ Data::Data(){
 	srandom(time(0));
 	pInputs=0;
 	pOutputs=0;
-	arrays=new Array *[2];
+	arrays=new Array<double> *[2];
 }
 Data::~Data(){
 	for(int i=0;i<sz;i++){
@@ -18,7 +18,7 @@ Data::~Data(){
 	delete[] pOutputs;
 	delete[] arrays;
 }
-Array **Data::fillIOArrays(const bool randomize){
+Array<double> **Data::fillIOArrays(const bool randomize){
 	assert(pInputs&&pOutputs);
 	arrays[0]=pInputs[index];
 	arrays[1]=pOutputs[index];
@@ -29,7 +29,7 @@ Array **Data::fillIOArrays(const bool randomize){
 	}
 	return arrays;
 }
-double Data::sumSqError(const Array *array){
+double Data::sumSqError(const Array<double> *array){
 	int i;
 	int n=array->n;
 	double *error=array->item;

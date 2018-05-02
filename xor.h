@@ -17,6 +17,6 @@ class XorData:public Data{
 public:
 	XorData();
 	~XorData();
-	void status(Array **,const Array *,const Array *);
+	void status(Array<double> **,const Array<double> *,const Array<double> *);
 };
 #endif
