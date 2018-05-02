@@ -1,13 +1,11 @@
 CXX =				g++
 CXXFLAGS =	-std=c++11 -Wall -Wextra -pedantic -g -c
 LFLAGS =		-std=c++11 -Wall -Wextra -pedantic -g -o mynn
-OBJECTS =		main.o array.o layer.o net.o data.o idx.o mnist.o xor.o
+OBJECTS =		main.o layer.o net.o data.o idx.o mnist.o xor.o
 mynn:		$(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS)
 main:			main.cpp types.h defs.h
 	$(CXX) $(CXXFLAGS) main.cpp
-array:		array.cpp defs.h
-	$(CXX) $(CXXFLAGS) array.cpp
 layer:		layer.cpp defs.h
 	$(CXX) $(CXXFLAGS) layer.cpp
 net:			net.cpp defs.h
