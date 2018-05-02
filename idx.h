@@ -13,10 +13,10 @@
 namespace IDX{
 	void displayImage(double *img);
 	void printImage(struct image *img);
-	Matrix *loadIDXEntry(struct idx2 *);
-	void saveIDX(Matrix *,const char *);
-	void saveIDXEntry(Matrix *,int);
-	Matrix *loadIDX(const char *);
+	Matrix<double> *loadIDXEntry(struct idx2 *);
+	void saveIDX(Matrix<double> *,const char *);
+	void saveIDXEntry(Matrix<double> *,int);
+	Matrix<double> *loadIDX(const char *);
 	void saveNetwork(Net *,const char *);
 	Net *loadNetwork(const char *);
 	bool verifiedHeader(struct idx2 *);

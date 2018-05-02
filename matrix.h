@@ -4,21 +4,76 @@
 #include<stdlib.h>
 #include<math.h>
 #include"defs.h"
-
+#include<algorithm>
+template<typename T>
 class Matrix{
 public:
-	int m;
-	int n;
-	double *item;
-	Matrix(int,int);
-	~Matrix();
-	double atIndex(int,int) const;
-	double atIndex(int,int);
-	void randomize();
-	void print();
+	int nRows;
+	int nCols;
+	int nElements;
+	T *item;
+	Matrix(int m,int n){
+		int i;
+		nRows=m;
+		nCols=n;
+		nElements=nRows*nCols;
+		item=new T[m*n];
+		for(i=0;i<m*n;i++){
+			item[i]=0;
+		}
+	}
+	~Matrix(){
+		delete[] item;
+	}
+	const T atIndex(int i,int j) const{
+		return item[i*nCols+j];
+	}
+	T &atIndex(int i,int j){
+		return item[i*nCols+j];
+	}
+	void clear(){
+		T *p=item;
+		for(int i=0;i<nElements;i++){
+			*p++=0;
+		}
+	}
+	void randomize(int scalefactor){
+		int i,j;
+		T *p=item;
+		for(i=0;i<nRows;i++){
+			for(j=0;j<nCols;j++){
+				*p++=(random()-(RAND_MAX/2))*2.0/((T)RAND_MAX)/((T)scalefactor);
+			}
+		}
+	}
+	void randomizeInt(int max){
+		int i,j;
+		T *p=item;
+		for(i=0;i<nRows;i++){
+			for(j=0;j<nCols;j++){
+				*p++=random()%max;
+			}
+		}
+	}
+	T &operator()(int i,int j){
+		return item[i*nCols+j];
+	}
+	const T &operator()(int i,int j) const{
+		return item[i*nCols+j];
+	}
+	void print(){
+		int i,j;
+		for(i=0;i<nRows;i++){
+			for(j=0;j<nCols;j++){
+				printf("[%3i,%3i] %+.09f ",i,j,atIndex(i,j));
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
 	friend bool operator==(const Matrix &lhs,const Matrix &rhs){
-		int mn=lhs.m*lhs.n;
-		double tol=0.0001;
+		int mn=lhs.nRows*lhs.nCols;
+		T tol=0.0001;
 		for(int i=0;i<mn;i++){
 			if(fabs(lhs.item[i]-rhs.item[i])>tol){
 				return false;

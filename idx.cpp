@@ -37,10 +37,10 @@ bool IDX::verifiedHeader(struct idx2 *hdr){
 	}
 	return false;
 }
-Matrix *IDX::loadIDX(const char *filename){
+Matrix<double> *IDX::loadIDX(const char *filename){
 	void *mem;
 	struct idx2 *idx2Header;
-	Matrix *mat;
+	Matrix<double> *mat;
 	int fd=open(filename,O_RDONLY);
 	assert(fd>=0);
 	mem=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
@@ -61,7 +61,7 @@ Net *IDX::loadNetwork(const char *filename){
 	int fd=open(filename,O_RDONLY);
 	int8_t *ptr;
 	int rows,cols;
-	Matrix *mat;
+	Matrix<double> *mat;
 	assert(fd>=0);
 	mem=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
 	assert(mem!=MAP_FAILED);
@@ -94,34 +94,34 @@ Net *IDX::loadNetwork(const char *filename){
 	assert(munmap(mem,1024*1024)==0);
 	return net;
 }
-Matrix *IDX::loadIDXEntry(idx2 *hdr){
+Matrix<double> *IDX::loadIDXEntry(idx2 *hdr){
 	double *ptr;
 	int rows,cols,matlen;
-	Matrix *mat;
+	Matrix<double> *mat;
 	rows=hdr->nRows;
 	cols=hdr->nCols;
 	matlen=rows*cols;
-	mat=new Matrix(rows,cols);
+	mat=new Matrix<double>(rows,cols);
 	ptr=(double *)++hdr;
 	for(int i=0;i<matlen;i++){
 		mat->item[i]=*ptr++;
 	}
 	return mat;
 }
-void IDX::saveIDXEntry(Matrix *mat,int fd){
+void IDX::saveIDXEntry(Matrix<double> *mat,int fd){
 	struct idx2 hdr;
 	hdr.magic=0xe02;
-	hdr.nRows=mat->m;
-	hdr.nCols=mat->n;
+	hdr.nRows=mat->nRows;
+	hdr.nCols=mat->nCols;
 	double *ptr=mat->item;
 	write(fd,&hdr,sizeof(hdr));
-	for(int i=0;i<mat->m;i++){
-		for(int j=0;j<mat->n;j++){
+	for(int i=0;i<mat->nRows;i++){
+		for(int j=0;j<mat->nCols;j++){
 			write(fd,ptr++,sizeof(ptr));
 		}
 	}
 }
-void IDX::saveIDX(Matrix *mat,const char *filename){
+void IDX::saveIDX(Matrix<double> *mat,const char *filename){
 	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
 	assert(fd>=0);
 	saveIDXEntry(mat,fd);

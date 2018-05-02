@@ -1,7 +1,7 @@
 #include"layer.h"
-Layer::Layer(Matrix *mat,double gamma){
-	int m=mat->m;
-	int n=mat->n;
+Layer::Layer(Matrix<double> *mat,double gamma){
+	int m=mat->nRows;
+	int n=mat->nCols;
 	nRows=m;
 	nCols=n;
 	this->gamma=gamma;
@@ -9,7 +9,7 @@ Layer::Layer(Matrix *mat,double gamma){
 	deriv=new Array(n);
 	delta=new Array(n);
 	this->mat=mat;
-	dw=new Matrix(m,n);
+	dw=new Matrix<double>(m,n);
 }
 Layer::Layer(int m,int n,double gamma){
 	nRows=m;
@@ -18,8 +18,8 @@ Layer::Layer(int m,int n,double gamma){
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-	mat=new Matrix(m,n);
-	dw=new Matrix(m,n);
+	mat=new Matrix<double>(m,n);
+	dw=new Matrix<double>(m,n);
 }
 Layer::~Layer(){
 	delete out;
@@ -49,7 +49,7 @@ void Layer::outputDelta(const Array *error){
 		delta->item[j]=deriv->item[j]*error->item[j];
 	}
 }
-void Layer::hiddenDelta(const Matrix *W,const Array *delta2){
+void Layer::hiddenDelta(const Matrix<double> *W,const Array *delta2){
 	int j,k;
 	double sum;
 	//assert(W->m==delta->n);
@@ -90,5 +90,5 @@ void Layer::directUpdateWeights(const Array *input){
 	}
 }
 void Layer::randomize(){
-	mat->randomize();
+	mat->randomize(RANDSCALING);
 }
