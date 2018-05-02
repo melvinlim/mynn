@@ -1,10 +1,11 @@
 #include"net.h"
 
-Net::Net(int n,int outputs){
+Net::Net(int n,int outputs):
+error(outputs)
+{
 	srandom(time(0));
 	this->n=n;
 	L=new Layer *[n];
-	error=new Array(outputs);
 	response=0;
 }
 Net::~Net(){
@@ -15,7 +16,6 @@ Net::~Net(){
 		}
 	}
 	delete[] L;
-	delete error;
 }
 void Net::insertLayer(int i,Matrix<double> &mat,double gamma){
 	L[i]=new Layer(mat,gamma);
@@ -28,7 +28,7 @@ void Net::forward(const Array *x){
 	L[1]->forward(L[0]->out);
 }
 inline void Net::backward(){
-	L[1]->outputDelta(*error);
+	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 }
 void Net::randomize(){
@@ -55,14 +55,14 @@ void Net::updateWeights(){
 	L[1]->updateWeights();
 	L[0]->updateWeights();
 }
-Array *Net::trainOnce(const Array *x,const Array *y){
+Array &Net::trainOnce(const Array *x,const Array *y){
 	forward(x);
 	updateError(y);
 	backward();
 	directUpdateWeights(x);
 	return(error);
 }
-Array *Net::trainBatch(const Array *x,const Array *y){
+Array &Net::trainBatch(const Array *x,const Array *y){
 	forward(x);
 	updateError(y);
 	backward();
@@ -72,7 +72,7 @@ Array *Net::trainBatch(const Array *x,const Array *y){
 void Net::updateError(const Array *yTarget){
 	int i;
 	for(i=0;i<yTarget->n;i++){
-		error->item[i]=yTarget->item[i]-response->item[i];
+		error.item[i]=yTarget->item[i]-response->item[i];
 	}
 }
 SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){

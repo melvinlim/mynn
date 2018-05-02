@@ -12,7 +12,6 @@ int main(){
 	double sumSqErr;
 	Array **arrays;
 	Array *pIn,*pOut;
-	Array *errorArray;
 #ifdef SOLVEXOR
 	XorData trainingData;
 	XorData testingData;
@@ -38,14 +37,14 @@ int main(){
 			pIn=arrays[0];
 			pOut=arrays[1];
 #ifdef BATCH
-			errorArray=net->trainBatch(pIn,pOut);
-			sumSqErr+=trainingData.sumSqError(errorArray);
+			net->trainBatch(pIn,pOut);
+			sumSqErr+=trainingData.sumSqError(&net->error);
 			if(i%4){
 				net->updateWeights();
 			}
 #else
-			errorArray=net->trainOnce(pIn,pOut);
-			sumSqErr+=trainingData.sumSqError(errorArray);
+			net->trainOnce(pIn,pOut);
+			sumSqErr+=trainingData.sumSqError(&net->error);
 			printf("epoch: %i\n",i);
 			trainingData.status(arrays,net->response,net->error);
 #endif
@@ -58,7 +57,7 @@ int main(){
 			pOut=arrays[1];
 			net->forward(pIn);
 			net->updateError(pOut);
-			testingData.status(arrays,net->response,net->error);
+			testingData.status(arrays,net->response,&net->error);
 		}
 /*
 		IDX::saveNetwork(net,"test.idx");

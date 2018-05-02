@@ -10,7 +10,7 @@ class Net{
 public:
 	Layer **L;
 	int n;
-	Array *error;
+	Array error;
 	Array *response;
 	Net(int,int);
 	~Net();
@@ -20,8 +20,8 @@ public:
 	inline void backward();
 	void randomize();
 	void print();
-	Array *trainBatch(const Array *,const Array *);
-	Array *trainOnce(const Array *,const Array *);
+	Array &trainBatch(const Array *,const Array *);
+	Array &trainOnce(const Array *,const Array *);
 	void updateError(const Array *);
 	inline void updateBatchCorrections(const Array *);
 	inline void directUpdateWeights(const Array *);
