@@ -1,7 +1,7 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-#define SOLVEXOR
+//#define SOLVEXOR
 #define BATCH
 
 //#define BENCHMARK

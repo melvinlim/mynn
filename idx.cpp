@@ -62,8 +62,9 @@ Net *IDX::loadNetwork(const char *filename){
 	int8_t *ptr;
 	int rows,cols;
 	Matrix<double> *mat;
+	int MMAPSIZE=1024*1024*1024;	//this must be >= file size.
 	assert(fd>=0);
-	mem=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
+	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
 	assert(mem!=MAP_FAILED);
 	idx2Header=(struct idx2 *)mem;
 	offset=0;
@@ -73,6 +74,7 @@ Net *IDX::loadNetwork(const char *filename){
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
+		assert(offset<MMAPSIZE);
 		ptr=(int8_t *)mem+offset;
 		idx2Header=(struct idx2 *)ptr;
 		layers++;
