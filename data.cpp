@@ -31,7 +31,7 @@ Array<double> **Data::fillIOArrays(const bool randomize){
 }
 double Data::sumSqError(const Array<double> *array){
 	int i;
-	int n=array->n;
+	int n=array->nElements;
 	double *error=array->item;
 	double ret=0;
 	for(i=0;i<n;i++){

@@ -8,23 +8,19 @@
 template<typename T>
 class Array{
 public:
-	int n;
+	int nElements;
 	T *item;
 	Array(int n){
-		int i;
-		this->n=n;
-		item=new T[n];
-		for(i=0;i<n;i++){
-			item[i]=0;
-		}
+		nElements=n;
+		item=new T[nElements]();
 	}
 	Array(const T *x,const int n){
 		int i;
-		this->n=n;
-		this->item=new T[n];
+		nElements=n;
+		item=new T[n];
 		if(x){
 			for(i=0;i<n;i++){
-				this->item[i]=x[i];
+				item[i]=x[i];
 			}
 		}
 	}
@@ -35,16 +31,16 @@ public:
 	virtual void print(){
 		int i;
 		T *x;
-		x=this->item;
-		for(i=0;i<this->n;i++){
+		x=item;
+		for(i=0;i<nElements;i++){
 			printf("[%3i] %+.02f\t",i,*x++);
 		}
 		printf("\n");
 	}
 	void randomize(){
 		int i;
-		for(i=0;i<this->n;i++){
-			this->item[i]=(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)RANDSCALING);
+		for(i=0;i<nElements;i++){
+			item[i]=(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)RANDSCALING);
 		}
 	}
 };

@@ -71,7 +71,7 @@ Array<double> &Net::trainBatch(const Array<double> *x,const Array<double> *y){
 }
 void Net::updateError(const Array<double> *yTarget){
 	int i;
-	for(i=0;i<yTarget->n;i++){
+	for(i=0;i<yTarget->nElements;i++){
 		error.item[i]=yTarget->item[i]-response->item[i];
 	}
 }
