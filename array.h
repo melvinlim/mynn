@@ -43,5 +43,27 @@ public:
 			item[i]=(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)RANDSCALING);
 		}
 	}
+	T &operator[](int i){
+		return item[i];
+	}
+	const T &operator[](int i) const{
+		return item[i];
+	}
+	T &operator()(int i){
+		return item[i];
+	}
+	const T &operator()(int i) const{
+		return item[i];
+	}
+	friend bool operator==(const Array &lhs,const Array &rhs){
+		T tol=0.0001;
+		int n=lhs.nElements;
+		for(int i=0;i<n;i++){
+			if(fabs(lhs.item[i]-rhs.item[i])>tol){
+				return false;
+			}
+		}
+		return true;
+	}
 };
 #endif

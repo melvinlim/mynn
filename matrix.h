@@ -61,10 +61,10 @@ public:
 	const T &operator[](int i) const{
 		return item[i];
 	}
-	T &operator()(int i,int j){
+	inline T &operator()(int i,int j){
 		return item[i*nCols+j];
 	}
-	const T &operator()(int i,int j) const{
+	inline const T &operator()(int i,int j) const{
 		return item[i*nCols+j];
 	}
 	void print(){
