@@ -8,9 +8,9 @@
 int main(){
 	int i;
 	Net *net;
+	double sumSqErr;
 	Array **arrays;
 	Array *pIn,*pOut;
-	net=new SingleHidden(NINPUTS,HIDDEN,NOUTPUTS);
 #ifdef SOLVEXOR
 	XorData trainingData;
 	XorData testingData;
@@ -27,14 +27,14 @@ int main(){
 	}
 	int hidden=HIDDEN;
 	for(int network=0;network<4;network++){
-		delete net;
 		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
+		sumSqErr=0;
 		for(i=0;i<EPOCHS;i++){
 			arrays=trainingData.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
 #ifdef BATCH
-			net->trainBatch(pIn,pOut);
+			sumSqErr+=trainingData.sumSqError(net->trainBatch(pIn,pOut));
 			if(i%4){
 				net->updateWeights();
 			}
@@ -45,11 +45,13 @@ int main(){
 #endif
 		}
 		printf("net: %d\n",network);
+		printf("avg sse: %f\n",sumSqErr/(double)EPOCHS);
 		for(int i=0;i<testingData.nOutputs;i++){
 			arrays=testingData.fillIOArrays();
 			pIn=arrays[0];
 			net->forward(pIn);
 			testingData.status(arrays,net->response,net->error);
 		}
+		delete net;
 	}
 }

@@ -3,9 +3,6 @@
 #include"array.h"
 #include<time.h>
 #include<assert.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include<sys/mman.h>
 
 class Data{
 protected:
