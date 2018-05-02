@@ -15,7 +15,7 @@ public:
 	Net(int,int);
 	~Net();
 	void insertLayer(int,int,int,double);
-	void insertLayer(int,Matrix<double> *,double);
+	void insertLayer(int,Matrix<double> &,double);
 	void forward(const Array *);
 	inline void backward();
 	void randomize();

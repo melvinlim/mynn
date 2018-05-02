@@ -55,6 +55,12 @@ public:
 			}
 		}
 	}
+	T &operator[](int i){
+		return item[i];
+	}
+	const T &operator[](int i) const{
+		return item[i];
+	}
 	T &operator()(int i,int j){
 		return item[i*nCols+j];
 	}

@@ -17,7 +17,7 @@ Net::~Net(){
 	delete[] L;
 	delete error;
 }
-void Net::insertLayer(int i,Matrix<double> *mat,double gamma){
+void Net::insertLayer(int i,Matrix<double> &mat,double gamma){
 	L[i]=new Layer(mat,gamma);
 }
 void Net::insertLayer(int i,int m,int n,double gamma){

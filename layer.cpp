@@ -1,7 +1,7 @@
 #include"layer.h"
-Layer::Layer(Matrix<double> *matr,double gamma):
-mat(matr->nRows,matr->nCols),
-dw(matr->nRows,matr->nCols)
+Layer::Layer(Matrix<double> &mat,double gamma):
+mat(mat),
+dw(mat.nRows,mat.nCols)
 {
 	int m=mat.nRows;
 	int n=mat.nCols;
@@ -11,8 +11,6 @@ dw(matr->nRows,matr->nCols)
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-//	this->mat=mat;
-//	dw=new Matrix<double>(m,n);
 }
 Layer::Layer(int m,int n,double gamma):
 mat(m,n),

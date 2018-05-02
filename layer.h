@@ -16,7 +16,7 @@ public:
 	Array *deriv;
 	Array *delta;
 	Layer(int,int,double);
-	Layer(Matrix<double> *,double);
+	Layer(Matrix<double> &,double);
 	~Layer();
 	Array *forward(const Array *);
 	void outputDelta(const Array *);

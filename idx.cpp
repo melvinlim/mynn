@@ -83,7 +83,7 @@ Net *IDX::loadNetwork(const char *filename){
 	offset=0;
 	for(int i=0;i<layers;i++){
 		mat=loadIDXEntry(idx2Header);
-		net->insertLayer(i,mat,GAMMA);
+		net->insertLayer(i,*mat,GAMMA);
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
