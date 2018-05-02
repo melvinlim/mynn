@@ -27,8 +27,9 @@ int main(){
 		arrays[0]->print();
 	}
 	int hidden=HIDDEN;
+	double gamma=GAMMA;
 	for(int network=0;network<4;network++){
-		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS);
+		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma);
 		sumSqErr=0;
 		for(i=0;i<EPOCHS;i++){
 			arrays=trainingData.fillIOArrays();

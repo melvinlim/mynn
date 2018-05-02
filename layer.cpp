@@ -1,18 +1,20 @@
 #include"layer.h"
-Layer::Layer(Matrix *mat){
+Layer::Layer(Matrix *mat,double gamma){
 	int m=mat->m;
 	int n=mat->n;
 	nRows=m;
 	nCols=n;
+	this->gamma=gamma;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
 	this->mat=mat;
 	dw=new Matrix(m,n);
 }
-Layer::Layer(int m,int n){
+Layer::Layer(int m,int n,double gamma){
 	nRows=m;
 	nCols=n;
+	this->gamma=gamma;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
@@ -73,18 +75,18 @@ void Layer::saveErrors(const Array *input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			dw->item[i*nCols+j]+=GAMMA*input->item[i]*this->delta->item[j];
+			dw->item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
 		}
-		dw->item[i*nCols+j]+=GAMMA*this->delta->item[j];
+		dw->item[i*nCols+j]+=gamma*this->delta->item[j];
 	}
 }
 void Layer::directUpdateWeights(const Array *input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			mat->item[i*nCols+j]+=GAMMA*input->item[i]*this->delta->item[j];
+			mat->item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
 		}
-		mat->item[i*nCols+j]+=GAMMA*this->delta->item[j];
+		mat->item[i*nCols+j]+=gamma*this->delta->item[j];
 	}
 }
 void Layer::randomize(){

@@ -7,6 +7,7 @@
 #include"array.h"
 class Layer{
 public:
+	double gamma;
 	int nRows;
 	int nCols;
 	Matrix *mat;
@@ -14,8 +15,8 @@ public:
 	Array *out;
 	Array *deriv;
 	Array *delta;
-	Layer(int,int);
-	Layer(Matrix *);
+	Layer(int,int,double);
+	Layer(Matrix *,double);
 	~Layer();
 	Array *forward(const Array *);
 	void outputDelta(const Array *);
