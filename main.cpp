@@ -11,6 +11,7 @@ int main(){
 	double sumSqErr;
 	Array **arrays;
 	Array *pIn,*pOut;
+	Array *errorArray;
 #ifdef SOLVEXOR
 	XorData trainingData;
 	XorData testingData;
@@ -34,12 +35,14 @@ int main(){
 			pIn=arrays[0];
 			pOut=arrays[1];
 #ifdef BATCH
-			sumSqErr+=trainingData.sumSqError(net->trainBatch(pIn,pOut));
+			errorArray=net->trainBatch(pIn,pOut);
+			sumSqErr+=trainingData.sumSqError(errorArray);
 			if(i%4){
 				net->updateWeights();
 			}
 #else
-			net->trainOnce(pIn,pOut);
+			errorArray=net->trainOnce(pIn,pOut);
+			sumSqErr+=trainingData.sumSqError(errorArray);
 			printf("epoch: %i\n",i);
 			trainingData.status(arrays,net->response,net->error);
 #endif
