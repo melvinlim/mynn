@@ -10,8 +10,8 @@ public:
 	double gamma;
 	int nRows;
 	int nCols;
-	Matrix<double> *mat;
-	Matrix<double> *dw;
+	Matrix<double> mat;
+	Matrix<double> dw;
 	Array *out;
 	Array *deriv;
 	Array *delta;
@@ -20,7 +20,7 @@ public:
 	~Layer();
 	Array *forward(const Array *);
 	void outputDelta(const Array *);
-	void hiddenDelta(const Matrix<double> *,const Array *);
+	void hiddenDelta(const Matrix<double> &,const Array *);
 	void saveErrors(const Array *);
 	void updateWeights();
 	void directUpdateWeights(const Array *);

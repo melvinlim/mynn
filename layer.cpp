@@ -1,32 +1,34 @@
 #include"layer.h"
-Layer::Layer(Matrix<double> *mat,double gamma){
-	int m=mat->nRows;
-	int n=mat->nCols;
+Layer::Layer(Matrix<double> *matr,double gamma):
+mat(matr->nRows,matr->nCols),
+dw(matr->nRows,matr->nCols)
+{
+	int m=mat.nRows;
+	int n=mat.nCols;
 	nRows=m;
 	nCols=n;
 	this->gamma=gamma;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-	this->mat=mat;
-	dw=new Matrix<double>(m,n);
+//	this->mat=mat;
+//	dw=new Matrix<double>(m,n);
 }
-Layer::Layer(int m,int n,double gamma){
+Layer::Layer(int m,int n,double gamma):
+mat(m,n),
+dw(m,n)
+{
 	nRows=m;
 	nCols=n;
 	this->gamma=gamma;
 	out=new Array(n);
 	deriv=new Array(n);
 	delta=new Array(n);
-	mat=new Matrix<double>(m,n);
-	dw=new Matrix<double>(m,n);
 }
 Layer::~Layer(){
 	delete out;
 	delete deriv;
 	delete delta;
-	delete mat;
-	delete dw;
 }
 Array *Layer::forward(const Array *x){
 	int i,j;
@@ -34,9 +36,9 @@ Array *Layer::forward(const Array *x){
 	for(j=0;j<nCols;j++){
 		a=0;
 		for(i=0;i<x->n;i++){
-			a+=(mat->atIndex(i,j))*x->item[i];
+			a+=(mat.atIndex(i,j))*x->item[i];
 		}
-		a+=(mat->atIndex(i,j));
+		a+=(mat.atIndex(i,j));
 		tmp=tanh(a);
 		out->item[j]=tmp;
 		deriv->item[j]=1.0-(tmp*tmp);
@@ -49,7 +51,7 @@ void Layer::outputDelta(const Array *error){
 		delta->item[j]=deriv->item[j]*error->item[j];
 	}
 }
-void Layer::hiddenDelta(const Matrix<double> *W,const Array *delta2){
+void Layer::hiddenDelta(const Matrix<double> &W,const Array *delta2){
 	int j,k;
 	double sum;
 	//assert(W->m==delta->n);
@@ -57,7 +59,7 @@ void Layer::hiddenDelta(const Matrix<double> *W,const Array *delta2){
 	for(j=0;j<this->deriv->n;j++){
 		sum=0;
 		for(k=0;k<delta2->n;k++){
-			sum+=(W->atIndex(j,k))*delta2->item[k];
+			sum+=(W.atIndex(j,k))*delta2->item[k];
 		}
 		this->delta->item[j]=this->deriv->item[j]*sum;
 	}
@@ -66,8 +68,8 @@ void Layer::updateWeights(){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<nRows;i++){
-			mat->item[i*nCols+j]+=dw->item[i*nCols+j];
-			dw->item[i*nCols+j]=0;
+			mat.item[i*nCols+j]+=dw.item[i*nCols+j];
+			dw.item[i*nCols+j]=0;
 		}
 	}
 }
@@ -75,20 +77,20 @@ void Layer::saveErrors(const Array *input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			dw->item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
+			dw.item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
 		}
-		dw->item[i*nCols+j]+=gamma*this->delta->item[j];
+		dw.item[i*nCols+j]+=gamma*this->delta->item[j];
 	}
 }
 void Layer::directUpdateWeights(const Array *input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input->n;i++){
-			mat->item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
+			mat.item[i*nCols+j]+=gamma*input->item[i]*this->delta->item[j];
 		}
-		mat->item[i*nCols+j]+=gamma*this->delta->item[j];
+		mat.item[i*nCols+j]+=gamma*this->delta->item[j];
 	}
 }
 void Layer::randomize(){
-	mat->randomize(RANDSCALING);
+	mat.randomize(RANDSCALING);
 }

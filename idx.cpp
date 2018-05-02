@@ -108,20 +108,20 @@ Matrix<double> *IDX::loadIDXEntry(idx2 *hdr){
 	}
 	return mat;
 }
-void IDX::saveIDXEntry(Matrix<double> *mat,int fd){
+void IDX::saveIDXEntry(Matrix<double> &mat,int fd){
 	struct idx2 hdr;
 	hdr.magic=0xe02;
-	hdr.nRows=mat->nRows;
-	hdr.nCols=mat->nCols;
-	double *ptr=mat->item;
+	hdr.nRows=mat.nRows;
+	hdr.nCols=mat.nCols;
+	double *ptr=mat.item;
 	write(fd,&hdr,sizeof(hdr));
-	for(int i=0;i<mat->nRows;i++){
-		for(int j=0;j<mat->nCols;j++){
+	for(int i=0;i<mat.nRows;i++){
+		for(int j=0;j<mat.nCols;j++){
 			write(fd,ptr++,sizeof(ptr));
 		}
 	}
 }
-void IDX::saveIDX(Matrix<double> *mat,const char *filename){
+void IDX::saveIDX(Matrix<double> &mat,const char *filename){
 	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
 	assert(fd>=0);
 	saveIDXEntry(mat,fd);

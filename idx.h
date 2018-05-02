@@ -14,8 +14,8 @@ namespace IDX{
 	void displayImage(double *img);
 	void printImage(struct image *img);
 	Matrix<double> *loadIDXEntry(struct idx2 *);
-	void saveIDX(Matrix<double> *,const char *);
-	void saveIDXEntry(Matrix<double> *,int);
+	void saveIDX(Matrix<double> &,const char *);
+	void saveIDXEntry(Matrix<double> &,int);
 	Matrix<double> *loadIDX(const char *);
 	void saveNetwork(Net *,const char *);
 	Net *loadNetwork(const char *);

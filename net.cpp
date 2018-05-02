@@ -41,7 +41,7 @@ void Net::randomize(){
 void Net::print(){
 	int i;
 	for(i=0;i<n;i++){
-		L[i]->mat->print();
+		L[i]->mat.print();
 	}
 }
 inline void Net::updateBatchCorrections(const Array *input){
