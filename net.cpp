@@ -26,7 +26,6 @@ void Net::insertLayer(int i,int m,int n,double gamma){
 void Net::forward(const Array *x){
 	L[0]->forward(*x);
 	L[1]->forward(L[0]->out);
-	response=&L[1]->out;
 }
 inline void Net::backward(){
 	L[1]->outputDelta(*error);
@@ -83,5 +82,6 @@ SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2
 	int L2N=(outputs);
 	insertLayer(0,L1M,L1N,gamma);
 	insertLayer(1,L2M,L2N,gamma);
+	response=&L[n-1]->out;
 	randomize();
 }
