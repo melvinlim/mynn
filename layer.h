@@ -12,18 +12,18 @@ public:
 	int nCols;
 	Matrix<double> mat;
 	Matrix<double> dw;
-	Array *out;
-	Array *deriv;
-	Array *delta;
+	Array out;
+	Array deriv;
+	Array delta;
 	Layer(int,int,double);
 	Layer(Matrix<double> &,double);
 	~Layer();
-	Array *forward(const Array *);
-	void outputDelta(const Array *);
-	void hiddenDelta(const Matrix<double> &,const Array *);
-	void saveErrors(const Array *);
+	Array &forward(const Array &);
+	void outputDelta(const Array &);
+	void hiddenDelta(const Matrix<double> &,const Array &);
+	void saveErrors(const Array &);
 	void updateWeights();
-	void directUpdateWeights(const Array *);
+	void directUpdateWeights(const Array &);
 	void randomize();
 };
 #endif

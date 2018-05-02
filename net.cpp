@@ -24,12 +24,12 @@ void Net::insertLayer(int i,int m,int n,double gamma){
 	L[i]=new Layer(m,n,gamma);
 }
 void Net::forward(const Array *x){
-	L[0]->forward(x);
+	L[0]->forward(*x);
 	L[1]->forward(L[0]->out);
-	response=L[1]->out;
+	response=&L[1]->out;
 }
 inline void Net::backward(){
-	L[1]->outputDelta(error);
+	L[1]->outputDelta(*error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 }
 void Net::randomize(){
@@ -46,11 +46,11 @@ void Net::print(){
 }
 inline void Net::updateBatchCorrections(const Array *input){
 	L[1]->saveErrors(L[0]->out);
-	L[0]->saveErrors(input);
+	L[0]->saveErrors(*input);
 }
 inline void Net::directUpdateWeights(const Array *input){
 	L[1]->directUpdateWeights(L[0]->out);
-	L[0]->directUpdateWeights(input);
+	L[0]->directUpdateWeights(*input);
 }
 void Net::updateWeights(){
 	L[1]->updateWeights();

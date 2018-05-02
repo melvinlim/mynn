@@ -60,11 +60,13 @@ int main(){
 			net->updateError(pOut);
 			testingData.status(arrays,net->response,net->error);
 		}
+/*
 		IDX::saveNetwork(net,"test.idx");
 		Net *tmpNet=IDX::loadNetwork("test.idx");
 		assert(tmpNet->L[0]->mat==net->L[0]->mat);
 		assert(tmpNet->L[1]->mat==net->L[1]->mat);
 		delete tmpNet;
+*/
 		delete net;
 	}
 	time(&endTime);
