@@ -37,7 +37,7 @@ double Data::sumSqError(const Array *array){
 	for(i=0;i<n;i++){
 		ret+=error[i]*error[i];
 	}
-	return(ret/2.0);
+	return ret;
 }
 int Data::toLabel(const double *x){
 	int i=0;

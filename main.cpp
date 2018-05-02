@@ -53,7 +53,9 @@ int main(){
 		for(int i=0;i<testingData.nOutputs;i++){
 			arrays=testingData.fillIOArrays();
 			pIn=arrays[0];
+			pOut=arrays[1];
 			net->forward(pIn);
+			net->updateError(pOut);
 			testingData.status(arrays,net->response,net->error);
 		}
 		delete net;
