@@ -2,13 +2,17 @@
 #define _DEFS_H
 
 //#define SOLVEXOR
+#define SOLVELINEAR
 #define BATCH
-
-//#define BENCHMARK
 
 #define bswap_16(value) ((((value)&0xff)<<8)|((value)>>8))
 #define bswap_32(value)	((bswap_16((value)&0xffff)<<16)|bswap_16((value)>>16))
 #ifdef SOLVEXOR
+	#define NINPUTS 2
+	#define NOUTPUTS 2
+	#define HIDDEN 15
+	#define EPOCHS 100000
+#elif defined SOLVELINEAR
 	#define NINPUTS 2
 	#define NOUTPUTS 2
 	#define HIDDEN 15

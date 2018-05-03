@@ -85,3 +85,13 @@ SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2
 	response=&L[n-1]->out;
 	randomize();
 }
+SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){
+	int L1M=(inputs+1);
+	int L1N=(hidden);
+	int L2M=(hidden+1);
+	int L2N=(outputs);
+	insertLayer(0,L1M,L1N,gamma);
+	insertLayer(1,L2M,L2N,gamma);
+	response=&L[n-1]->out;
+	randomize();
+}

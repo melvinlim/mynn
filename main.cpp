@@ -4,6 +4,7 @@
 #include"idx.h"
 #include"mnist.h"
 #include"xor.h"
+#include"linear.h"
 
 int main(){
 	time_t startTime,endTime;
@@ -15,6 +16,9 @@ int main(){
 #ifdef SOLVEXOR
 	XorData trainingData;
 	XorData testingData;
+#elif defined SOLVELINEAR
+	LinearData trainingData;
+	LinearData testingData;
 #else
 	MNISTTrainingData trainingData;
 	MNISTTestingData testingData;
@@ -30,7 +34,11 @@ int main(){
 	int hidden=HIDDEN;
 	double gamma=GAMMA;
 	for(int network=0;network<4;network++){
-		net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma);
+		#ifdef SOLVELINEAR
+			net=new SingleHiddenLinear(NINPUTS,hidden++,NOUTPUTS,gamma);
+		#else
+			net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma);
+		#endif
 		sumSqErr=0;
 		for(i=0;i<EPOCHS;i++){
 			arrays=trainingData.fillIOArrays();

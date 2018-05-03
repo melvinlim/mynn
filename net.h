@@ -32,4 +32,9 @@ class SingleHidden:public Net{
 public:
 	SingleHidden(int,int,int,double);
 };
+
+class SingleHiddenLinear:public Net{
+public:
+	SingleHiddenLinear(int,int,int,double);
+};
 #endif
