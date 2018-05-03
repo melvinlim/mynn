@@ -26,4 +26,10 @@ public:
 	void directUpdateWeights(const Array<double> &);
 	void randomize();
 };
+class LinearLayer:public Layer{
+public:
+	LinearLayer(int a,int b,double c):Layer(a,b,c){};
+	LinearLayer(Matrix<double> & a,double b):Layer(a,b){};
+	~LinearLayer(){};
+};
 #endif
