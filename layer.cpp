@@ -87,3 +87,18 @@ void Layer::directUpdateWeights(const Array<double> &input){
 void Layer::randomize(){
 	mat.randomize(RANDSCALING);
 }
+Array<double> &LinearLayer::forward(const Array<double> &x){
+	int i,j;
+	double a,tmp;
+	for(j=0;j<nCols;j++){
+		a=0;
+		for(i=0;i<x.nElements;i++){
+			a+=(mat.atIndex(i,j))*x.item[i];
+		}
+		a+=(mat.atIndex(i,j));
+		tmp=a;
+		out.item[j]=tmp;
+		deriv.item[j]=1.0;
+	}
+	return(out);
+}

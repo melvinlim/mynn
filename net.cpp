@@ -91,7 +91,7 @@ SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double 
 	int L2M=(hidden+1);
 	int L2N=(outputs);
 	insertLayer(0,L1M,L1N,gamma);
-	insertLayer(1,L2M,L2N,gamma);
+	L[1]=new LinearLayer(L2M,L2N,gamma);
 	response=&L[n-1]->out;
 	randomize();
 }

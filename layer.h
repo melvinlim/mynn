@@ -17,8 +17,8 @@ public:
 	Array<double> delta;
 	Layer(int,int,double);
 	Layer(Matrix<double> &,double);
-	~Layer();
-	Array<double> &forward(const Array<double> &);
+	virtual ~Layer();
+	virtual Array<double> &forward(const Array<double> &);
 	void outputDelta(const Array<double> &);
 	void hiddenDelta(const Matrix<double> &,const Array<double> &);
 	void saveErrors(const Array<double> &);
@@ -31,5 +31,6 @@ public:
 	LinearLayer(int a,int b,double c):Layer(a,b,c){};
 	LinearLayer(Matrix<double> & a,double b):Layer(a,b){};
 	~LinearLayer(){};
+	Array<double> &forward(const Array<double> &);
 };
 #endif
