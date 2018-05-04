@@ -96,7 +96,7 @@ void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 				updateError(y);
 				Jp=sse;
 				L[k]->mat.item[i*L[k]->nCols+j]-=EPSILON;
-				L[k]->dgw.item[i*L[k]->nCols+j]=(Jn-Jp)/(2.0*EPSILON)*GAMMA;
+				L[k]->dgw.item[i*L[k]->nCols+j]=(Jn-Jp)/(2.0*EPSILON);
 			}
 		}
 	}
