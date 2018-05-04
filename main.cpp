@@ -33,11 +33,12 @@ int main(){
 	}
 	int hidden=HIDDEN;
 	double gamma=GAMMA;
+	double lambda_decay=LAMBDA_DECAY;
 	for(int network=0;network<4;network++){
 		#ifdef SOLVELINEAR
-			net=new SingleHiddenLinear(NINPUTS,hidden++,NOUTPUTS,gamma);
+			net=new SingleHiddenLinear(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
 		#else
-			net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma);
+			net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
 		#endif
 		sumSqErr=0;
 		for(i=0;i<EPOCHS;i++){

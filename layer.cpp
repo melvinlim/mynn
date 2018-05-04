@@ -1,5 +1,5 @@
 #include"layer.h"
-Layer::Layer(Matrix<double> &mat,double gamma):
+Layer::Layer(Matrix<double> &mat,double gamma,double lambda_decay):
 mat(mat),
 dw(mat.nRows,mat.nCols),
 #ifdef TESTGRAD
@@ -14,8 +14,9 @@ delta(mat.nCols)
 	nRows=m;
 	nCols=n;
 	this->gamma=gamma;
+	this->lambda_decay=lambda_decay;
 }
-Layer::Layer(int m,int n,double gamma):
+Layer::Layer(int m,int n,double gamma,double lambda_decay):
 mat(m,n),
 dw(m,n),
 #ifdef TESTGRAD
@@ -28,6 +29,7 @@ delta(mat.nCols)
 	nRows=m;
 	nCols=n;
 	this->gamma=gamma;
+	this->lambda_decay=lambda_decay;
 }
 Layer::~Layer(){
 }
@@ -67,7 +69,7 @@ void Layer::updateWeights(){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<nRows;i++){
-			mat.item[i*nCols+j]+=gamma*(dw.item[i*nCols+j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
+			mat.item[i*nCols+j]+=gamma*(dw.item[i*nCols+j]-lambda_decay*mat.item[i*nCols+j]);
 			dw.item[i*nCols+j]=0;
 		}
 	}
@@ -85,9 +87,9 @@ void Layer::directUpdateWeights(const Array<double> &input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input.nElements;i++){
-			mat.item[i*nCols+j]+=gamma*(input.item[i]*delta.item[j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
+			mat.item[i*nCols+j]+=gamma*(input.item[i]*delta.item[j]-lambda_decay*mat.item[i*nCols+j]);
 		}
-		mat.item[i*nCols+j]+=gamma*(delta.item[j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
+		mat.item[i*nCols+j]+=gamma*(delta.item[j]-lambda_decay*mat.item[i*nCols+j]);
 	}
 }
 void Layer::randomize(){

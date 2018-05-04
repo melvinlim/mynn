@@ -15,8 +15,8 @@ public:
 	Array<double> *response;
 	Net(int,int);
 	~Net();
-	void insertLayer(int,int,int,double);
-	void insertLayer(int,Matrix<double> &,double);
+	void insertLayer(int,int,int,double,double);
+	void insertLayer(int,Matrix<double> &,double,double);
 	void forward(const Array<double> *);
 	inline void backward();
 	void randomize();
@@ -32,11 +32,11 @@ public:
 
 class SingleHidden:public Net{
 public:
-	SingleHidden(int,int,int,double);
+	SingleHidden(int,int,int,double,double);
 };
 
 class SingleHiddenLinear:public Net{
 public:
-	SingleHiddenLinear(int,int,int,double);
+	SingleHiddenLinear(int,int,int,double,double);
 };
 #endif

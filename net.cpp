@@ -17,11 +17,11 @@ Net::~Net(){
 	}
 	delete[] L;
 }
-void Net::insertLayer(int i,Matrix<double> &mat,double gamma){
-	L[i]=new Layer(mat,gamma);
+void Net::insertLayer(int i,Matrix<double> &mat,double gamma,double lambda_decay){
+	L[i]=new Layer(mat,gamma,lambda_decay);
 }
-void Net::insertLayer(int i,int m,int n,double gamma){
-	L[i]=new Layer(m,n,gamma);
+void Net::insertLayer(int i,int m,int n,double gamma,double lambda_decay){
+	L[i]=new Layer(m,n,gamma,lambda_decay);
 }
 void Net::forward(const Array<double> *x){
 	L[0]->forward(*x);
@@ -100,25 +100,28 @@ void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 			}
 		}
 	}
+#else
+	forward(x);
+	updateError(y);
 #endif
 }
-SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){
+SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma,double lambda_decay):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);
 	int L2M=(hidden+1);
 	int L2N=(outputs);
-	insertLayer(0,L1M,L1N,gamma);
-	insertLayer(1,L2M,L2N,gamma);
+	insertLayer(0,L1M,L1N,gamma,lambda_decay);
+	insertLayer(1,L2M,L2N,gamma,lambda_decay);
 	response=&L[n-1]->out;
 	randomize();
 }
-SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){
+SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double gamma,double lambda_decay):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);
 	int L2M=(hidden+1);
 	int L2N=(outputs);
-	insertLayer(0,L1M,L1N,gamma);
-	L[1]=new LinearLayer(L2M,L2N,gamma);
+	insertLayer(0,L1M,L1N,gamma,lambda_decay);
+	L[1]=new LinearLayer(L2M,L2N,gamma,lambda_decay);
 	response=&L[n-1]->out;
 	randomize();
 }

@@ -80,12 +80,12 @@ Net *IDX::loadNetwork(const char *filename){
 		layers++;
 	}
 	int noutputs=idx2Header->nCols;
-	net=new SingleHidden(ninputs,hidden,noutputs,GAMMA);
+	net=new SingleHidden(ninputs,hidden,noutputs,GAMMA,LAMBDA_DECAY);
 	idx2Header=(struct idx2 *)mem;
 	offset=0;
 	for(int i=0;i<layers;i++){
 		mat=loadIDXEntry(idx2Header);
-		net->insertLayer(i,*mat,GAMMA);
+		net->insertLayer(i,*mat,GAMMA,LAMBDA_DECAY);
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
