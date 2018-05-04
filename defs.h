@@ -5,6 +5,10 @@
 #define SOLVELINEAR
 #define BATCH
 
+#define TESTGRAD
+
+#define EPSILON 0.0001
+
 #define bswap_16(value) ((((value)&0xff)<<8)|((value)>>8))
 #define bswap_32(value)	((bswap_16((value)&0xffff)<<16)|bswap_16((value)>>16))
 #ifdef SOLVEXOR

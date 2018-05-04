@@ -2,6 +2,9 @@
 Layer::Layer(Matrix<double> &mat,double gamma):
 mat(mat),
 dw(mat.nRows,mat.nCols),
+#ifdef TESTGRAD
+dgw(mat.nRows,mat.nCols),
+#endif
 out(mat.nCols),
 deriv(mat.nCols),
 delta(mat.nCols)
@@ -15,6 +18,9 @@ delta(mat.nCols)
 Layer::Layer(int m,int n,double gamma):
 mat(m,n),
 dw(m,n),
+#ifdef TESTGRAD
+dgw(mat.nRows,mat.nCols),
+#endif
 out(mat.nCols),
 deriv(mat.nCols),
 delta(mat.nCols)

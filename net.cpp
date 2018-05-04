@@ -71,8 +71,34 @@ Array<double> &Net::trainBatch(const Array<double> *x,const Array<double> *y){
 }
 void Net::updateError(const Array<double> *yTarget){
 	int i;
+	#ifdef TESTGRAD
+	sse=0;
+	#endif
 	for(i=0;i<yTarget->nElements;i++){
 		error.item[i]=yTarget->item[i]-response->item[i];
+		#ifdef TESTGRAD
+		sse+=error.item[i]*error.item[i];
+		#endif
+	}
+}
+void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
+	double Jp,Jn;
+	for(int k=0;k<n;k++){
+		L[k]->dgw.clear();
+		for(int i=0;i<L[k]->nRows;i++){
+			for(int j=0;j<L[k]->nCols;j++){
+				L[k]->mat.item[i*L[k]->nCols+j]+=EPSILON;
+				forward(x);
+				updateError(y);
+				Jp=sse;
+				L[k]->mat.item[i*L[k]->nCols+j]-=EPSILON*2;
+				forward(x);
+				updateError(y);
+				Jn=sse;
+				L[k]->mat.item[i*L[k]->nCols+j]+=EPSILON;
+				L[k]->dgw.item[i*L[k]->nCols+j]=(Jn-Jp)/(4.0*EPSILON)*GAMMA;
+			}
+		}
 	}
 }
 SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){

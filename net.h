@@ -10,6 +10,7 @@ class Net{
 public:
 	Layer **L;
 	int n;
+	double sse;
 	Array<double> error;
 	Array<double> *response;
 	Net(int,int);
@@ -20,6 +21,7 @@ public:
 	inline void backward();
 	void randomize();
 	void print();
+	void gradientDescent(const Array<double> *,const Array<double> *);
 	Array<double> &trainBatch(const Array<double> *,const Array<double> *);
 	Array<double> &trainOnce(const Array<double> *,const Array<double> *);
 	void updateError(const Array<double> *);

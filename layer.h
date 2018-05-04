@@ -12,6 +12,9 @@ public:
 	int nCols;
 	Matrix<double> mat;
 	Matrix<double> dw;
+#ifdef TESTGRAD
+	Matrix<double> dgw;
+#endif
 	Array<double> out;
 	Array<double> deriv;
 	Array<double> delta;
