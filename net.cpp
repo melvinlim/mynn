@@ -82,6 +82,7 @@ void Net::updateError(const Array<double> *yTarget){
 	}
 }
 void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
+#ifdef TESTGRAD
 	double Jp,Jn;
 	for(int k=0;k<n;k++){
 		L[k]->dgw.clear();
@@ -99,6 +100,7 @@ void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 			}
 		}
 	}
+#endif
 }
 SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma):Net(2,outputs){
 	int L1M=(inputs+1);

@@ -5,7 +5,7 @@
 //#define SOLVELINEAR
 #define BATCH
 
-#define TESTGRAD
+//#define TESTGRAD
 
 #define EPSILON 0.0001
 
