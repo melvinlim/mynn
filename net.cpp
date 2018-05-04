@@ -87,16 +87,15 @@ void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 		L[k]->dgw.clear();
 		for(int i=0;i<L[k]->nRows;i++){
 			for(int j=0;j<L[k]->nCols;j++){
-				L[k]->mat.item[i*L[k]->nCols+j]+=EPSILON;
-				forward(x);
-				updateError(y);
-				Jp=sse;
-				L[k]->mat.item[i*L[k]->nCols+j]-=EPSILON*2;
 				forward(x);
 				updateError(y);
 				Jn=sse;
 				L[k]->mat.item[i*L[k]->nCols+j]+=EPSILON;
-				L[k]->dgw.item[i*L[k]->nCols+j]=(Jn-Jp)/(4.0*EPSILON)*GAMMA;
+				forward(x);
+				updateError(y);
+				Jp=sse;
+				L[k]->mat.item[i*L[k]->nCols+j]-=EPSILON;
+				L[k]->dgw.item[i*L[k]->nCols+j]=(Jn-Jp)/(2.0*EPSILON)*GAMMA;
 			}
 		}
 	}
