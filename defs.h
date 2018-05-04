@@ -1,11 +1,13 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-#define SOLVEXOR
+//#define SOLVEXOR
 //#define SOLVELINEAR
 #define BATCH
 
 //#define TESTGRAD
+
+#define LAMBDA_DECAY 0.0001
 
 #define EPSILON 0.0001
 

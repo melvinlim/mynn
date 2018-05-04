@@ -67,7 +67,7 @@ void Layer::updateWeights(){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<nRows;i++){
-			mat.item[i*nCols+j]+=dw.item[i*nCols+j];
+			mat.item[i*nCols+j]+=gamma*(dw.item[i*nCols+j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
 			dw.item[i*nCols+j]=0;
 		}
 	}
@@ -76,18 +76,18 @@ void Layer::saveErrors(const Array<double> &input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input.nElements;i++){
-			dw.item[i*nCols+j]+=gamma*input.item[i]*delta.item[j];
+			dw.item[i*nCols+j]+=input.item[i]*delta.item[j];
 		}
-		dw.item[i*nCols+j]+=gamma*delta.item[j];
+		dw.item[i*nCols+j]+=delta.item[j];
 	}
 }
 void Layer::directUpdateWeights(const Array<double> &input){
 	int i,j;
 	for(j=0;j<nCols;j++){
 		for(i=0;i<input.nElements;i++){
-			mat.item[i*nCols+j]+=gamma*input.item[i]*delta.item[j];
+			mat.item[i*nCols+j]+=gamma*(input.item[i]*delta.item[j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
 		}
-		mat.item[i*nCols+j]+=gamma*delta.item[j];
+		mat.item[i*nCols+j]+=gamma*(delta.item[j]-LAMBDA_DECAY*mat.item[i*nCols+j]);
 	}
 }
 void Layer::randomize(){
