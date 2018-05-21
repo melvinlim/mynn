@@ -19,7 +19,7 @@ namespace IDX{
 	Matrix<double> *loadIDX(const char *);
 	void saveNetwork(Net *,const char *);
 	Net *loadNetwork(const char *);
-	void loadNetwork(Net *,const char *,double &,double &);
+	void loadNetwork(Net *,const char *,const double &,const double &);
 	bool verifiedHeader(struct idx2 *);
 };
 #endif

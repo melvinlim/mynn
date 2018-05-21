@@ -97,7 +97,7 @@ Net *IDX::loadNetwork(const char *filename){
 	assert(munmap(mem,MMAPSIZE)==0);
 	return net;
 }
-void IDX::loadNetwork(Net *net,const char *filename,double &gamma,double &lambda_decay){
+void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const double &lambda_decay){
 	void *mem;
 	int offset;
 	struct idx2 *idx2Header;

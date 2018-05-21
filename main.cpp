@@ -80,7 +80,8 @@ int main(){
 		IDX::saveNetwork(net,"test.idx");
 		//Net tmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
 		SingleHidden tmpNet(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
-		IDX::loadNetwork(&tmpNet,"test.idx",gamma,lambda_decay);
+//		IDX::loadNetwork(&tmpNet,"test.idx",gamma,lambda_decay);
+		IDX::loadNetwork(&tmpNet,"test.idx",GAMMA,LAMBDA_DECAY);
 		assert(tmpNet.L[0]->mat==net->L[0]->mat);
 		assert(tmpNet.L[1]->mat==net->L[1]->mat);
 		//Net *tmpNet=IDX::loadNetwork("test.idx");
