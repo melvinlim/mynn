@@ -129,6 +129,7 @@ void IDX::loadNetwork(Net *net,const char *filename){
 	offset=0;
 	for(int i=0;i<layers;i++){
 		mat=loadIDXEntry(idx2Header);
+		delete net->L[i];
 		net->insertLayer(i,*mat,GAMMA,LAMBDA_DECAY);
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
