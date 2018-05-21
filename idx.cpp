@@ -42,14 +42,15 @@ Matrix<double> *IDX::loadIDX(const char *filename){
 	struct idx2 *idx2Header;
 	Matrix<double> *mat;
 	int fd=open(filename,O_RDONLY);
+	int MMAPSIZE=1024*1024;
 	assert(fd>=0);
-	mem=mmap(0,1024*1024,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
+	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
 	assert(mem!=MAP_FAILED);
 	idx2Header=(struct idx2 *)mem;
 	assert(verifiedHeader(idx2Header));
 	mat=loadIDXEntry(idx2Header);
 	close(fd);
-	assert(munmap(mem,1024*1024)==0);
+	assert(munmap(mem,MMAPSIZE)==0);
 	return mat;
 }
 Net *IDX::loadNetwork(const char *filename){
@@ -93,7 +94,7 @@ Net *IDX::loadNetwork(const char *filename){
 		idx2Header=(struct idx2 *)ptr;
 	}
 	close(fd);
-	assert(munmap(mem,1024*1024)==0);
+	assert(munmap(mem,MMAPSIZE)==0);
 	return net;
 }
 Matrix<double> *IDX::loadIDXEntry(idx2 *hdr){
