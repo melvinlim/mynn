@@ -6,6 +6,7 @@
 #define BATCH
 
 //#define TESTGRAD
+//#define TESTSAVELOAD
 
 #define LAMBDA_DECAY 0.0001
 

@@ -76,6 +76,7 @@ int main(){
 		}
 		printf("net: %d\n",network);
 		printf("avg sse: %f\n",sumSqErr/(double)testingData.nOutputs);
+#ifdef TESTSAVELOAD
 		IDX::saveNetwork(net,"test.idx");
 		//Net tmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
 		SingleHidden tmpNet(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
@@ -87,6 +88,7 @@ int main(){
 		//assert(tmpNet->L[1]->mat==net->L[1]->mat);
 		//delete tmpNet;
 		delete net;
+#endif
 	}
 	time(&endTime);
 	printf("%d seconds elapsed.\n",(int)difftime(endTime,startTime));
