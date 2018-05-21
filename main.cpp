@@ -76,13 +76,16 @@ int main(){
 		}
 		printf("net: %d\n",network);
 		printf("avg sse: %f\n",sumSqErr/(double)testingData.nOutputs);
-/*
 		IDX::saveNetwork(net,"test.idx");
-		Net *tmpNet=IDX::loadNetwork("test.idx");
-		assert(tmpNet->L[0]->mat==net->L[0]->mat);
-		assert(tmpNet->L[1]->mat==net->L[1]->mat);
-		delete tmpNet;
-*/
+		//Net tmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
+		SingleHidden tmpNet(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
+		IDX::loadNetwork(&tmpNet,"test.idx");
+		assert(tmpNet.L[0]->mat==net->L[0]->mat);
+		assert(tmpNet.L[1]->mat==net->L[1]->mat);
+		//Net *tmpNet=IDX::loadNetwork("test.idx");
+		//assert(tmpNet->L[0]->mat==net->L[0]->mat);
+		//assert(tmpNet->L[1]->mat==net->L[1]->mat);
+		//delete tmpNet;
 		delete net;
 	}
 	time(&endTime);
