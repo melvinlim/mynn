@@ -13,9 +13,9 @@ public:
 	Array<double> error;
 	Array<double> *response;
 	Net(int,int);
-	~Net();
-	void insertLayer(int,int,int,double,double);
-	void insertLayer(int,Matrix<double> &,double,double);
+	virtual ~Net();
+	virtual void insertLayer(int,int,int,double,double);
+	virtual void insertLayer(int,Matrix<double> &,double,double);
 	void forward(const Array<double> *);
 	inline void backward();
 	void randomize(double);
@@ -37,5 +37,7 @@ public:
 class SingleHiddenLinear:public Net{
 public:
 	SingleHiddenLinear(int,int,int,double,double,double);
+	void insertLayer(int,int,int,double,double);
+	void insertLayer(int,Matrix<double> &,double,double);
 };
 #endif
