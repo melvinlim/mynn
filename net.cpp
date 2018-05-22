@@ -127,14 +127,14 @@ SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double 
 	randomize(scale_factor);
 }
 void SingleHiddenLinear::insertLayer(int i,Matrix<double> &mat,double gamma,double lambda_decay){
-	if(i==(n-1)){	//if this is the output layer:
+	if(i==(this->n-1)){	//if this is the output layer:
 		L[i]=new LinearLayer(mat,gamma,lambda_decay);
 	}else{
 		L[i]=new Layer(mat,gamma,lambda_decay);
 	}
 }
 void SingleHiddenLinear::insertLayer(int i,int m,int n,double gamma,double lambda_decay){
-	if(i==(n-1)){	//if this is the output layer:
+	if(i==(this->n-1)){	//if this is the output layer:
 		L[i]=new LinearLayer(m,n,gamma,lambda_decay);
 	}else{
 		L[i]=new Layer(m,n,gamma,lambda_decay);
