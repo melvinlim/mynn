@@ -11,6 +11,18 @@ public:
 	int nCols;
 	int nElements;
 	T *item;
+	Matrix(Matrix<T> &mat){
+		int i;
+		int m=mat.nRows;
+		int n=mat.nCols;
+		nRows=mat.nRows;
+		nCols=mat.nCols;
+		nElements=nRows*nCols;
+		item=new T[m*n];
+		for(i=0;i<m*n;i++){
+			item[i]=mat.item[i];
+		}
+	}
 	Matrix(int m,int n){
 		int i;
 		nRows=m;

@@ -42,6 +42,10 @@ namespace IDX{
 	void saveIDXEntry(Matrix<double> &,int);
 	Matrix<double> *loadIDX(const char *);
 	void saveNetwork(Net *,const char *);
+<<<<<<< HEAD
+	Net *loadNetwork(const char *,const double &,const double &);
+=======
+>>>>>>> origin/cpp
 	void loadNetwork(Net *,const char *,const double &,const double &);
 	bool verifiedHeader(struct idx2 *);
 };
