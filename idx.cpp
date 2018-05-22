@@ -47,7 +47,9 @@ Net *IDX::loadNetwork(const char *filename,const double &gamma,const double &lam
 	int fd=open(filename,O_RDONLY);
 	int8_t *ptr;
 	int rows,cols;
-	Matrix<double> *mat;
+	const int MAXLAYERS=10;
+	int lRows[MAXLAYERS];
+	int lCols[MAXLAYERS];
 	int MMAPSIZE=1024*1024*1024;	//this must be >= file size.
 	assert(fd>=0);
 	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
@@ -59,19 +61,23 @@ Net *IDX::loadNetwork(const char *filename,const double &gamma,const double &lam
 	while(verifiedHeader(idx2Header)){
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
+		lRows[layers]=rows;
+		lCols[layers]=cols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
 		assert(offset<MMAPSIZE);
 		ptr=(int8_t *)mem+offset;
 		idx2Header=(struct idx2 *)ptr;
 		layers++;
 	}
+	assert(layers<=MAXLAYERS);
 	int noutputs=idx2Header->nCols;
 	net=new SingleHidden(ninputs,hidden,noutputs,gamma,lambda_decay,scale_factor);
 	idx2Header=(struct idx2 *)mem;
 	offset=0;
 	for(int i=0;i<layers;i++){
-		mat=loadIDXEntry(idx2Header);
-		net->insertLayer(i,*mat,gamma,lambda_decay);
+		Matrix<double> mat(lRows[i],lCols[i]);
+		loadIDXEntry(mat,idx2Header);
+		net->insertLayer(i,mat,gamma,lambda_decay);
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
@@ -90,7 +96,9 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	int fd=open(filename,O_RDONLY);
 	int8_t *ptr;
 	int rows,cols;
-	Matrix<double> *mat;
+	const int MAXLAYERS=10;
+	int lRows[MAXLAYERS];
+	int lCols[MAXLAYERS];
 	int MMAPSIZE=1024*1024*1024;	//this must be >= file size.
 	assert(fd>=0);
 	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
@@ -102,6 +110,8 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	while(verifiedHeader(idx2Header)){
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
+		lRows[layers]=rows;
+		lCols[layers]=cols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
 		assert(offset<MMAPSIZE);
 		ptr=(int8_t *)mem+offset;
@@ -113,9 +123,10 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	idx2Header=(struct idx2 *)mem;
 	offset=0;
 	for(int i=0;i<layers;i++){
-		mat=loadIDXEntry(idx2Header);
+		Matrix<double> mat(lRows[i],lCols[i]);
+		loadIDXEntry(mat,idx2Header);
 		delete net->L[i];
-		net->insertLayer(i,*mat,gamma,lambda_decay);
+		net->insertLayer(i,mat,gamma,lambda_decay);
 		rows=idx2Header->nRows;
 		cols=idx2Header->nCols;
 		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
@@ -125,19 +136,16 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	close(fd);
 	assert(munmap(mem,MMAPSIZE)==0);
 }
-Matrix<double> *IDX::loadIDXEntry(idx2 *hdr){
+void IDX::loadIDXEntry(Matrix<double> &mat,idx2 *hdr){
 	double *ptr;
 	int rows,cols,matlen;
-	Matrix<double> *mat;
 	rows=hdr->nRows;
 	cols=hdr->nCols;
 	matlen=rows*cols;
-	mat=new Matrix<double>(rows,cols);
 	ptr=(double *)++hdr;
 	for(int i=0;i<matlen;i++){
-		mat->item[i]=*ptr++;
+		mat.item[i]=*ptr++;
 	}
-	return mat;
 }
 void IDX::saveIDXEntry(Matrix<double> &mat,int fd){
 	struct idx2 hdr;
