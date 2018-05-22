@@ -2,7 +2,8 @@
 
 MNISTArray::~MNISTArray(){
 }
-void MNISTArray::print(){
+void MNISTArray::print(int n=0){
+	n=0;
 	IDX::displayImage(item);
 }
 MNISTArray::MNISTArray(uint8_t *pixels,int n):Array<double>(n){

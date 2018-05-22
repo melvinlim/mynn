@@ -12,7 +12,7 @@ class MNISTArray:public Array<double>{
 public:
 	MNISTArray(uint8_t *,int);
 	~MNISTArray();
-	void print();
+	void print(int);
 };
 
 class MNISTData:public Data{

@@ -14,6 +14,20 @@ public:
 		nElements=n;
 		item=new T[nElements]();
 	}
+	Array(const T *x,const T *y,const int xn,const int yn){
+		int i;
+		nElements=xn+yn;
+		item=new T[nElements];
+		int p=0;
+		if(x){
+			for(i=0;i<xn;i++){
+				item[p++]=x[i];
+			}
+			for(i=0;i<yn;i++){
+				item[p++]=y[i];
+			}
+		}
+	}
 	Array(const T *x,const int n){
 		int i;
 		nElements=n;
@@ -28,11 +42,24 @@ public:
 		if(item)
 			delete[] item;
 	}
-	virtual void print(){
+	virtual void print(int rowSize=0) const{
 		int i;
 		T *x;
 		x=item;
+		if(rowSize==0)	rowSize=nElements;
 		for(i=0;i<nElements;i++){
+			printf("[%3i] %+.02f\t",i,*x++);
+			if(i%rowSize==0)	printf("\n");
+		}
+		printf("\n");
+	}
+	virtual void print(int rowSize=0){
+		int i;
+		T *x;
+		x=item;
+		if(rowSize==0)	rowSize=nElements;
+		for(i=0;i<nElements;i++){
+			if(i%rowSize==0)	printf("\n");
 			printf("[%3i] %+.02f\t",i,*x++);
 		}
 		printf("\n");
