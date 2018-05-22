@@ -4,7 +4,6 @@
 #include<stdlib.h>
 #include<cstdint>
 #include"array.h"
-#include"defs.h"
 #include"data.h"
 #include"idx.h"
 

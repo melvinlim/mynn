@@ -31,10 +31,10 @@ inline void Net::backward(){
 	L[1]->outputDelta(error);
 	L[0]->hiddenDelta(L[1]->mat,L[1]->delta);
 }
-void Net::randomize(){
+void Net::randomize(double scale_factor){
 	int i;
 	for(i=0;i<n;i++){
-		L[i]->randomize();
+		L[i]->randomize(scale_factor);
 	}
 }
 void Net::print(){
@@ -105,7 +105,7 @@ void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 	updateError(y);
 #endif
 }
-SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma,double lambda_decay):Net(2,outputs){
+SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma,double lambda_decay,double scale_factor):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);
 	int L2M=(hidden+1);
@@ -113,9 +113,9 @@ SingleHidden::SingleHidden(int inputs,int hidden,int outputs,double gamma,double
 	insertLayer(0,L1M,L1N,gamma,lambda_decay);
 	insertLayer(1,L2M,L2N,gamma,lambda_decay);
 	response=&L[n-1]->out;
-	randomize();
+	randomize(scale_factor);
 }
-SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double gamma,double lambda_decay):Net(2,outputs){
+SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double gamma,double lambda_decay,double scale_factor):Net(2,outputs){
 	int L1M=(inputs+1);
 	int L1N=(hidden);
 	int L2M=(hidden+1);
@@ -123,5 +123,5 @@ SingleHiddenLinear::SingleHiddenLinear(int inputs,int hidden,int outputs,double 
 	insertLayer(0,L1M,L1N,gamma,lambda_decay);
 	L[1]=new LinearLayer(L2M,L2N,gamma,lambda_decay);
 	response=&L[n-1]->out;
-	randomize();
+	randomize(scale_factor);
 }

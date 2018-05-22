@@ -92,8 +92,8 @@ void Layer::directUpdateWeights(const Array<double> &input){
 		mat.item[i*nCols+j]+=gamma*(delta.item[j]-lambda_decay*mat.item[i*nCols+j]);
 	}
 }
-void Layer::randomize(){
-	mat.randomize(RANDSCALING);
+void Layer::randomize(double scale_factor){
+	mat.randomize(scale_factor);
 }
 Array<double> &LinearLayer::forward(const Array<double> &x){
 	int i,j;

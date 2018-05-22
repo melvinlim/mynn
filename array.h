@@ -3,7 +3,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<cstdint>
-#include"defs.h"
 
 template<typename T>
 class Array{
@@ -64,10 +63,10 @@ public:
 		}
 		printf("\n");
 	}
-	void randomize(){
+	void randomize(double scale_factor){
 		int i;
 		for(i=0;i<nElements;i++){
-			item[i]=(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)RANDSCALING);
+			item[i]=(random()-(RAND_MAX/2))*2.0/((double)RAND_MAX)/((double)scale_factor);
 		}
 	}
 	T &operator[](int i){

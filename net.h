@@ -1,7 +1,6 @@
 #ifndef _NET_H
 #define _NET_H
 #include<time.h>
-#include"defs.h"
 #include"matrix.h"
 #include"array.h"
 #include"layer.h"
@@ -19,7 +18,7 @@ public:
 	void insertLayer(int,Matrix<double> &,double,double);
 	void forward(const Array<double> *);
 	inline void backward();
-	void randomize();
+	void randomize(double);
 	void print();
 	void gradientDescent(const Array<double> *,const Array<double> *);
 	Array<double> &trainBatch(const Array<double> *,const Array<double> *);
@@ -32,11 +31,11 @@ public:
 
 class SingleHidden:public Net{
 public:
-	SingleHidden(int,int,int,double,double);
+	SingleHidden(int,int,int,double,double,double);
 };
 
 class SingleHiddenLinear:public Net{
 public:
-	SingleHiddenLinear(int,int,int,double,double);
+	SingleHiddenLinear(int,int,int,double,double,double);
 };
 #endif
