@@ -4,14 +4,14 @@
 #include"data.h"
 #include<time.h>
 
-const double ex1[NINPUTS]={-1,-1};
-const double ex2[NINPUTS]={-1,+1};
-const double ex3[NINPUTS]={+1,-1};
-const double ex4[NINPUTS]={+1,+1};
-const double ans1[NOUTPUTS]={-1,+1};
-const double ans2[NOUTPUTS]={+1,-1};
-const double ans3[NOUTPUTS]={+1,-1};
-const double ans4[NOUTPUTS]={-1,+1};
+const double ex1[2]={-1,-1};
+const double ex2[2]={-1,+1};
+const double ex3[2]={+1,-1};
+const double ex4[2]={+1,+1};
+const double ans1[2]={-1,+1};
+const double ans2[2]={+1,-1};
+const double ans3[2]={+1,-1};
+const double ans4[2]={-1,+1};
 
 class XorData:public Data{
 public:
