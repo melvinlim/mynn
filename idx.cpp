@@ -37,57 +37,6 @@ bool IDX::verifiedHeader(struct idx2 *hdr){
 	}
 	return false;
 }
-Net *IDX::loadNetwork(const char *filename,const double &gamma,const double &lambda_decay){
-	double scale_factor=10;	//value unimportant as weights will be overwritten.
-	Net *net;
-	void *mem;
-	int offset;
-	struct idx2 *idx2Header;
-	int layers=0;
-	int fd=open(filename,O_RDONLY);
-	int8_t *ptr;
-	int rows,cols;
-	const int MAXLAYERS=10;
-	int lRows[MAXLAYERS];
-	int lCols[MAXLAYERS];
-	int MMAPSIZE=1024*1024*1024;	//this must be >= file size.
-	assert(fd>=0);
-	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
-	assert(mem!=MAP_FAILED);
-	idx2Header=(struct idx2 *)mem;
-	offset=0;
-	int ninputs=idx2Header->nRows;
-	int hidden=idx2Header->nCols;
-	while(verifiedHeader(idx2Header)){
-		rows=idx2Header->nRows;
-		cols=idx2Header->nCols;
-		lRows[layers]=rows;
-		lCols[layers]=cols;
-		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
-		assert(offset<MMAPSIZE);
-		ptr=(int8_t *)mem+offset;
-		idx2Header=(struct idx2 *)ptr;
-		layers++;
-	}
-	assert(layers<=MAXLAYERS);
-	int noutputs=idx2Header->nCols;
-	net=new SingleHidden(ninputs,hidden,noutputs,gamma,lambda_decay,scale_factor);
-	idx2Header=(struct idx2 *)mem;
-	offset=0;
-	for(int i=0;i<layers;i++){
-		Matrix<double> mat(lRows[i],lCols[i]);
-		loadIDXEntry(mat,idx2Header);
-		net->insertLayer(i,mat,gamma,lambda_decay);
-		rows=idx2Header->nRows;
-		cols=idx2Header->nCols;
-		offset+=sizeof(struct idx2)+(rows*cols*sizeof(double));
-		ptr=(int8_t *)mem+offset;
-		idx2Header=(struct idx2 *)ptr;
-	}
-	close(fd);
-	assert(munmap(mem,MMAPSIZE)==0);
-	return net;
-}
 void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const double &lambda_decay){
 	void *mem;
 	int offset;

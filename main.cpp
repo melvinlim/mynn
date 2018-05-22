@@ -82,7 +82,8 @@ int main(){
 		IDX::loadNetwork(&tmpNet,"test.idx",GAMMA,LAMBDA_DECAY);
 		assert(tmpNet.L[0]->mat==net->L[0]->mat);
 		assert(tmpNet.L[1]->mat==net->L[1]->mat);
-		Net *pTmpNet=IDX::loadNetwork("test.idx",GAMMA,LAMBDA_DECAY);
+		Net *pTmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay,RANDSCALING);
+		IDX::loadNetwork(pTmpNet,"test.idx",GAMMA,LAMBDA_DECAY);
 		assert(pTmpNet->L[0]->mat==net->L[0]->mat);
 		assert(pTmpNet->L[1]->mat==net->L[1]->mat);
 		delete pTmpNet;
