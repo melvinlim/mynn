@@ -81,7 +81,7 @@ Net *IDX::loadNetwork(const char *filename){
 		layers++;
 	}
 	int noutputs=idx2Header->nCols;
-	net=new SingleHidden(ninputs,hidden,noutputs,GAMMA,LAMBDA_DECAY);
+	net=new SingleHidden(ninputs,hidden,noutputs,GAMMA,LAMBDA_DECAY,RANDSCALING);
 	idx2Header=(struct idx2 *)mem;
 	offset=0;
 	for(int i=0;i<layers;i++){

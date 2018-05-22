@@ -27,7 +27,7 @@ public:
 	void saveErrors(const Array<double> &);
 	void updateWeights();
 	void directUpdateWeights(const Array<double> &);
-	void randomize();
+	void randomize(double);
 };
 class LinearLayer:public Layer{
 public:

@@ -36,9 +36,9 @@ int main(){
 	double lambda_decay=LAMBDA_DECAY;
 	for(int network=0;network<4;network++){
 		#ifdef SOLVELINEAR
-			net=new SingleHiddenLinear(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
+			net=new SingleHiddenLinear(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay,RANDSCALING);
 		#else
-			net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
+			net=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay,RANDSCALING);
 		#endif
 		for(i=0;i<EPOCHS;i++){
 			arrays=trainingData.fillIOArrays();
@@ -78,8 +78,8 @@ int main(){
 		printf("avg sse: %f\n",sumSqErr/(double)testingData.nOutputs);
 #ifdef TESTSAVELOAD
 		IDX::saveNetwork(net,"test.idx");
-		//Net tmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
-		SingleHidden tmpNet(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay);
+		//Net tmpNet=new SingleHidden(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay,RANDSCALING);
+		SingleHidden tmpNet(NINPUTS,hidden++,NOUTPUTS,gamma,lambda_decay,RANDSCALING);
 //		IDX::loadNetwork(&tmpNet,"test.idx",gamma,lambda_decay);
 		IDX::loadNetwork(&tmpNet,"test.idx",GAMMA,LAMBDA_DECAY);
 		assert(tmpNet.L[0]->mat==net->L[0]->mat);
