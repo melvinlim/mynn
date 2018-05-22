@@ -2,7 +2,6 @@
 #define _LAYER_H
 #include<assert.h>
 #include<math.h>
-#include"defs.h"
 #include"matrix.h"
 #include"array.h"
 class Layer{

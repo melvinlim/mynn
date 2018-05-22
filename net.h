@@ -1,7 +1,6 @@
 #ifndef _NET_H
 #define _NET_H
 #include<time.h>
-#include"defs.h"
 #include"matrix.h"
 #include"array.h"
 #include"layer.h"
