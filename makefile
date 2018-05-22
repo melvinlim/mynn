@@ -6,19 +6,19 @@ mynn:		$(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS)
 main:			main.cpp types.h defs.h
 	$(CXX) $(CXXFLAGS) main.cpp
-layer:		layer.cpp defs.h
+layer:		layer.cpp
 	$(CXX) $(CXXFLAGS) layer.cpp
-net:			net.cpp defs.h
+net:			net.cpp
 	$(CXX) $(CXXFLAGS) net.cpp
 data:			data.cpp defs.h
 	$(CXX) $(CXXFLAGS) data.cpp
-idx:			idx.cpp defs.h
+idx:			idx.cpp
 	$(CXX) $(CXXFLAGS) idx.cpp
-mnist:		mnist.cpp defs.h
+mnist:		mnist.cpp
 	$(CXX) $(CXXFLAGS) mnist.cpp
-xor:			xor.cpp defs.h
+xor:			xor.cpp
 	$(CXX) $(CXXFLAGS) xor.cpp
-linear:		linear.cpp defs.h
+linear:		linear.cpp
 	$(CXX) $(CXXFLAGS) linear.cpp
 clean:
 	rm -f mynn *.o a.out
