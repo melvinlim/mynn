@@ -2,7 +2,7 @@
 #define _DEFS_H
 
 //#define SOLVEXOR
-//#define SOLVELINEAR
+#define SOLVELINEAR
 #define BATCH
 
 //#define TESTGRAD
