@@ -37,22 +37,6 @@ bool IDX::verifiedHeader(struct idx2 *hdr){
 	}
 	return false;
 }
-Matrix<double> *IDX::loadIDX(const char *filename){
-	void *mem;
-	struct idx2 *idx2Header;
-	Matrix<double> *mat;
-	int fd=open(filename,O_RDONLY);
-	int MMAPSIZE=1024*1024;
-	assert(fd>=0);
-	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
-	assert(mem!=MAP_FAILED);
-	idx2Header=(struct idx2 *)mem;
-	assert(verifiedHeader(idx2Header));
-	mat=loadIDXEntry(idx2Header);
-	close(fd);
-	assert(munmap(mem,MMAPSIZE)==0);
-	return mat;
-}
 Net *IDX::loadNetwork(const char *filename,const double &gamma,const double &lambda_decay){
 	double scale_factor=10;	//value unimportant as weights will be overwritten.
 	Net *net;
