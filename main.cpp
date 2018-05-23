@@ -44,12 +44,10 @@ int main(){
 			arrays=trainingData.fillIOArrays();
 			pIn=arrays[0];
 			pOut=arrays[1];
-#ifdef TESTGRAD
-			net->gradientDescent(pIn,pOut);
-#endif
 #ifdef BATCH
 			net->trainBatch(pIn,pOut);
 #ifdef TESTGRAD
+			net->gradientDescent(pIn,pOut);
 			assert(net->L[0]->dgw==net->L[0]->dw);
 			assert(net->L[1]->dgw==net->L[1]->dw);
 #endif

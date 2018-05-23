@@ -4,6 +4,7 @@
 #include<math.h>
 #include"matrix.h"
 #include"array.h"
+#include"defs.h"
 class Layer{
 public:
 	double gamma;
