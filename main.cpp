@@ -52,10 +52,8 @@ int main(){
 #ifdef TESTGRAD
 			assert(net->L[0]->dgw==net->L[0]->dw);
 			assert(net->L[1]->dgw==net->L[1]->dw);
-			if(true){
-#else
-			if(i%4){
 #endif
+			if(i%BATCHSIZE==0){
 				net->updateWeights();
 			}
 #else

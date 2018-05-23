@@ -81,6 +81,7 @@ void Net::updateError(const Array<double> *yTarget){
 		#endif
 	}
 }
+const double EPSILON=0.0001;
 void Net::gradientDescent(const Array<double> *x,const Array<double> *y){
 #ifdef TESTGRAD
 	double Jp,Jn;
