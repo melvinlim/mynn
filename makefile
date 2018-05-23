@@ -1,8 +1,8 @@
 CXX =				g++
 CXXFLAGS =	-std=c++11 -Wall -Wextra -pedantic -g -c
-LFLAGS =		-std=c++11 -Wall -Wextra -pedantic -g -o mynn
+LFLAGS =		-std=c++11 -Wall -Wextra -pedantic -g -o nnet
 OBJECTS =		main.o layer.o net.o data.o idx.o mnist.o xor.o linear.o
-mynn:		$(OBJECTS)
+nnet:		$(OBJECTS)
 	$(CXX) $(LFLAGS) $(OBJECTS)
 main:			main.cpp types.h defs.h
 	$(CXX) $(CXXFLAGS) main.cpp
@@ -21,4 +21,4 @@ xor:			xor.cpp
 linear:		linear.cpp
 	$(CXX) $(CXXFLAGS) linear.cpp
 clean:
-	rm -f mynn *.o a.out
+	rm -f nnet *.o a.out
