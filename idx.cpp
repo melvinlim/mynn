@@ -37,7 +37,7 @@ bool IDX::verifiedHeader(struct idx2 *hdr){
 	}
 	return false;
 }
-void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const double &lambda_decay){
+bool IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const double &lambda_decay){
 	void *mem;
 	int offset;
 	struct idx2 *idx2Header;
@@ -49,7 +49,10 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	int lRows[MAXLAYERS];
 	int lCols[MAXLAYERS];
 	int MMAPSIZE=1024*1024*1024;	//this must be >= file size.
-	assert(fd>=0);
+	if(fd<0){
+		printf("failed to load file: %s\n",filename);
+		return false;
+	}
 	mem=mmap(0,MMAPSIZE,PROT_READ,MAP_FILE|MAP_SHARED,fd,0);
 	assert(mem!=MAP_FAILED);
 	idx2Header=(struct idx2 *)mem;
@@ -84,6 +87,7 @@ void IDX::loadNetwork(Net *net,const char *filename,const double &gamma,const do
 	}
 	close(fd);
 	assert(munmap(mem,MMAPSIZE)==0);
+	return true;
 }
 void IDX::loadIDXEntry(Matrix<double> &mat,idx2 *hdr){
 	double *ptr;
