@@ -47,8 +47,8 @@ public:
 		x=item;
 		if(rowSize==0)	rowSize=nElements;
 		for(i=0;i<nElements;i++){
-			if(i%rowSize==0)	printf("\n");
 			printf("[%3i] %+.02f\t",i,*x++);
+			if(i%rowSize==0)	printf("\n");
 		}
 		printf("\n");
 	}

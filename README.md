@@ -1,2 +1,2 @@
-# mynn
+# nnet
 simple nn
