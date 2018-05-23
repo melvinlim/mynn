@@ -1,11 +1,11 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-#define SOLVEXOR
-//#define SOLVELINEAR
+//#define SOLVEXOR
+#define SOLVELINEAR
 #define BATCH
 
-#define TESTGRAD
+//#define TESTGRAD
 #define TESTSAVELOAD
 
 #ifdef SOLVEXOR
