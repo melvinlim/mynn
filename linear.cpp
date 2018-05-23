@@ -26,12 +26,12 @@ LinearData::LinearData():Data(){
 void LinearData::status(Array<double> **ioArrays,const Array<double> *response,const Array<double> *error){
 	Array<double> *pIn=ioArrays[0];
 	Array<double> *pOut=ioArrays[1];
-	printf("input:");
+	printf("\ninput:");
 	pIn->print();
-	printf("target:");
+	printf("\ntarget:");
 	pOut->print();
-	printf("response:");
+	printf("\nresponse:");
 	response->print();
-	printf("error:");
+	printf("\nerror:");
 	error->print();
 }
