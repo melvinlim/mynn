@@ -122,6 +122,7 @@ void IDX::saveIDX(Matrix<double> &mat,const char *filename){
 void IDX::saveNetwork(Net *network,const char *filename){
 	int fd=open(filename,O_CREAT|O_TRUNC|O_WRONLY);
 	assert(fd>=0);
+	fchmod(fd,0644);
 	int layers=network->n;
 	for(int i=0;i<layers;i++){
 		saveIDXEntry(network->L[i]->mat,fd);

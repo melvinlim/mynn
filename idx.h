@@ -6,6 +6,7 @@
 #include<fcntl.h>
 #include<unistd.h>
 #include<sys/mman.h>
+#include<sys/stat.h>
 #include"matrix.h"
 #include"net.h"
 #include"string.h"
